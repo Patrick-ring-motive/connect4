@@ -740,7 +740,12 @@
           (x) => +x >= 0 && +x <= 6 && x.match(/\d/),
         );
         console.log("[LLaVA] Response:", text);
-        return parseInt(col);
+        const parsed = parseInt(col);
+        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+          console.warn('[LLaVA] Invalid column', parsed, '- falling back to valid move');
+          return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+        }
+        return parsed;
       };
 
       async function bestEffortFetch(input, init) {
@@ -889,7 +894,12 @@
         console.log("[Gemma] Full response:", fullText);
         const col = [...fullText].findLast((x) => x.match(/[0-6]/));
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-        return parseInt(col);
+        const parsed = parseInt(col);
+        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+          console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
+          return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+        }
+        return parsed;
       };
 
       // ─── Game State ───────────────────────────────────────────────────────────────
