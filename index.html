@@ -668,24 +668,24 @@
       // Build the user message for this turn
       const userMsg = { role: 'user', content: boardState.prompt };
 
-      // If this is the first message, add a system prompt
-      if (gemmaMessages.length === 0) {
-        gemmaMessages.push({
+      // Only send system + current board state (no history)
+      const messages = [
+        {
           role: 'system',
           content: 'You are a Connect 4 AI. Analyze the board and choose the best column (0-6). Think through your reasoning, then end with your chosen column number.'
-        });
-      }
-      gemmaMessages.push(userMsg);
+        },
+        userMsg
+      ];
 
       // Show streaming indicator appended to history
-      const moveNum = Math.ceil(gemmaMessages.filter(m => m.role === 'assistant').length + 1);
+      const moveNum = gemmaMessages.length + 1;
       thoughtPanel.textContent += (thoughtPanel.textContent ? '\n\n' : '') + `── Move ${moveNum} ──\n🧠 Thinking...`;
       thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
 
       const res = await fetch(GEMMA_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: gemmaMessages, stream: true })
+        body: JSON.stringify({ messages, stream: true })
       });
 
       // Find where this turn's output starts in the panel
@@ -739,8 +739,8 @@
         thoughtPanel.textContent = prefix + '🧠 ' + fullText;
       }
 
-      // Add assistant response to history
-      gemmaMessages.push({ role: 'assistant', content: fullText });
+      // Add assistant response to local history for display
+      gemmaMessages.push(fullText);
 
       console.log('[Gemma] Full response:', fullText);
       const col = [...fullText].findLast(x => x.match(/[0-6]/));
