@@ -641,7 +641,7 @@
 
     // LLM player stub — wire your CF endpoint here
     const llmMove = async boardState => {
-       const res = await fetch('https://workers-ai.language-models.workers.dev/', {
+       const res = await fetch('https://llm.connectfour.workers.dev/', {
          method: 'POST',
          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_TOKEN' },
          body: JSON.stringify({ prompt: boardState.prompt })
