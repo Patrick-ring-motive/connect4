@@ -743,7 +743,56 @@
         return parseInt(col);
       };
 
+      async function bestEffortFetch(input, init) {
+        try {
+          // 1. Perform the initial fetch request
+          const originalResponse = await fetch(input, init);
 
+          // If there is no body to read (e.g., 204 No Content, HEAD requests), return as-is
+          if (!originalResponse.body) {
+            return originalResponse;
+          }
+
+          const originalReader = originalResponse.body.getReader();
+
+          // 2. Create a resilient wrapper stream
+          const resilientStream = new ReadableStream({
+            async pull(controller) {
+              try {
+                const { done, value } = await originalReader.read();
+
+                if (done) {
+                  controller.close();
+                } else {
+                  controller.enqueue(value);
+                }
+              } catch (streamError) {
+                // A mid-stream network drop or timeout caught here!
+                console.warn(
+                  "Stream interrupted prematurely. Closing stream gracefully with partial data.",
+                  streamError,
+                );
+
+                // Cleanly close the controller instead of calling controller.error()
+                controller.close();
+              }
+            },
+            cancel(reason) {
+              // Ensure the underlying reader is canceled if the consumer aborts early
+              originalReader.cancel(reason).catch(() => {});
+            },
+          });
+
+          // 3. Return a new Response cloning the original metadata but swapping the body
+          return new Response(resilientStream, {
+            status: originalResponse.status,
+            statusText: originalResponse.statusText,
+            headers: originalResponse.headers,
+          });
+        } catch (initialFetchError) {
+          new Response(String(initialFetchError));
+        }
+      }
       // Gemma — streaming with thought process display (OpenAI-compatible SSE)
       const gemmaMove = async (boardState) => {
         const thoughtPanel = document.getElementById("thought-panel");
@@ -768,7 +817,7 @@
           `── Move ${moveNum} ──\n🧠 Thinking...`;
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
 
-        const res = await fetch(GEMMA_URL, {
+        const res = await bestEffortFetch(GEMMA_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages, stream: true }),
