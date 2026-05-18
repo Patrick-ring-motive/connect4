@@ -646,7 +646,8 @@
          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_TOKEN' },
          body: JSON.stringify({ prompt: boardState.prompt })
        });
-      const { col } = await res.json();
+      const text = await res.text();
+      const col = [...text].findLast(x=>+x);
       console.log('[LLM] Board state payload:', boardState);
       return parseInt(col);
 
