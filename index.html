@@ -638,15 +638,25 @@
         prompt
       };
     };
+url
+    const fetchText = async function (...args){
+      const res = await fetch(...args);
+      const text = await res.text();
+      return text;
+    }
 
-    // LLM player stub — wire your CF endpoint here
-    const llmMove = async boardState => {
-       const res = await fetch('https://llm.connectfour.workers.dev/', {
+    const fetchMove(boardState,url){
+      return fetchText(url, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_TOKEN' },
          body: JSON.stringify({ prompt: boardState.prompt })
        });
-      const text = await res.text();
+    };
+    // LLM player stub — wire your CF endpoint here
+    const llmMove = async boardState => {
+       const text = await Promise.any([
+         fetchMove(boardState,'https://llm.connectfour.workers.dev/'),
+         fetchMove(boardState,'https://llava-15-7b-hf-summary.language-models.workers.dev/')]);
       const col = [...text].findLast(x=>+x);
       console.log('[LLM] Board state payload:', boardState);
       return parseInt(col);
