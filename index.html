@@ -656,7 +656,7 @@
     const llmMove = async boardState => {
        const text = await Promise.any([
          fetchMove(boardState,'https://llm.connectfour.workers.dev/'),
-         fetchMove(boardState,'https://llava-15-7b-hf-summary.language-models.workers.dev/')
+        // fetchMove(boardState,'https://llava-15-7b-hf-summary.language-models.workers.dev/')
        ]);
       const col = [...text].findLast(x=>+x);
       console.log('[LLM] Board state payload:', boardState);
