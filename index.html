@@ -220,8 +220,7 @@
     }
 
     #reset-btn,
-    #start-btn,
-    #suggest-btn {
+    #start-btn {
       background: transparent;
       border: 1px solid var(--btn-border);
       color: #666;
@@ -240,19 +239,26 @@
       color: #aaa;
     }
 
-    #suggest-btn {
-      border-color: #2a2a5a;
-      color: #44448a;
+    #thought-panel {
+      margin-top: 12px;
+      max-width: 440px;
+      width: 100%;
+      min-height: 0;
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 10px;
+      color: #7a7aaa;
+      letter-spacing: 0.05em;
+      line-height: 1.5;
+      padding: 0 8px;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transition: opacity 0.3s;
     }
 
-    #suggest-btn:hover:not(:disabled) {
-      border-color: #6666cc;
-      color: #aaaaff;
-    }
-
-    #suggest-btn:disabled {
-      opacity: 0.35;
-      cursor: default;
+    #thought-panel:empty {
+      display: none;
     }
 
     #move-count {
@@ -341,16 +347,6 @@
         background: #fff;
       }
 
-      #suggest-btn {
-        border-color: #8888cc;
-        color: #5555aa;
-      }
-
-      #suggest-btn:hover:not(:disabled) {
-        border-color: #6666cc;
-        color: #4444aa;
-      }
-
       #reset-btn,
       #start-btn {
         color: #555;
@@ -360,6 +356,10 @@
       #start-btn:hover {
         border-color: #666;
         color: #222;
+      }
+
+      #thought-panel {
+        color: #6666aa;
       }
 
       #history-line {
@@ -383,7 +383,8 @@
         <option value="human">Human</option>
         <option value="greedy">Greedy Bot</option>
         <option value="minimax" selected>Minimax Bot</option>
-        <option value="llm">LLM Bot</option>
+        <option value="llava">LLaVA Bot</option>
+        <option value="gemma">Gemma Bot</option>
       </select>
     </div>
     <div class="player-select-wrap">
@@ -392,7 +393,8 @@
         <option value="human">Human</option>
         <option value="greedy">Greedy Bot</option>
         <option value="minimax" selected>Minimax Bot</option>
-        <option value="llm">LLM Bot</option>
+        <option value="llava">LLaVA Bot</option>
+        <option value="gemma">Gemma Bot</option>
       </select>
     </div>
     <div class="player-select-wrap">
@@ -400,7 +402,8 @@
       <select id="suggest-select">
         <option value="greedy">Greedy Bot</option>
         <option value="minimax" selected>Minimax Bot</option>
-        <option value="llm">LLM Bot</option>
+        <option value="llava">LLaVA Bot</option>
+        <option value="gemma">Gemma Bot</option>
       </select>
     </div>
   </div>
@@ -416,10 +419,10 @@
   <div id="controls">
     <button id="start-btn">Start</button>
     <button id="reset-btn" style="display:none">Reset</button>
-    <button id="suggest-btn" style="display:none">Suggest</button>
     <span id="move-count"></span>
   </div>
 
+  <div id="thought-panel"></div>
   <div id="history-line"></div>
 
   <script>
@@ -639,29 +642,57 @@
       };
     };
 
-    const fetchText = async function (...args){
-      const res = await fetch(...args);
+    const LLAVA_URL = 'https://llava-15-7b-hf-summary.language-models.workers.dev/';
+    const GEMMA_URL = 'https://llm.connectfour.workers.dev/';
+
+    // LLaVA — simple fetch, return column
+    const llavaMove = async boardState => {
+      const res = await fetch(LLAVA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: boardState.prompt })
+      });
       const text = await res.text();
-      return text;
-    }
-
-    const fetchMove = async(boardState,url)=>{
-      return fetchText(url, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_TOKEN' },
-         body: JSON.stringify({ prompt: boardState.prompt })
-       });
-    };
-    // LLM player stub — wire your CF endpoint here
-    const llmMove = async boardState => {
-       const text = await Promise.any([
-         fetchMove(boardState,'https://llm.connectfour.workers.dev/'),
-        // fetchMove(boardState,'https://llava-15-7b-hf-summary.language-models.workers.dev/')
-       ]);
-      const col = [...text].findLast(x=>+x);
-      console.log('[LLM] Board state payload:', boardState);
+      const col = [...text].findLast(x => +x >= 0 && +x <= 6 && x.match(/\d/));
+      console.log('[LLaVA] Response:', text);
       return parseInt(col);
+    };
 
+    // Gemma — streaming with thought process display
+    const gemmaMove = async boardState => {
+      const thoughtPanel = document.getElementById('thought-panel');
+      thoughtPanel.textContent = '🧠 Gemma thinking...';
+
+      const res = await fetch(GEMMA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: boardState.prompt, stream: true })
+      });
+
+      let fullText = '';
+      if (res.body && res.body.getReader) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          fullText += chunk;
+          thoughtPanel.textContent = '🧠 ' + fullText;
+          thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        }
+      } else {
+        fullText = await res.text();
+        thoughtPanel.textContent = '🧠 ' + fullText;
+      }
+
+      console.log('[Gemma] Full response:', fullText);
+      const col = [...fullText].findLast(x => x.match(/[0-6]/));
+      // Fade out thought after a delay
+      setTimeout(() => {
+        thoughtPanel.textContent = '';
+      }, 6000);
+      return parseInt(col);
     };
 
     // ─── Game State ───────────────────────────────────────────────────────────────
@@ -688,7 +719,8 @@
       human: 'Human',
       greedy: 'Greedy Bot',
       minimax: 'Minimax Bot',
-      llm: 'LLM Bot'
+      llava: 'LLaVA Bot',
+      gemma: 'Gemma Bot'
     };
 
     // ─── Render ───────────────────────────────────────────────────────────────────
@@ -712,13 +744,6 @@
       // Start / Reset button visibility
       document.getElementById('start-btn').style.display = started ? 'none' : 'inline-block';
       document.getElementById('reset-btn').style.display = started ? 'inline-block' : 'none';
-
-      // Suggest button: only when human's turn, game running, not already suggesting
-      const showSuggest = started && isHuman && !winner && !state.thinking;
-      const suggestBtn = document.getElementById('suggest-btn');
-      suggestBtn.style.display = showSuggest ? 'inline-block' : 'none';
-      suggestBtn.disabled = suggesting;
-      suggestBtn.textContent = suggesting ? 'Thinking...' : 'Suggest';
 
       // Board
       const boardEl = document.getElementById('board');
@@ -839,6 +864,7 @@
       } = state;
       const result = dropPiece(board, col, current);
       if (!result) return;
+      document.getElementById('thought-panel').textContent = '';
 
       const newHistory = [...moveHistory, {
         col,
@@ -887,7 +913,11 @@
       if (botTimeout) clearTimeout(botTimeout);
       if (state.winner) return;
       const type = getPlayerType(state.current);
-      if (type === 'human') return;
+      if (type === 'human') {
+        // Auto-suggest for human players
+        getSuggestion();
+        return;
+      }
 
       state.thinking = true;
       render();
@@ -913,9 +943,12 @@
         try {
           if (type === 'greedy') col = greedyMove(board, current);
           else if (type === 'minimax') col = minimaxMove(board, current);
-          else if (type === 'llm') {
+          else if (type === 'llava') {
             const s = getBoardState(board, current, lastMove, moveHistory);
-            col = await llmMove(s);
+            col = await llavaMove(s);
+          } else if (type === 'gemma') {
+            const s = getBoardState(board, current, lastMove, moveHistory);
+            col = await gemmaMove(s);
           }
           state.thinking = false;
           applyMove(col);
@@ -934,6 +967,7 @@
     const reset = () => {
       if (botTimeout) clearTimeout(botTimeout);
       fallingCell = null;
+      document.getElementById('thought-panel').textContent = '';
       state = {
         board: emptyBoard(),
         current: RED,
@@ -958,6 +992,7 @@
 
     const getSuggestion = async () => {
       if (state.suggesting || state.winner || !state.started) return;
+      if (getPlayerType(state.current) !== 'human') return;
       const type = getSuggestType();
       if (!type) return;
 
@@ -975,26 +1010,25 @@
         let col;
         if (type === 'greedy') col = greedyMove(board, current);
         else if (type === 'minimax') col = minimaxMove(board, current);
-        else if (type === 'llm') {
+        else if (type === 'llava') {
           const boardState = getBoardState(board, current, lastMove, moveHistory);
-          col = await llmMove(boardState);
+          col = await llavaMove(boardState);
+        } else if (type === 'gemma') {
+          const boardState = getBoardState(board, current, lastMove, moveHistory);
+          col = await gemmaMove(boardState);
         }
-        state.suggesting = false;
-        state.suggestedCol = col;
-        render();
-        // Auto-clear suggestion after 4 seconds
-        setTimeout(() => {
-          if (state.suggestedCol === col) {
-            state.suggestedCol = null;
-            render();
-          }
-        }, 4000);
+        // Only apply if still human's turn (they haven't moved yet)
+        if (getPlayerType(state.current) === 'human' && !state.winner) {
+          state.suggesting = false;
+          state.suggestedCol = col;
+          render();
+        } else {
+          state.suggesting = false;
+        }
       } catch (err) {
         state.suggesting = false;
         state.suggestedCol = null;
         console.error('[Suggest error]', err);
-        document.getElementById('status-bar').innerHTML =
-          `<span style="color:#f55;font-size:10px">⚠ ${err.message}</span>`;
         render();
       }
     };
@@ -1035,7 +1069,6 @@
 
     document.getElementById('start-btn').addEventListener('click', startGame);
     document.getElementById('reset-btn').addEventListener('click', reset);
-    document.getElementById('suggest-btn').addEventListener('click', getSuggestion);
 
     document.getElementById('red-select').addEventListener('change', reset);
     document.getElementById('yellow-select').addEventListener('change', reset);
