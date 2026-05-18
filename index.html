@@ -645,7 +645,7 @@ url
       return text;
     }
 
-    const fetchMove(boardState,url){
+    const fetchMove = async(boardState,url)=>{
       return fetchText(url, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer YOUR_TOKEN' },
@@ -656,7 +656,8 @@ url
     const llmMove = async boardState => {
        const text = await Promise.any([
          fetchMove(boardState,'https://llm.connectfour.workers.dev/'),
-         fetchMove(boardState,'https://llava-15-7b-hf-summary.language-models.workers.dev/')]);
+         fetchMove(boardState,'https://llava-15-7b-hf-summary.language-models.workers.dev/')
+       ]);
       const col = [...text].findLast(x=>+x);
       console.log('[LLM] Board state payload:', boardState);
       return parseInt(col);
