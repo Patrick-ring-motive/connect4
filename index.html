@@ -649,8 +649,12 @@
     const llavaMove = async boardState => {
       const res = await fetch(LLAVA_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: boardState.prompt })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: boardState.prompt
+        })
       });
       const text = await res.text();
       const col = [...text].findLast(x => +x >= 0 && +x <= 6 && x.match(/\d/));
@@ -665,8 +669,13 @@
 
       const res = await fetch(GEMMA_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: boardState.prompt, stream: true })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: boardState.prompt,
+          stream: true
+        })
       });
 
       let fullText = '';
@@ -675,9 +684,14 @@
         const decoder = new TextDecoder();
         let buffer = '';
         while (true) {
-          const { done, value } = await reader.read();
+          const {
+            done,
+            value
+          } = await reader.read();
           if (done) break;
-          buffer += decoder.decode(value, { stream: true });
+          buffer += decoder.decode(value, {
+            stream: true
+          });
           const lines = buffer.split('\n');
           buffer = lines.pop();
           for (const line of lines) {
@@ -686,9 +700,9 @@
             if (trimmed.startsWith('data: ')) {
               try {
                 const json = JSON.parse(trimmed.slice(6));
-                const token = json.choices?.[0]?.delta?.content
-                  || json.choices?.[0]?.text
-                  || json.response || '';
+                const token = json.choices?.[0]?.delta?.content ||
+                  json.choices?.[0]?.text ||
+                  json.response || '';
                 fullText += token;
               } catch (e) {
                 fullText += trimmed.slice(6);
@@ -702,9 +716,9 @@
         if (buffer.trim() && buffer.trim() !== 'data: [DONE]' && buffer.trim().startsWith('data: ')) {
           try {
             const json = JSON.parse(buffer.trim().slice(6));
-            const token = json.choices?.[0]?.delta?.content
-              || json.choices?.[0]?.text
-              || json.response || '';
+            const token = json.choices?.[0]?.delta?.content ||
+              json.choices?.[0]?.text ||
+              json.response || '';
             fullText += token;
           } catch (e) {
             fullText += buffer.trim().slice(6);
