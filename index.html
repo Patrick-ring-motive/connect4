@@ -648,9 +648,8 @@
        });
       const { col } = await res.json();
       console.log('[LLM] Board state payload:', boardState);
-       return parseInt(col);
-      
-     // throw new Error('LLM endpoint not configured');
+      return parseInt(col);
+
     };
 
     // ─── Game State ───────────────────────────────────────────────────────────────
@@ -880,12 +879,17 @@
 
       state.thinking = true;
       render();
-
+      let running;
       botTimeout = setTimeout(async () => {
+        if (!running) {
+          running = true;
+        } else {
+          return;
+        }
         if (state.winner) {
           state.thinking = false;
           render();
-          return;
+          return running = false;
         }
         const {
           board,
@@ -911,7 +915,8 @@
             `<span style="color:#f55;font-size:10px">⚠ ${e.message}</span>`;
           render();
         }
-      }, type === 'llm' ? 0 : 350);
+        running = false;
+      }, 350);
     };
 
     const reset = () => {
