@@ -303,6 +303,68 @@
 
     .disc.suggested {
       animation: suggest-pulse 0.9s ease-in-out infinite;
+      background: var(--suggest-color);
+      border: none;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f0f0f5;
+        --board: #dddde8;
+        --board-border: #b0b0c8;
+        --cell-empty: #ffffff;
+        --cell-empty-border: #c0c0d8;
+        --red: #cc0044;
+        --red-win: #ff2266;
+        --red-glow: #ff2266;
+        --yellow: #cc8800;
+        --yellow-win: #e6a800;
+        --yellow-glow: #e6a800;
+        --text: #222;
+        --text-dim: #666;
+        --text-dimmer: #999;
+        --btn-border: #aaa;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      select {
+        background: #fff;
+        border-color: #aaa;
+        color: #222;
+      }
+
+      select option {
+        background: #fff;
+      }
+
+      #suggest-btn {
+        border-color: #8888cc;
+        color: #5555aa;
+      }
+
+      #suggest-btn:hover:not(:disabled) {
+        border-color: #6666cc;
+        color: #4444aa;
+      }
+
+      #reset-btn,
+      #start-btn {
+        color: #555;
+      }
+
+      #reset-btn:hover,
+      #start-btn:hover {
+        border-color: #666;
+        color: #222;
+      }
+
+      #history-line {
+        color: #999;
+      }
     }
 
   </style>
@@ -754,6 +816,7 @@
 
     // ─── Game Logic ───────────────────────────────────────────────────────────────
     let fallingCell = null; // { row, col } — active fall animation target
+    let animating = false; // block re-renders during fall animation
 
     const applyMove = (col) => {
       const {
@@ -797,9 +860,11 @@
         row: result.row,
         col
       };
+      animating = true;
       render();
       setTimeout(() => {
         fallingCell = null;
+        animating = false;
         render();
       }, durationMs + 50);
     };
@@ -941,13 +1006,13 @@
       const newHover = (col >= 0 && col < COLS) ? col : null;
       if (newHover !== state.hoverCol) {
         state.hoverCol = newHover;
-        render();
+        if (!animating) render();
       }
     });
 
     document.getElementById('board').addEventListener('mouseleave', () => {
       state.hoverCol = null;
-      render();
+      if (!animating) render();
     });
 
     document.getElementById('start-btn').addEventListener('click', startGame);
