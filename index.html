@@ -645,16 +645,15 @@
     const LLAVA_URL = 'https://llava-15-7b-hf-summary.language-models.workers.dev/';
     const GEMMA_URL = 'https://llm.connectfour.workers.dev/';
 
+    // Gemma conversation history (OpenAI-compatible messages format)
+    let gemmaMessages = [];
+
     // LLaVA — simple fetch, return column
     const llavaMove = async boardState => {
       const res = await fetch(LLAVA_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: boardState.prompt
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: boardState.prompt })
       });
       const text = await res.text();
       const col = [...text].findLast(x => +x >= 0 && +x <= 6 && x.match(/\d/));
@@ -665,18 +664,33 @@
     // Gemma — streaming with thought process display (OpenAI-compatible SSE)
     const gemmaMove = async boardState => {
       const thoughtPanel = document.getElementById('thought-panel');
-      thoughtPanel.textContent = '🧠 Gemma thinking...';
+
+      // Build the user message for this turn
+      const userMsg = { role: 'user', content: boardState.prompt };
+
+      // If this is the first message, add a system prompt
+      if (gemmaMessages.length === 0) {
+        gemmaMessages.push({
+          role: 'system',
+          content: 'You are a Connect 4 AI. Analyze the board and choose the best column (0-6). Think through your reasoning, then end with your chosen column number.'
+        });
+      }
+      gemmaMessages.push(userMsg);
+
+      // Show streaming indicator appended to history
+      const moveNum = Math.ceil(gemmaMessages.filter(m => m.role === 'assistant').length + 1);
+      thoughtPanel.textContent += (thoughtPanel.textContent ? '\n\n' : '') + `── Move ${moveNum} ──\n🧠 Thinking...`;
+      thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
 
       const res = await fetch(GEMMA_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: boardState.prompt,
-          stream: true
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: gemmaMessages, stream: true })
       });
+
+      // Find where this turn's output starts in the panel
+      const prefixEnd = thoughtPanel.textContent.lastIndexOf('🧠 Thinking...');
+      const prefix = thoughtPanel.textContent.slice(0, prefixEnd);
 
       let fullText = '';
       if (res.body && res.body.getReader) {
@@ -684,14 +698,9 @@
         const decoder = new TextDecoder();
         let buffer = '';
         while (true) {
-          const {
-            done,
-            value
-          } = await reader.read();
+          const { done, value } = await reader.read();
           if (done) break;
-          buffer += decoder.decode(value, {
-            stream: true
-          });
+          buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
           buffer = lines.pop();
           for (const line of lines) {
@@ -700,38 +709,42 @@
             if (trimmed.startsWith('data: ')) {
               try {
                 const json = JSON.parse(trimmed.slice(6));
-                const token = json.choices?.[0]?.delta?.content ||
-                  json.choices?.[0]?.text ||
-                  json.response || '';
+                const token = json.choices?.[0]?.delta?.content
+                  || json.choices?.[0]?.text
+                  || json.response || '';
                 fullText += token;
               } catch (e) {
                 fullText += trimmed.slice(6);
               }
             }
           }
-          thoughtPanel.textContent = '🧠 ' + fullText;
+          thoughtPanel.textContent = prefix + '🧠 ' + fullText;
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         }
         // Process any remaining buffer
         if (buffer.trim() && buffer.trim() !== 'data: [DONE]' && buffer.trim().startsWith('data: ')) {
           try {
             const json = JSON.parse(buffer.trim().slice(6));
-            const token = json.choices?.[0]?.delta?.content ||
-              json.choices?.[0]?.text ||
-              json.response || '';
+            const token = json.choices?.[0]?.delta?.content
+              || json.choices?.[0]?.text
+              || json.response || '';
             fullText += token;
           } catch (e) {
             fullText += buffer.trim().slice(6);
           }
-          thoughtPanel.textContent = '🧠 ' + fullText;
+          thoughtPanel.textContent = prefix + '🧠 ' + fullText;
         }
       } else {
         fullText = await res.text();
-        thoughtPanel.textContent = '🧠 ' + fullText;
+        thoughtPanel.textContent = prefix + '🧠 ' + fullText;
       }
+
+      // Add assistant response to history
+      gemmaMessages.push({ role: 'assistant', content: fullText });
 
       console.log('[Gemma] Full response:', fullText);
       const col = [...fullText].findLast(x => x.match(/[0-6]/));
+      thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
       return parseInt(col);
     };
 
@@ -1006,6 +1019,7 @@
     const reset = () => {
       if (botTimeout) clearTimeout(botTimeout);
       fallingCell = null;
+      gemmaMessages = [];
       document.getElementById('thought-panel').textContent = '';
       state = {
         board: emptyBoard(),
