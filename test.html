@@ -873,11 +873,18 @@
             if (trimmed.startsWith("data: ")) {
               try {
                 const json = JSON.parse(trimmed.slice(6));
-                const token =
+                let token =
                   json.choices?.[0]?.delta?.content ||
                   json.choices?.[0]?.text ||
                   json.response ||
                   "";
+                let parsed;
+                try{
+                  parsed = JSON.parse(token);
+                }catch{}
+                if(parsed?.choices?.[0]?.delta?.reasoning){
+                  token = parsed?.choices?.[0]?.delta?.reasoning;
+                }
                 fullText += token;
               } catch (e) {
                 fullText += trimmed.slice(6);
