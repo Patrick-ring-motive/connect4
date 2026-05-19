@@ -1,909 +1,1229 @@
 <!doctype html>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Connect 4 — AI Demo</title>
-    <style>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect 4 — AI Demo</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --board: #1a1a2e;
+      --board-border: #2a2a4e;
+      --cell-empty: #0d0d1a;
+      --cell-empty-border: #1e1e3a;
+      --red: #cc0044;
+      --red-win: #ff2266;
+      --red-glow: #ff2266;
+      --yellow: #cc8800;
+      --yellow-win: #ffcc00;
+      --yellow-glow: #ffcc00;
+      --text: #ccc;
+      --text-dim: #555;
+      --text-dimmer: #333;
+      --btn-border: #333;
+      --min-vh: min(100vh, min(100dvh, 100svh));
+      --min-vw: min(100vw, min(100dvw, 100svw));
+    }
+
+    /* FIXED: was "-" */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: var(--min-vh);
+      max-width: var(--min-vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Courier New", monospace;
+      /* fixed quotes */
+      padding: 24px 16px;
+      color: var(--text);
+    }
+
+    #title-label {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    #title {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    #player-config {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .player-select-wrap {
+      text-align: center;
+    }
+
+    .player-select-label {
+      font-size: 10px;
+      color: #666;
+      letter-spacing: 0.2em;
+      margin-bottom: 4px;
+    }
+
+    select {
+      background: #111;
+      border: 1px solid #333;
+      color: var(--text);
+      padding: 4px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+
+    select option {
+      background: #111;
+    }
+
+    #status-bar {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      gap: 8px;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+    }
+
+    #board-wrap {
+      max-width: var(--min-vw);
+      position: relative;
+    }
+
+    #hover-row {
+      display: flex;
+      height: 20px;
+      margin-bottom: 4px;
+    }
+
+    .hover-cell {
+      width: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hover-pip {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+
+    #board {
+      max-width: var(--min-vw);
+      background: var(--board);
+      border: 2px solid var(--board-border);
+      padding: 8px;
+      border-radius: 4px;
+      display: inline-block;
+      cursor: default;
+    }
+
+    .board-row {
+      display: flex;
+    }
+
+    .board-cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disc {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--cell-empty);
+      border: 1px solid var(--cell-empty-border);
+      transition:
+        background 0.1s,
+        box-shadow 0.15s,
+        transform 0.15s;
+    }
+
+    .disc.red {
+      background: var(--red);
+      border: none;
+      box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .disc.yellow {
+      background: var(--yellow);
+      border: none;
+      box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .disc.win-red {
+      background: var(--red-win);
+      box-shadow: 0 0 16px var(--red-glow);
+      border: 2px solid #ff88aa;
+    }
+
+    .disc.win-yellow {
+      background: var(--yellow-win);
+      box-shadow: 0 0 16px var(--yellow-glow);
+      border: 2px solid #ffee88;
+    }
+
+    .disc.falling {
+      animation: fall var(--fall-duration, 0.5s) cubic-bezier(0.33, 0, 0.66, 1.4) forwards;
+    }
+
+    @keyframes fall {
+      from {
+        transform: translateY(var(--fall-from));
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    #col-labels {
+      display: flex;
+      margin-top: 4px;
+    }
+
+    .col-label {
+      width: 60px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-dimmer);
+    }
+
+    #controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #reset-btn,
+    #start-btn {
+      background: transparent;
+      border: 1px solid var(--btn-border);
+      color: #666;
+      padding: 6px 20px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+      transition:
+        border-color 0.15s,
+        color 0.15s;
+    }
+
+    #reset-btn:hover,
+    #start-btn:hover {
+      border-color: #666;
+      color: #aaa;
+    }
+
+    #thought-panel {
+      margin-top: 12px;
+      max-width: 440px;
+      width: 100%;
+      min-height: 0;
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 10px;
+      color: #7a7aaa;
+      letter-spacing: 0.05em;
+      line-height: 1.5;
+      padding: 0 8px;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transition: opacity 0.3s;
+    }
+
+    #thought-panel:empty {
+      display: none;
+    }
+
+    #move-count {
+      font-size: 10px;
+      color: var(--text-dimmer);
+      letter-spacing: 0.1em;
+    }
+
+    #history-line {
+      margin-top: 12px;
+      font-size: 9px;
+      color: #2a2a4a;
+      letter-spacing: 0.1em;
+      text-align: center;
+      max-width: 420px;
+      word-break: break-all;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes suggest-pulse {
+
+      0%,
+      100% {
+        box-shadow:
+          0 0 0 2px var(--suggest-color),
+          0 0 8px var(--suggest-color);
+        opacity: 0.55;
+      }
+
+      50% {
+        box-shadow:
+          0 0 0 3px var(--suggest-color),
+          0 0 20px var(--suggest-color);
+        opacity: 0.85;
+      }
+    }
+
+    .disc.suggested {
+      animation: suggest-pulse 0.9s ease-in-out infinite;
+      background: var(--suggest-color);
+      border: none;
+    }
+
+    @media (prefers-color-scheme: light) {
       :root {
-        --bg: #0a0a0f;
-        --board: #1a1a2e;
-        --board-border: #2a2a4e;
-        --cell-empty: #0d0d1a;
-        --cell-empty-border: #1e1e3a;
+        --bg: #f0f0f5;
+        --board: #dddde8;
+        --board-border: #b0b0c8;
+        --cell-empty: #ffffff;
+        --cell-empty-border: #c0c0d8;
         --red: #cc0044;
         --red-win: #ff2266;
         --red-glow: #ff2266;
         --yellow: #cc8800;
-        --yellow-win: #ffcc00;
-        --yellow-glow: #ffcc00;
-        --text: #ccc;
-        --text-dim: #555;
-        --text-dimmer: #333;
-        --btn-border: #333;
-        --min-vh: min(100vh, min(100dvh, 100svh));
-        --min-vw: min(100vw, min(100dvw, 100svw));
-      }
-
-      /* FIXED: was "-" */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+        --yellow-win: #e6a800;
+        --yellow-glow: #e6a800;
+        --text: #222;
+        --text-dim: #666;
+        --text-dimmer: #999;
+        --btn-border: #aaa;
       }
 
       body {
         background: var(--bg);
-        min-height: var(--min-vh);
-        max-width: var(--min-vw);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-family: "Courier New", monospace;
-        /* fixed quotes */
-        padding: 24px 16px;
         color: var(--text);
-      }
-
-      #title-label {
-        font-size: 11px;
-        letter-spacing: 0.4em;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        margin-bottom: 4px;
-        text-align: center;
-      }
-
-      #title {
-        font-size: 32px;
-        font-weight: 900;
-        letter-spacing: 0.05em;
-        text-align: center;
-        margin-bottom: 24px;
-      }
-
-      #player-config {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .player-select-wrap {
-        text-align: center;
-      }
-
-      .player-select-label {
-        font-size: 10px;
-        color: #666;
-        letter-spacing: 0.2em;
-        margin-bottom: 4px;
       }
 
       select {
-        background: #111;
-        border: 1px solid #333;
-        color: var(--text);
-        padding: 4px 8px;
-        font-size: 12px;
-        font-family: inherit;
-        cursor: pointer;
-        outline: none;
+        background: #fff;
+        border-color: #aaa;
+        color: #222;
       }
 
       select option {
-        background: #111;
-      }
-
-      #status-bar {
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 12px;
-        gap: 8px;
-        font-size: 13px;
-        letter-spacing: 0.1em;
-      }
-
-      #board-wrap {
-        max-width: var(--min-vw);
-        position: relative;
-      }
-
-      #hover-row {
-        display: flex;
-        height: 20px;
-        margin-bottom: 4px;
-      }
-
-      .hover-cell {
-        width: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .hover-pip {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        opacity: 0;
-        transition: opacity 0.1s;
-      }
-
-      #board {
-        max-width: var(--min-vw);
-        background: var(--board);
-        border: 2px solid var(--board-border);
-        padding: 8px;
-        border-radius: 4px;
-        display: inline-block;
-        cursor: default;
-      }
-
-      .board-row {
-        display: flex;
-      }
-
-      .board-cell {
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .disc {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        background: var(--cell-empty);
-        border: 1px solid var(--cell-empty-border);
-        transition:
-          background 0.1s,
-          box-shadow 0.15s,
-          transform 0.15s;
-      }
-
-      .disc.red {
-        background: var(--red);
-        border: none;
-        box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
-      }
-
-      .disc.yellow {
-        background: var(--yellow);
-        border: none;
-        box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
-      }
-
-      .disc.win-red {
-        background: var(--red-win);
-        box-shadow: 0 0 16px var(--red-glow);
-        border: 2px solid #ff88aa;
-      }
-
-      .disc.win-yellow {
-        background: var(--yellow-win);
-        box-shadow: 0 0 16px var(--yellow-glow);
-        border: 2px solid #ffee88;
-      }
-
-      .disc.falling {
-        animation: fall var(--fall-duration, 0.5s)
-          cubic-bezier(0.33, 0, 0.66, 1.4) forwards;
-      }
-
-      @keyframes fall {
-        from {
-          transform: translateY(var(--fall-from));
-        }
-
-        to {
-          transform: translateY(0);
-        }
-      }
-
-      #col-labels {
-        display: flex;
-        margin-top: 4px;
-      }
-
-      .col-label {
-        width: 60px;
-        text-align: center;
-        font-size: 10px;
-        color: var(--text-dimmer);
-      }
-
-      #controls {
-        margin-top: 20px;
-        display: flex;
-        gap: 12px;
-        align-items: center;
+        background: #fff;
       }
 
       #reset-btn,
       #start-btn {
-        background: transparent;
-        border: 1px solid var(--btn-border);
-        color: #666;
-        padding: 6px 20px;
-        font-size: 11px;
-        letter-spacing: 0.2em;
-        cursor: pointer;
-        font-family: inherit;
-        text-transform: uppercase;
-        transition:
-          border-color 0.15s,
-          color 0.15s;
+        color: #555;
       }
 
       #reset-btn:hover,
       #start-btn:hover {
         border-color: #666;
-        color: #aaa;
+        color: #222;
       }
 
       #thought-panel {
-        margin-top: 12px;
-        max-width: 440px;
-        width: 100%;
-        min-height: 0;
-        max-height: 120px;
-        overflow-y: auto;
-        font-size: 10px;
-        color: #7a7aaa;
-        letter-spacing: 0.05em;
-        line-height: 1.5;
-        padding: 0 8px;
-        text-align: left;
-        white-space: pre-wrap;
-        word-break: break-word;
-        transition: opacity 0.3s;
-      }
-
-      #thought-panel:empty {
-        display: none;
-      }
-
-      #move-count {
-        font-size: 10px;
-        color: var(--text-dimmer);
-        letter-spacing: 0.1em;
+        color: #6666aa;
       }
 
       #history-line {
-        margin-top: 12px;
-        font-size: 9px;
-        color: #2a2a4a;
-        letter-spacing: 0.1em;
-        text-align: center;
-        max-width: 420px;
-        word-break: break-all;
+        color: #999;
       }
+    }
 
-      @keyframes blink {
-        0%,
-        100% {
-          opacity: 1;
-        }
+  </style>
+</head>
 
-        50% {
-          opacity: 0.2;
-        }
-      }
+<body>
+  <div id="title-label">AI DEMO</div>
+  <div id="title">CONNECT 4</div>
 
-      .blink {
-        animation: blink 1s infinite;
-      }
-
-      @keyframes suggest-pulse {
-        0%,
-        100% {
-          box-shadow:
-            0 0 0 2px var(--suggest-color),
-            0 0 8px var(--suggest-color);
-          opacity: 0.55;
-        }
-
-        50% {
-          box-shadow:
-            0 0 0 3px var(--suggest-color),
-            0 0 20px var(--suggest-color);
-          opacity: 0.85;
-        }
-      }
-
-      .disc.suggested {
-        animation: suggest-pulse 0.9s ease-in-out infinite;
-        background: var(--suggest-color);
-        border: none;
-      }
-
-      @media (prefers-color-scheme: light) {
-        :root {
-          --bg: #f0f0f5;
-          --board: #dddde8;
-          --board-border: #b0b0c8;
-          --cell-empty: #ffffff;
-          --cell-empty-border: #c0c0d8;
-          --red: #cc0044;
-          --red-win: #ff2266;
-          --red-glow: #ff2266;
-          --yellow: #cc8800;
-          --yellow-win: #e6a800;
-          --yellow-glow: #e6a800;
-          --text: #222;
-          --text-dim: #666;
-          --text-dimmer: #999;
-          --btn-border: #aaa;
-        }
-
-        body {
-          background: var(--bg);
-          color: var(--text);
-        }
-
-        select {
-          background: #fff;
-          border-color: #aaa;
-          color: #222;
-        }
-
-        select option {
-          background: #fff;
-        }
-
-        #reset-btn,
-        #start-btn {
-          color: #555;
-        }
-
-        #reset-btn:hover,
-        #start-btn:hover {
-          border-color: #666;
-          color: #222;
-        }
-
-        #thought-panel {
-          color: #6666aa;
-        }
-
-        #history-line {
-          color: #999;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div id="title-label">AI DEMO</div>
-    <div id="title">CONNECT 4</div>
-
-    <div id="player-config">
-      <div class="player-select-wrap">
-        <div class="player-select-label">🔴 RED</div>
-        <select id="red-select">
-          <option value="human" selected>Human</option>
-          <option value="greedy">Greedy Bot</option>
-          <option value="minimax">Minimax Bot</option>
-          <option value="llava">LLaVA Bot</option>
-          <option value="gemma">Gemma Bot</option>
-        </select>
-      </div>
-      <div class="player-select-wrap">
-        <div class="player-select-label">🟡 YELLOW</div>
-        <select id="yellow-select">
-          <option value="human">Human</option>
-          <option value="greedy">Greedy Bot</option>
-          <option value="minimax">Minimax Bot</option>
-          <option value="llava">LLaVA Bot</option>
-          <option value="gemma" selected>Gemma Bot</option>
-        </select>
-      </div>
-      <div class="player-select-wrap">
-        <div class="player-select-label">💡 SUGGEST</div>
-        <select id="suggest-select">
-          <option value="greedy">Greedy Bot</option>
-          <option value="minimax" selected>Minimax Bot</option>
-          <option value="llava">LLaVA Bot</option>
-          <option value="gemma">Gemma Bot</option>
-        </select>
-      </div>
+  <div id="player-config">
+    <div class="player-select-wrap">
+      <div class="player-select-label">🔴 RED</div>
+      <select id="red-select">
+        <option value="human" selected>Human</option>
+        <option value="greedy">Greedy Bot</option>
+        <option value="minimax">Minimax Bot</option>
+        <option value="llava">LLaVA Bot</option>
+        <option value="gemma">Gemma Bot</option>
+      </select>
     </div>
-
-    <div id="status-bar"></div>
-
-    <div id="board-wrap">
-      <div id="hover-row"></div>
-      <div id="board"></div>
-      <div id="col-labels"></div>
+    <div class="player-select-wrap">
+      <div class="player-select-label">🟡 YELLOW</div>
+      <select id="yellow-select">
+        <option value="human">Human</option>
+        <option value="greedy">Greedy Bot</option>
+        <option value="minimax">Minimax Bot</option>
+        <option value="llava">LLaVA Bot</option>
+        <option value="gemma" selected>Gemma Bot</option>
+      </select>
     </div>
-
-    <div id="controls">
-      <button id="start-btn">Start</button>
-      <button id="reset-btn" style="display: none">Reset</button>
-      <span id="move-count"></span>
+    <div class="player-select-wrap">
+      <div class="player-select-label">💡 SUGGEST</div>
+      <select id="suggest-select">
+        <option value="greedy">Greedy Bot</option>
+        <option value="minimax" selected>Minimax Bot</option>
+        <option value="llava">LLaVA Bot</option>
+        <option value="gemma">Gemma Bot</option>
+      </select>
     </div>
+  </div>
 
-    <div id="thought-panel"></div>
-    <div id="history-line"></div>
+  <div id="status-bar"></div>
 
-    <script>
-      // ─── Constants ────────────────────────────────────────────────────────────────
-      const ROWS = 6,
-        COLS = 7;
-      const EMPTY = null,
-        RED = "R",
-        YELLOW = "Y";
-      const MINIMAX_DEPTH = 4;
-      const CENTER_WEIGHTS = [3, 4, 5, 7, 5, 4, 3];
+  <div id="board-wrap">
+    <div id="hover-row"></div>
+    <div id="board"></div>
+    <div id="col-labels"></div>
+  </div>
 
-      // ─── Board Utilities ──────────────────────────────────────────────────────────
-      const emptyBoard = () =>
-        Array.from(
-          {
-            length: ROWS,
-          },
-          () => Array(COLS).fill(EMPTY),
-        );
+  <div id="controls">
+    <button id="start-btn">Start</button>
+    <button id="reset-btn" style="display: none">Reset</button>
+    <span id="move-count"></span>
+  </div>
 
-      const cloneBoard = (board) => board.map((row) => [...row]);
+  <div id="thought-panel"></div>
+  <div id="history-line"></div>
 
-      const dropPiece = (board, col, player) => {
-        const next = cloneBoard(board);
-        for (let row = ROWS - 1; row >= 0; row--) {
-          if (next[row][col] === EMPTY) {
-            next[row][col] = player;
-            return {
-              board: next,
-              row,
-            };
-          }
+  <script>
+    // ─── Constants ────────────────────────────────────────────────────────────────
+    const ROWS = 6,
+      COLS = 7;
+    const EMPTY = null,
+      RED = "R",
+      YELLOW = "Y";
+    const MINIMAX_DEPTH = 4;
+    const CENTER_WEIGHTS = [3, 4, 5, 7, 5, 4, 3];
+
+    // ─── Board Utilities ──────────────────────────────────────────────────────────
+    const emptyBoard = () =>
+      Array.from({
+          length: ROWS,
+        },
+        () => Array(COLS).fill(EMPTY),
+      );
+
+    const cloneBoard = (board) => board.map((row) => [...row]);
+
+    const dropPiece = (board, col, player) => {
+      const next = cloneBoard(board);
+      for (let row = ROWS - 1; row >= 0; row--) {
+        if (next[row][col] === EMPTY) {
+          next[row][col] = player;
+          return {
+            board: next,
+            row,
+          };
         }
-        return null;
+      }
+      return null;
+    };
+
+    const validMoves = (board) =>
+      Array.from({
+          length: COLS,
+        },
+        (_, col) => col,
+      ).filter((col) => board[0][col] === EMPTY);
+
+    const checkWinner = (board) => {
+      const check = (row, col, deltaRow, deltaCol, player) => {
+        for (let i = 0; i < 4; i++) {
+          const nextRow = row + deltaRow * i,
+            nextCol = col + deltaCol * i;
+          if (
+            nextRow < 0 ||
+            nextRow >= ROWS ||
+            nextCol < 0 ||
+            nextCol >= COLS ||
+            board[nextRow][nextCol] !== player
+          )
+            return false;
+        }
+        return true;
       };
-
-      const validMoves = (board) =>
-        Array.from(
-          {
-            length: COLS,
-          },
-          (_, col) => col,
-        ).filter((col) => board[0][col] === EMPTY);
-
-      const checkWinner = (board) => {
-        const check = (row, col, deltaRow, deltaCol, player) => {
-          for (let i = 0; i < 4; i++) {
-            const nextRow = row + deltaRow * i,
-              nextCol = col + deltaCol * i;
-            if (
-              nextRow < 0 ||
-              nextRow >= ROWS ||
-              nextCol < 0 ||
-              nextCol >= COLS ||
-              board[nextRow][nextCol] !== player
-            )
-              return false;
-          }
-          return true;
-        };
-        for (let row = 0; row < ROWS; row++)
-          for (let col = 0; col < COLS; col++)
-            for (const player of [RED, YELLOW])
-              for (const [deltaRow, deltaCol] of [
+      for (let row = 0; row < ROWS; row++)
+        for (let col = 0; col < COLS; col++)
+          for (const player of [RED, YELLOW])
+            for (const [deltaRow, deltaCol] of [
                 [0, 1],
                 [1, 0],
                 [1, 1],
                 [1, -1],
               ])
-                if (check(row, col, deltaRow, deltaCol, player)) return player;
-        return validMoves(board).length === 0 ? "DRAW" : null;
-      };
+              if (check(row, col, deltaRow, deltaCol, player)) return player;
+      return validMoves(board).length === 0 ? "DRAW" : null;
+    };
 
-      const getWinCells = (board) => {
-        const check = (row, col, deltaRow, deltaCol, player) => {
-          const cells = [];
-          for (let i = 0; i < 4; i++) {
-            const nextRow = row + deltaRow * i,
-              nextCol = col + deltaCol * i;
-            if (
-              nextRow < 0 ||
-              nextRow >= ROWS ||
-              nextCol < 0 ||
-              nextCol >= COLS ||
-              board[nextRow][nextCol] !== player
-            )
-              return null;
-            cells.push([nextRow, nextCol]);
-          }
-          return cells;
-        };
-        for (let row = 0; row < ROWS; row++)
-          for (let col = 0; col < COLS; col++)
-            for (const player of [RED, YELLOW])
-              for (const [deltaRow, deltaCol] of [
+    const getWinCells = (board) => {
+      const check = (row, col, deltaRow, deltaCol, player) => {
+        const cells = [];
+        for (let i = 0; i < 4; i++) {
+          const nextRow = row + deltaRow * i,
+            nextCol = col + deltaCol * i;
+          if (
+            nextRow < 0 ||
+            nextRow >= ROWS ||
+            nextCol < 0 ||
+            nextCol >= COLS ||
+            board[nextRow][nextCol] !== player
+          )
+            return null;
+          cells.push([nextRow, nextCol]);
+        }
+        return cells;
+      };
+      for (let row = 0; row < ROWS; row++)
+        for (let col = 0; col < COLS; col++)
+          for (const player of [RED, YELLOW])
+            for (const [deltaRow, deltaCol] of [
                 [0, 1],
                 [1, 0],
                 [1, 1],
                 [1, -1],
               ]) {
-                const cells = check(row, col, deltaRow, deltaCol, player);
-                if (cells) return cells;
-              }
-        return [];
-      };
+              const cells = check(row, col, deltaRow, deltaCol, player);
+              if (cells) return cells;
+            }
+      return [];
+    };
 
-      // ─── Heuristic ────────────────────────────────────────────────────────────────
-      const scoreWindow = (cells, player) => {
-        const opp = player === RED ? YELLOW : RED;
-        const playerCount = cells.filter((cell) => cell === player).length;
-        const emptyCount = cells.filter((cell) => cell === EMPTY).length;
-        const oppCount = cells.filter((cell) => cell === opp).length;
-        if (playerCount === 4) return 1000;
-        if (oppCount === 4) return -1000;
-        if (playerCount === 3 && emptyCount === 1) return 10;
-        if (playerCount === 2 && emptyCount === 2) return 2;
-        if (oppCount === 3 && emptyCount === 1) return -80;
-        if (oppCount === 2 && emptyCount === 2) return -3;
-        return 0;
-      };
+    // ─── Heuristic ────────────────────────────────────────────────────────────────
+    const scoreWindow = (cells, player) => {
+      const opp = player === RED ? YELLOW : RED;
+      const playerCount = cells.filter((cell) => cell === player).length;
+      const emptyCount = cells.filter((cell) => cell === EMPTY).length;
+      const oppCount = cells.filter((cell) => cell === opp).length;
+      if (playerCount === 4) return 1000;
+      if (oppCount === 4) return -1000;
+      if (playerCount === 3 && emptyCount === 1) return 10;
+      if (playerCount === 2 && emptyCount === 2) return 2;
+      if (oppCount === 3 && emptyCount === 1) return -80;
+      if (oppCount === 2 && emptyCount === 2) return -3;
+      return 0;
+    };
 
-      const heuristicScore = (board, player) => {
-        let score = 0;
-        for (let r = 0; r < ROWS; r++)
-          for (let c = 0; c < COLS; c++)
-            if (board[r][c] === player) score += CENTER_WEIGHTS[c];
-        for (let r = 0; r < ROWS; r++)
-          for (let c = 0; c <= COLS - 4; c++)
-            score += scoreWindow(
-              [board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]],
-              player,
-            );
+    const heuristicScore = (board, player) => {
+      let score = 0;
+      for (let r = 0; r < ROWS; r++)
         for (let c = 0; c < COLS; c++)
-          for (let r = 0; r <= ROWS - 4; r++)
-            score += scoreWindow(
-              [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]],
-              player,
-            );
+          if (board[r][c] === player) score += CENTER_WEIGHTS[c];
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c <= COLS - 4; c++)
+          score += scoreWindow(
+            [board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]],
+            player,
+          );
+      for (let c = 0; c < COLS; c++)
         for (let r = 0; r <= ROWS - 4; r++)
-          for (let c = 0; c <= COLS - 4; c++)
-            score += scoreWindow(
-              [
-                board[r][c],
-                board[r + 1][c + 1],
-                board[r + 2][c + 2],
-                board[r + 3][c + 3],
-              ],
-              player,
-            );
-        for (let r = 3; r < ROWS; r++)
-          for (let c = 0; c <= COLS - 4; c++)
-            score += scoreWindow(
-              [
-                board[r][c],
-                board[r - 1][c + 1],
-                board[r - 2][c + 2],
-                board[r - 3][c + 3],
-              ],
-              player,
-            );
-        return score;
-      };
+          score += scoreWindow(
+            [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]],
+            player,
+          );
+      for (let r = 0; r <= ROWS - 4; r++)
+        for (let c = 0; c <= COLS - 4; c++)
+          score += scoreWindow(
+            [
+              board[r][c],
+              board[r + 1][c + 1],
+              board[r + 2][c + 2],
+              board[r + 3][c + 3],
+            ],
+            player,
+          );
+      for (let r = 3; r < ROWS; r++)
+        for (let c = 0; c <= COLS - 4; c++)
+          score += scoreWindow(
+            [
+              board[r][c],
+              board[r - 1][c + 1],
+              board[r - 2][c + 2],
+              board[r - 3][c + 3],
+            ],
+            player,
+          );
+      return score;
+    };
 
-      // ─── Bots ─────────────────────────────────────────────────────────────────────
-      const greedyMove = (board, player) => {
-        const moves = validMoves(board);
-        let bestScore = -Infinity,
-          bestCol = moves[0];
+    // ─── Bots ─────────────────────────────────────────────────────────────────────
+    const greedyMove = (board, player) => {
+      const moves = validMoves(board);
+      let bestScore = -Infinity,
+        bestCol = moves[0];
+      for (const col of moves) {
+        const result = dropPiece(board, col, player);
+        if (!result) continue;
+        const winner = checkWinner(result.board);
+        if (winner === player) return col;
+        const score = heuristicScore(result.board, player);
+        if (score > bestScore) {
+          bestScore = score;
+          bestCol = col;
+        }
+      }
+      return bestCol;
+    };
+
+    const minimax = (board, depth, alpha, beta, maximizing, player) => {
+      const opp = player === RED ? YELLOW : RED;
+      const winner = checkWinner(board);
+      if (winner === player)
+        return {
+          score: 10000 + depth,
+        };
+      if (winner === opp)
+        return {
+          score: -10000 - depth,
+        };
+      if (winner === "DRAW" || depth === 0)
+        return {
+          score: heuristicScore(board, player),
+        };
+      const moves = validMoves(board);
+      let bestCol = moves[0];
+      if (maximizing) {
+        let best = -Infinity;
         for (const col of moves) {
           const result = dropPiece(board, col, player);
           if (!result) continue;
-          const winner = checkWinner(result.board);
-          if (winner === player) return col;
-          const score = heuristicScore(result.board, player);
-          if (score > bestScore) {
-            bestScore = score;
+          const {
+            score
+          } = minimax(
+            result.board,
+            depth - 1,
+            alpha,
+            beta,
+            false,
+            player,
+          );
+          if (score > best) {
+            best = score;
             bestCol = col;
           }
+          alpha = Math.max(alpha, score);
+          if (alpha >= beta) break;
         }
-        return bestCol;
-      };
-
-      const minimax = (board, depth, alpha, beta, maximizing, player) => {
-        const opp = player === RED ? YELLOW : RED;
-        const winner = checkWinner(board);
-        if (winner === player)
-          return {
-            score: 10000 + depth,
-          };
-        if (winner === opp)
-          return {
-            score: -10000 - depth,
-          };
-        if (winner === "DRAW" || depth === 0)
-          return {
-            score: heuristicScore(board, player),
-          };
-        const moves = validMoves(board);
-        let bestCol = moves[0];
-        if (maximizing) {
-          let best = -Infinity;
-          for (const col of moves) {
-            const result = dropPiece(board, col, player);
-            if (!result) continue;
-            const { score } = minimax(
-              result.board,
-              depth - 1,
-              alpha,
-              beta,
-              false,
-              player,
-            );
-            if (score > best) {
-              best = score;
-              bestCol = col;
-            }
-            alpha = Math.max(alpha, score);
-            if (alpha >= beta) break;
-          }
-          return {
-            score: best,
-            col: bestCol,
-          };
-        } else {
-          let best = Infinity;
-          for (const col of moves) {
-            const result = dropPiece(board, col, opp);
-            if (!result) continue;
-            const { score } = minimax(
-              result.board,
-              depth - 1,
-              alpha,
-              beta,
-              true,
-              player,
-            );
-            if (score < best) {
-              best = score;
-              bestCol = col;
-            }
-            beta = Math.min(beta, score);
-            if (alpha >= beta) break;
-          }
-          return {
-            score: best,
-            col: bestCol,
-          };
-        }
-      };
-
-      const minimaxMove = (board, player) =>
-        minimax(board, MINIMAX_DEPTH, -Infinity, Infinity, true, player).col;
-
-      // ─── Board Serialization (LLM hook) ──────────────────────────────────────────
-      const getBoardState = (board, currentPlayer, lastMove, moveHistory) => {
-        const colLabels = "0123456";
-        const rowLabels = ["5", "4", "3", "2", "1", "0"];
-        const header = "  " + colLabels.split("").join(" ");
-        const grid = board
-          .map(
-            (row, rowIndex) =>
-              rowLabels[rowIndex] +
-              " " +
-              row.map((cell) => (cell === EMPTY ? "." : cell)).join(" "),
-          )
-          .join("\n");
-        const formatted = `${header}\n${grid}`;
-        const moves = validMoves(board);
-        const prompt = `Connect 4 board state:\n${formatted}\n\nCurrent turn: ${currentPlayer}\nValid columns: ${moves.join(", ")}\nLast move: ${lastMove ? `${lastMove.player} played column ${lastMove.col}` : "None"}\n\nLegend: R=Red, Y=Yellow, .=Empty\nRows 0-5 (0=bottom), Columns 0-6\n\nYou are playing as ${currentPlayer}. Choose the best column.\nRespond with a single integer (0-6). No explanation.`;
         return {
-          board,
-          currentPlayer,
-          validMoves: moves,
-          lastMove,
-          moveHistory,
-          grid: formatted,
-          prompt,
+          score: best,
+          col: bestCol,
         };
-      };
-
-      const LLAVA_URL =
-        "https://llava-15-7b-hf-summary.language-models.workers.dev/";
-      const GEMMA_URL = "https://llm.connectfour.workers.dev/";
-
-      // Gemma conversation history (OpenAI-compatible messages format)
-      let gemmaMessages = [];
-
-      const fetchText = async (url, options) => {
-        try {
-          const res = await fetch(url, options);
-          return await res.text();
-        } catch (e) {
-          return String(e);
-        }
-      };
-
-      // LLaVA — simple fetch, return column
-      const llavaMove = async (boardState) => {
-        const text = await fetchText(LLAVA_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: boardState.prompt }),
-        });
-        const col = [...text].findLast(
-          (x) => +x >= 0 && +x <= 6 && x.match(/\d/),
-        );
-        console.log("[LLaVA] Response:", text);
-        const parsed = parseInt(col);
-        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          console.warn('[LLaVA] Invalid column', parsed, '- falling back to valid move');
-          return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-        }
-        return parsed;
-      };
-
-      async function bestEffortFetch(input, init) {
-        try {
-          // 1. Perform the initial fetch request
-          const originalResponse = await fetch(input, init);
-
-          // If there is no body to read (e.g., 204 No Content, HEAD requests), return as-is
-          if (!originalResponse.body) {
-            return originalResponse;
+      } else {
+        let best = Infinity;
+        for (const col of moves) {
+          const result = dropPiece(board, col, opp);
+          if (!result) continue;
+          const {
+            score
+          } = minimax(
+            result.board,
+            depth - 1,
+            alpha,
+            beta,
+            true,
+            player,
+          );
+          if (score < best) {
+            best = score;
+            bestCol = col;
           }
-
-          const originalReader = originalResponse.body.getReader();
-
-          // 2. Create a resilient wrapper stream
-          const resilientStream = new ReadableStream({
-            async pull(controller) {
-              try {
-                const { done, value } = await originalReader.read();
-
-                if (done) {
-                  controller.close();
-                } else {
-                  controller.enqueue(value);
-                }
-              } catch (streamError) {
-                // A mid-stream network drop or timeout caught here!
-                console.warn(
-                  "Stream interrupted prematurely. Closing stream gracefully with partial data.",
-                  streamError,
-                );
-
-                // Cleanly close the controller instead of calling controller.error()
-                controller.close();
-              }
-            },
-            cancel(reason) {
-              // Ensure the underlying reader is canceled if the consumer aborts early
-              originalReader.cancel(reason).catch(() => {});
-            },
-          });
-
-          // 3. Return a new Response cloning the original metadata but swapping the body
-          return new Response(resilientStream, {
-            status: originalResponse.status,
-            statusText: originalResponse.statusText,
-            headers: originalResponse.headers,
-          });
-        } catch (initialFetchError) {
-          new Response(String(initialFetchError));
+          beta = Math.min(beta, score);
+          if (alpha >= beta) break;
         }
+        return {
+          score: best,
+          col: bestCol,
+        };
       }
-      // Gemma — streaming with thought process display (OpenAI-compatible SSE)
-      const gemmaMove = async (boardState) => {
-        const thoughtPanel = document.getElementById("thought-panel");
+    };
 
-        // Build the user message for this turn
-        const userMsg = { role: "user", content: boardState.prompt };
+    const minimaxMove = (board, player) =>
+      minimax(board, MINIMAX_DEPTH, -Infinity, Infinity, true, player).col;
 
-        // Only send system + current board state (no history)
-        const messages = [
-          {
-            role: "system",
-            content:
-              "You are a Connect 4 AI. Analyze the board and choose the best column (0-6). Think through your reasoning, then end with your chosen column number.",
+    // ─── Board Serialization (LLM hook) ──────────────────────────────────────────
+    const getBoardState = (board, currentPlayer, lastMove, moveHistory) => {
+      const colLabels = "0123456";
+      const rowLabels = ["5", "4", "3", "2", "1", "0"];
+      const header = "  " + colLabels.split("").join(" ");
+      const grid = board
+        .map(
+          (row, rowIndex) =>
+          rowLabels[rowIndex] +
+          " " +
+          row.map((cell) => (cell === EMPTY ? "." : cell)).join(" "),
+        )
+        .join("\n");
+      const formatted = `${header}\n${grid}`;
+      const moves = validMoves(board);
+      const prompt = `Connect 4 board state:\n${formatted}\n\nCurrent turn: ${currentPlayer}\nValid columns: ${moves.join(", ")}\nLast move: ${lastMove ? `${lastMove.player} played column ${lastMove.col}` : "None"}\n\nLegend: R=Red, Y=Yellow, .=Empty\nRows 0-5 (0=bottom), Columns 0-6\n\nYou are playing as ${currentPlayer}. Choose the best column.\nRespond with a single integer (0-6). No explanation.`;
+      return {
+        board,
+        currentPlayer,
+        validMoves: moves,
+        lastMove,
+        moveHistory,
+        grid: formatted,
+        prompt,
+      };
+    };
+
+    const LLAVA_URL =
+      "https://llava-15-7b-hf-summary.language-models.workers.dev/";
+    const GEMMA_URL = "https://llm.connectfour.workers.dev/";
+
+    // Gemma conversation history (OpenAI-compatible messages format)
+    let gemmaMessages = [];
+
+    const fetchText = async (url, options) => {
+      try {
+        const res = await fetch(url, options);
+        return await res.text();
+      } catch (e) {
+        return String(e);
+      }
+    };
+
+    // LLaVA — simple fetch, return column
+    const llavaMove = async (boardState) => {
+      const text = await fetchText(LLAVA_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt: boardState.prompt
+        }),
+      });
+      const col = [...text].findLast(
+        (x) => +x >= 0 && +x <= 6 && x.match(/\d/),
+      );
+      console.log("[LLaVA] Response:", text);
+      const parsed = parseInt(col);
+      if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+        console.warn('[LLaVA] Invalid column', parsed, '- falling back to valid move');
+        return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+      }
+      return parsed;
+    };
+
+    async function bestEffortFetch(input, init) {
+      try {
+        // 1. Perform the initial fetch request
+        const originalResponse = await fetch(input, init);
+
+        // If there is no body to read (e.g., 204 No Content, HEAD requests), return as-is
+        if (!originalResponse.body) {
+          return originalResponse;
+        }
+
+        const originalReader = originalResponse.body.getReader();
+
+        // 2. Create a resilient wrapper stream
+        const resilientStream = new ReadableStream({
+          async pull(controller) {
+            try {
+              const {
+                done,
+                value
+              } = await originalReader.read();
+
+              if (done) {
+                controller.close();
+              } else {
+                controller.enqueue(value);
+              }
+            } catch (streamError) {
+              // A mid-stream network drop or timeout caught here!
+              console.warn(
+                "Stream interrupted prematurely. Closing stream gracefully with partial data.",
+                streamError,
+              );
+
+              // Cleanly close the controller instead of calling controller.error()
+              controller.close();
+            }
           },
-          userMsg,
-        ];
-
-        // Show streaming indicator appended to history
-        const moveNum = gemmaMessages.length + 1;
-        thoughtPanel.textContent +=
-          (thoughtPanel.textContent ? "\n\n" : "") +
-          `── Move ${moveNum} ──\n🧠 Thinking...`;
-        thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-
-        const res = await bestEffortFetch(GEMMA_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, stream: true }),
+          cancel(reason) {
+            // Ensure the underlying reader is canceled if the consumer aborts early
+            originalReader.cancel(reason).catch(() => {});
+          },
         });
 
-        // Find where this turn's output starts in the panel
-        const prefixEnd =
-          thoughtPanel.textContent.lastIndexOf("🧠 Thinking...");
-        const prefix = thoughtPanel.textContent.slice(0, prefixEnd);
+        // 3. Return a new Response cloning the original metadata but swapping the body
+        return new Response(resilientStream, {
+          status: originalResponse.status,
+          statusText: originalResponse.statusText,
+          headers: originalResponse.headers,
+        });
+      } catch (initialFetchError) {
+        new Response(String(initialFetchError));
+      }
+    }
+    // Gemma — streaming with thought process display (OpenAI-compatible SSE)
+    const gemmaMove = async (boardState) => {
+      const thoughtPanel = document.getElementById("thought-panel");
 
-        let fullText = "";
-        if (res.body && res.body.getReader) {
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop();
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed || trimmed === "data: [DONE]") continue;
-              if (trimmed.startsWith("data: ")) {
-                try {
-                  const json = JSON.parse(trimmed.slice(6));
-                  const token =
-                    json.choices?.[0]?.delta?.content ||
-                    json.choices?.[0]?.text ||
-                    json.response ||
-                    "";
-                  fullText += token;
-                } catch (e) {
-                  fullText += trimmed.slice(6);
-                }
+      // Build the user message for this turn
+      const userMsg = {
+        role: "user",
+        content: boardState.prompt
+      };
+
+      // Only send system + current board state (no history)
+      const messages = [{
+          role: "system",
+          content: "You are a Connect 4 AI. Analyze the board and choose the best column (0-6). Think through your reasoning, then end with your chosen column number.",
+        },
+        userMsg,
+      ];
+
+      // Show streaming indicator appended to history
+      const moveNum = gemmaMessages.length + 1;
+      thoughtPanel.textContent +=
+        (thoughtPanel.textContent ? "\n\n" : "") +
+        `── Move ${moveNum} ──\n🧠 Thinking...`;
+      thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+
+      const res = await bestEffortFetch(GEMMA_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages,
+          stream: true
+        }),
+      });
+
+      // Find where this turn's output starts in the panel
+      const prefixEnd =
+        thoughtPanel.textContent.lastIndexOf("🧠 Thinking...");
+      const prefix = thoughtPanel.textContent.slice(0, prefixEnd);
+
+      let fullText = "";
+      if (res.body && res.body.getReader) {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+          const {
+            done,
+            value
+          } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, {
+            stream: true
+          });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed === "data: [DONE]") continue;
+            if (trimmed.startsWith("data: ")) {
+              try {
+                const json = JSON.parse(trimmed.slice(6));
+                const token =
+                  json.choices?.[0]?.delta?.content ||
+                  json.choices?.[0]?.text ||
+                  json.response ||
+                  "";
+                fullText += token;
+              } catch (e) {
+                fullText += trimmed.slice(6);
               }
             }
-            thoughtPanel.textContent = prefix + "🧠 " + fullText;
-            thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           }
-          // Process any remaining buffer
-          if (
-            buffer.trim() &&
-            buffer.trim() !== "data: [DONE]" &&
-            buffer.trim().startsWith("data: ")
-          ) {
-            try {
-              const json = JSON.parse(buffer.trim().slice(6));
-              const token =
-                json.choices?.[0]?.delta?.content ||
-                json.choices?.[0]?.text ||
-                json.response ||
-                "";
-              fullText += token;
-            } catch (e) {
-              fullText += buffer.trim().slice(6);
-            }
-            thoughtPanel.textContent = prefix + "🧠 " + fullText;
+          thoughtPanel.textContent = prefix + "🧠 " + fullText;
+          thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        }
+        // Process any remaining buffer
+        if (
+          buffer.trim() &&
+          buffer.trim() !== "data: [DONE]" &&
+          buffer.trim().startsWith("data: ")
+        ) {
+          try {
+            const json = JSON.parse(buffer.trim().slice(6));
+            const token =
+              json.choices?.[0]?.delta?.content ||
+              json.choices?.[0]?.text ||
+              json.response ||
+              "";
+            fullText += token;
+          } catch (e) {
+            fullText += buffer.trim().slice(6);
           }
-        } else {
-          fullText = await res.text();
           thoughtPanel.textContent = prefix + "🧠 " + fullText;
         }
+      } else {
+        fullText = await res.text();
+        thoughtPanel.textContent = prefix + "🧠 " + fullText;
+      }
 
-        // Add assistant response to local history for display
-        gemmaMessages.push(fullText);
+      // Add assistant response to local history for display
+      gemmaMessages.push(fullText);
 
-        console.log("[Gemma] Full response:", fullText);
-        const col = [...fullText].findLast((x) => x.match(/[0-6]/));
-        thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-        const parsed = parseInt(col);
-        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
-          return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+      console.log("[Gemma] Full response:", fullText);
+      const col = [...fullText].findLast((x) => x.match(/[0-6]/));
+      thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+      const parsed = parseInt(col);
+      if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+        console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
+        return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+      }
+      return parsed;
+    };
+
+    // ─── Game State ───────────────────────────────────────────────────────────────
+    let state = {
+      board: emptyBoard(),
+      current: RED,
+      winner: null,
+      winCells: [],
+      lastMove: null,
+      moveHistory: [],
+      thinking: false,
+      hoverCol: null,
+      started: false,
+      suggesting: false,
+      suggestedCol: null,
+    };
+
+    const getPlayerType = (player) =>
+      player === RED ?
+      document.getElementById("red-select").value :
+      document.getElementById("yellow-select").value;
+
+    const PLAYER_LABELS = {
+      human: "Human",
+      greedy: "Greedy Bot",
+      minimax: "Minimax Bot",
+      llava: "LLaVA Bot",
+      gemma: "Gemma Bot",
+    };
+
+    // ─── Render ───────────────────────────────────────────────────────────────────
+    let dropCell = null; // {row, col} for brief drop flash
+
+    const render = () => {
+      const {
+        board,
+        current,
+        winner,
+        winCells,
+        hoverCol,
+        moveHistory,
+        started,
+        suggesting,
+        suggestedCol,
+      } = state;
+      const isHuman =
+        started && !winner && getPlayerType(current) === "human";
+      const moves = validMoves(board);
+
+      // Start / Reset button visibility
+      document.getElementById("start-btn").style.display = started ?
+        "none" :
+        "inline-block";
+      document.getElementById("reset-btn").style.display = started ?
+        "inline-block" :
+        "none";
+
+      // Board
+      const boardEl = document.getElementById("board");
+      boardEl.innerHTML = "";
+      const CELL_SIZE = 60;
+      const BOARD_PADDING = 8;
+
+      for (let row = 0; row < ROWS; row++) {
+        const rowEl = document.createElement("div");
+        rowEl.className = "board-row";
+        for (let col = 0; col < COLS; col++) {
+          const cellEl = document.createElement("div");
+          cellEl.className = "board-cell";
+          const disc = document.createElement("div");
+          const cellValue = board[row][col];
+          const isWin = winCells.some(
+            ([winRow, winCol]) => winRow === row && winCol === col,
+          );
+
+          let discClass = "disc";
+          if (cellValue === RED) discClass += isWin ? " win-red" : " red";
+          if (cellValue === YELLOW)
+            discClass += isWin ? " win-yellow" : " yellow";
+
+          // Fall animation
+          if (
+            fallingCell &&
+            fallingCell.col === col &&
+            fallingCell.row === row &&
+            cellValue !== EMPTY
+          ) {
+            discClass += " falling";
+            const landingOffsetPx = row * CELL_SIZE + BOARD_PADDING;
+            const fallFromPx = -(landingOffsetPx + 40);
+            const durationMs = 120 + row * 28;
+            disc.style.setProperty("--fall-from", `${fallFromPx}px`);
+            disc.style.setProperty("--fall-duration", `${durationMs}ms`);
+          }
+
+          disc.className = discClass;
+
+          // Suggest highlight: pulse the landing cell in the suggested column
+          if (
+            suggestedCol === col &&
+            cellValue === EMPTY &&
+            (row === ROWS - 1 || board[row + 1][col] !== EMPTY)
+          ) {
+            disc.classList.add("suggested");
+            disc.style.setProperty(
+              "--suggest-color",
+              current === RED ? "#ff2255" : "#ffcc00",
+            );
+          }
+
+          cellEl.appendChild(disc);
+          rowEl.appendChild(cellEl);
         }
-        return parsed;
-      };
+        boardEl.appendChild(rowEl);
+      }
 
-      // ─── Game State ───────────────────────────────────────────────────────────────
-      let state = {
+      // Hover row
+      const hoverRow = document.getElementById("hover-row");
+      hoverRow.innerHTML = "";
+      for (let col = 0; col < COLS; col++) {
+        const hoverCell = document.createElement("div");
+        hoverCell.className = "hover-cell";
+        const pip = document.createElement("div");
+        pip.className = "hover-pip";
+        pip.style.background = current === RED ? "#e05" : "#fa0";
+        pip.style.opacity =
+          hoverCol === col && isHuman && moves.includes(col) ? "0.7" : "0";
+        hoverCell.appendChild(pip);
+        hoverRow.appendChild(hoverCell);
+      }
+
+      boardEl.style.cursor = isHuman ? "pointer" : "default";
+
+      // Col labels
+      const labelsEl = document.getElementById("col-labels");
+      if (!labelsEl.children.length) {
+        for (let col = 0; col < COLS; col++) {
+          const label = document.createElement("div");
+          label.className = "col-label";
+          label.textContent = col;
+          labelsEl.appendChild(label);
+        }
+      }
+
+      // Status
+      const statusEl = document.getElementById("status-bar");
+      if (!started) {
+        statusEl.innerHTML = `<span style="color:var(--text-dim);font-size:11px;letter-spacing:0.2em">CONFIGURE PLAYERS — THEN START</span>`;
+      } else if (state.thinking) {
+        statusEl.innerHTML = `<span style="color:#555;font-size:11px;letter-spacing:0.15em">${PLAYER_LABELS[getPlayerType(current)].toUpperCase()} THINKING<span class="blink">...</span></span>`;
+      } else if (winner) {
+        const color =
+          winner === RED ? "#e05" : winner === YELLOW ? "#fa0" : "#888";
+        const msg =
+          winner === "DRAW" ?
+          "Draw!" :
+          `${winner === RED ? "🔴 Red" : "🟡 Yellow"} wins!`;
+        statusEl.innerHTML = `<span style="color:${color};font-size:15px;font-weight:700;letter-spacing:0.1em">${msg}</span>`;
+      } else if (suggestedCol !== null) {
+        const color = current === RED ? "#e05" : "#fa0";
+        statusEl.innerHTML = `<span style="color:${color};font-size:11px;letter-spacing:0.15em">SUGGESTED: column ${suggestedCol}</span>`;
+      } else {
+        const color = current === RED ? "#e05" : "#fa0";
+        const label = PLAYER_LABELS[getPlayerType(current)].toUpperCase();
+        const extra = isHuman ? " — YOUR TURN" : "";
+        statusEl.innerHTML = `<span style="color:${color};font-size:11px;letter-spacing:0.2em">${current === RED ? "🔴" : "🟡"} ${label}${extra}</span>`;
+      }
+
+      // Move count
+      const moveCountEl = document.getElementById("move-count");
+      moveCountEl.textContent = started ? `${moveHistory.length} moves` : "";
+      if (moveHistory.length > 0) {
+        document.getElementById("history-line").textContent =
+          "HISTORY: " +
+          moveHistory.map((entry) => `${entry.player}${entry.col}`).join(" ");
+      } else {
+        document.getElementById("history-line").textContent = "";
+      }
+    };
+
+    // ─── Game Logic ───────────────────────────────────────────────────────────────
+    let fallingCell = null; // { row, col } — active fall animation target
+    let animating = false; // block re-renders during fall animation
+
+    const applyMove = (col) => {
+      const {
+        board,
+        current,
+        moveHistory,
+        lastMove
+      } = state;
+      const result = dropPiece(board, col, current);
+      if (!result) return;
+
+      const newHistory = [
+        ...moveHistory,
+        {
+          col,
+          player: current,
+          row: result.row,
+        },
+      ];
+      const newLast = {
+        col,
+        player: current,
+        row: result.row,
+      };
+      const winner = checkWinner(result.board);
+
+      state.board = result.board;
+      state.lastMove = newLast;
+      state.moveHistory = newHistory;
+      state.suggestedCol = null;
+      state.suggesting = false;
+
+      if (winner) {
+        state.winner = winner;
+        state.winCells = winner !== "DRAW" ? getWinCells(result.board) : [];
+        state.thinking = false;
+      } else {
+        state.current = current === RED ? YELLOW : RED;
+      }
+
+      // Trigger fall animation then clear it after it completes
+      const durationMs = 120 + result.row * 28;
+      fallingCell = {
+        row: result.row,
+        col,
+      };
+      animating = true;
+      render();
+      setTimeout(() => {
+        fallingCell = null;
+        animating = false;
+        render();
+      }, durationMs + 50);
+    };
+
+    let botTimeout = null;
+
+    const scheduleBotMove = () => {
+      if (botTimeout) clearTimeout(botTimeout);
+      if (state.winner) return;
+      const type = getPlayerType(state.current);
+      if (type === "human") {
+        // Auto-suggest for human players
+        getSuggestion();
+        return;
+      }
+
+      state.thinking = true;
+      render();
+      let running;
+      botTimeout = setTimeout(async () => {
+        if (!running) {
+          running = true;
+        } else {
+          return;
+        }
+        if (state.winner) {
+          state.thinking = false;
+          render();
+          return (running = false);
+        }
+        const {
+          board,
+          current,
+          lastMove,
+          moveHistory
+        } = state;
+        let col;
+        try {
+          if (type === "greedy") col = greedyMove(board, current);
+          else if (type === "minimax") col = minimaxMove(board, current);
+          else if (type === "llava") {
+            const s = getBoardState(board, current, lastMove, moveHistory);
+            col = await llavaMove(s);
+          } else if (type === "gemma") {
+            const s = getBoardState(board, current, lastMove, moveHistory);
+            col = await gemmaMove(s);
+          }
+          state.thinking = false;
+          applyMove(col);
+          if (!state.winner) scheduleBotMove();
+        } catch (e) {
+          state.thinking = false;
+          console.error("[Bot error]", e);
+          document.getElementById("status-bar").innerHTML =
+            `<span style="color:#f55;font-size:10px">⚠ ${e.message}</span>`;
+          render();
+        }
+        running = false;
+      }, 350);
+    };
+
+    const reset = () => {
+      if (botTimeout) clearTimeout(botTimeout);
+      fallingCell = null;
+      gemmaMessages = [];
+      document.getElementById("thought-panel").textContent = "";
+      state = {
         board: emptyBoard(),
         current: RED,
         winner: null,
@@ -916,395 +1236,115 @@
         suggesting: false,
         suggestedCol: null,
       };
-
-      const getPlayerType = (player) =>
-        player === RED
-          ? document.getElementById("red-select").value
-          : document.getElementById("yellow-select").value;
-
-      const PLAYER_LABELS = {
-        human: "Human",
-        greedy: "Greedy Bot",
-        minimax: "Minimax Bot",
-        llava: "LLaVA Bot",
-        gemma: "Gemma Bot",
-      };
-
-      // ─── Render ───────────────────────────────────────────────────────────────────
-      let dropCell = null; // {row, col} for brief drop flash
-
-      const render = () => {
-        const {
-          board,
-          current,
-          winner,
-          winCells,
-          hoverCol,
-          moveHistory,
-          started,
-          suggesting,
-          suggestedCol,
-        } = state;
-        const isHuman =
-          started && !winner && getPlayerType(current) === "human";
-        const moves = validMoves(board);
-
-        // Start / Reset button visibility
-        document.getElementById("start-btn").style.display = started
-          ? "none"
-          : "inline-block";
-        document.getElementById("reset-btn").style.display = started
-          ? "inline-block"
-          : "none";
-
-        // Board
-        const boardEl = document.getElementById("board");
-        boardEl.innerHTML = "";
-        const CELL_SIZE = 60;
-        const BOARD_PADDING = 8;
-
-        for (let row = 0; row < ROWS; row++) {
-          const rowEl = document.createElement("div");
-          rowEl.className = "board-row";
-          for (let col = 0; col < COLS; col++) {
-            const cellEl = document.createElement("div");
-            cellEl.className = "board-cell";
-            const disc = document.createElement("div");
-            const cellValue = board[row][col];
-            const isWin = winCells.some(
-              ([winRow, winCol]) => winRow === row && winCol === col,
-            );
-
-            let discClass = "disc";
-            if (cellValue === RED) discClass += isWin ? " win-red" : " red";
-            if (cellValue === YELLOW)
-              discClass += isWin ? " win-yellow" : " yellow";
-
-            // Fall animation
-            if (
-              fallingCell &&
-              fallingCell.col === col &&
-              fallingCell.row === row &&
-              cellValue !== EMPTY
-            ) {
-              discClass += " falling";
-              const landingOffsetPx = row * CELL_SIZE + BOARD_PADDING;
-              const fallFromPx = -(landingOffsetPx + 40);
-              const durationMs = 120 + row * 28;
-              disc.style.setProperty("--fall-from", `${fallFromPx}px`);
-              disc.style.setProperty("--fall-duration", `${durationMs}ms`);
-            }
-
-            disc.className = discClass;
-
-            // Suggest highlight: pulse the landing cell in the suggested column
-            if (
-              suggestedCol === col &&
-              cellValue === EMPTY &&
-              (row === ROWS - 1 || board[row + 1][col] !== EMPTY)
-            ) {
-              disc.classList.add("suggested");
-              disc.style.setProperty(
-                "--suggest-color",
-                current === RED ? "#ff2255" : "#ffcc00",
-              );
-            }
-
-            cellEl.appendChild(disc);
-            rowEl.appendChild(cellEl);
-          }
-          boardEl.appendChild(rowEl);
-        }
-
-        // Hover row
-        const hoverRow = document.getElementById("hover-row");
-        hoverRow.innerHTML = "";
-        for (let col = 0; col < COLS; col++) {
-          const hoverCell = document.createElement("div");
-          hoverCell.className = "hover-cell";
-          const pip = document.createElement("div");
-          pip.className = "hover-pip";
-          pip.style.background = current === RED ? "#e05" : "#fa0";
-          pip.style.opacity =
-            hoverCol === col && isHuman && moves.includes(col) ? "0.7" : "0";
-          hoverCell.appendChild(pip);
-          hoverRow.appendChild(hoverCell);
-        }
-
-        boardEl.style.cursor = isHuman ? "pointer" : "default";
-
-        // Col labels
-        const labelsEl = document.getElementById("col-labels");
-        if (!labelsEl.children.length) {
-          for (let col = 0; col < COLS; col++) {
-            const label = document.createElement("div");
-            label.className = "col-label";
-            label.textContent = col;
-            labelsEl.appendChild(label);
-          }
-        }
-
-        // Status
-        const statusEl = document.getElementById("status-bar");
-        if (!started) {
-          statusEl.innerHTML = `<span style="color:var(--text-dim);font-size:11px;letter-spacing:0.2em">CONFIGURE PLAYERS — THEN START</span>`;
-        } else if (state.thinking) {
-          statusEl.innerHTML = `<span style="color:#555;font-size:11px;letter-spacing:0.15em">${PLAYER_LABELS[getPlayerType(current)].toUpperCase()} THINKING<span class="blink">...</span></span>`;
-        } else if (winner) {
-          const color =
-            winner === RED ? "#e05" : winner === YELLOW ? "#fa0" : "#888";
-          const msg =
-            winner === "DRAW"
-              ? "Draw!"
-              : `${winner === RED ? "🔴 Red" : "🟡 Yellow"} wins!`;
-          statusEl.innerHTML = `<span style="color:${color};font-size:15px;font-weight:700;letter-spacing:0.1em">${msg}</span>`;
-        } else if (suggestedCol !== null) {
-          const color = current === RED ? "#e05" : "#fa0";
-          statusEl.innerHTML = `<span style="color:${color};font-size:11px;letter-spacing:0.15em">SUGGESTED: column ${suggestedCol}</span>`;
-        } else {
-          const color = current === RED ? "#e05" : "#fa0";
-          const label = PLAYER_LABELS[getPlayerType(current)].toUpperCase();
-          const extra = isHuman ? " — YOUR TURN" : "";
-          statusEl.innerHTML = `<span style="color:${color};font-size:11px;letter-spacing:0.2em">${current === RED ? "🔴" : "🟡"} ${label}${extra}</span>`;
-        }
-
-        // Move count
-        const moveCountEl = document.getElementById("move-count");
-        moveCountEl.textContent = started ? `${moveHistory.length} moves` : "";
-        if (moveHistory.length > 0) {
-          document.getElementById("history-line").textContent =
-            "HISTORY: " +
-            moveHistory.map((entry) => `${entry.player}${entry.col}`).join(" ");
-        } else {
-          document.getElementById("history-line").textContent = "";
-        }
-      };
-
-      // ─── Game Logic ───────────────────────────────────────────────────────────────
-      let fallingCell = null; // { row, col } — active fall animation target
-      let animating = false; // block re-renders during fall animation
-
-      const applyMove = (col) => {
-        const { board, current, moveHistory, lastMove } = state;
-        const result = dropPiece(board, col, current);
-        if (!result) return;
-
-        const newHistory = [
-          ...moveHistory,
-          {
-            col,
-            player: current,
-            row: result.row,
-          },
-        ];
-        const newLast = {
-          col,
-          player: current,
-          row: result.row,
-        };
-        const winner = checkWinner(result.board);
-
-        state.board = result.board;
-        state.lastMove = newLast;
-        state.moveHistory = newHistory;
-        state.suggestedCol = null;
-        state.suggesting = false;
-
-        if (winner) {
-          state.winner = winner;
-          state.winCells = winner !== "DRAW" ? getWinCells(result.board) : [];
-          state.thinking = false;
-        } else {
-          state.current = current === RED ? YELLOW : RED;
-        }
-
-        // Trigger fall animation then clear it after it completes
-        const durationMs = 120 + result.row * 28;
-        fallingCell = {
-          row: result.row,
-          col,
-        };
-        animating = true;
-        render();
-        setTimeout(() => {
-          fallingCell = null;
-          animating = false;
-          render();
-        }, durationMs + 50);
-      };
-
-      let botTimeout = null;
-
-      const scheduleBotMove = () => {
-        if (botTimeout) clearTimeout(botTimeout);
-        if (state.winner) return;
-        const type = getPlayerType(state.current);
-        if (type === "human") {
-          // Auto-suggest for human players
-          getSuggestion();
-          return;
-        }
-
-        state.thinking = true;
-        render();
-        let running;
-        botTimeout = setTimeout(async () => {
-          if (!running) {
-            running = true;
-          } else {
-            return;
-          }
-          if (state.winner) {
-            state.thinking = false;
-            render();
-            return (running = false);
-          }
-          const { board, current, lastMove, moveHistory } = state;
-          let col;
-          try {
-            if (type === "greedy") col = greedyMove(board, current);
-            else if (type === "minimax") col = minimaxMove(board, current);
-            else if (type === "llava") {
-              const s = getBoardState(board, current, lastMove, moveHistory);
-              col = await llavaMove(s);
-            } else if (type === "gemma") {
-              const s = getBoardState(board, current, lastMove, moveHistory);
-              col = await gemmaMove(s);
-            }
-            state.thinking = false;
-            applyMove(col);
-            if (!state.winner) scheduleBotMove();
-          } catch (e) {
-            state.thinking = false;
-            console.error("[Bot error]", e);
-            document.getElementById("status-bar").innerHTML =
-              `<span style="color:#f55;font-size:10px">⚠ ${e.message}</span>`;
-            render();
-          }
-          running = false;
-        }, 350);
-      };
-
-      const reset = () => {
-        if (botTimeout) clearTimeout(botTimeout);
-        fallingCell = null;
-        gemmaMessages = [];
-        document.getElementById("thought-panel").textContent = "";
-        state = {
-          board: emptyBoard(),
-          current: RED,
-          winner: null,
-          winCells: [],
-          lastMove: null,
-          moveHistory: [],
-          thinking: false,
-          hoverCol: null,
-          started: false,
-          suggesting: false,
-          suggestedCol: null,
-        };
-        render();
-      };
-
-      const startGame = () => {
-        state.started = true;
-        render();
-        scheduleBotMove();
-      };
-
-      const getSuggestion = async () => {
-        if (state.suggesting || state.winner || !state.started) return;
-        if (getPlayerType(state.current) !== "human") return;
-        const type = getSuggestType();
-        if (!type) return;
-
-        state.suggesting = true;
-        state.suggestedCol = null;
-        render();
-
-        const { board, current, lastMove, moveHistory } = state;
-        try {
-          let col;
-          if (type === "greedy") col = greedyMove(board, current);
-          else if (type === "minimax") col = minimaxMove(board, current);
-          else if (type === "llava") {
-            const boardState = getBoardState(
-              board,
-              current,
-              lastMove,
-              moveHistory,
-            );
-            col = await llavaMove(boardState);
-          } else if (type === "gemma") {
-            const boardState = getBoardState(
-              board,
-              current,
-              lastMove,
-              moveHistory,
-            );
-            col = await gemmaMove(boardState);
-          }
-          // Only apply if still human's turn (they haven't moved yet)
-          if (getPlayerType(state.current) === "human" && !state.winner) {
-            state.suggesting = false;
-            state.suggestedCol = col;
-            render();
-          } else {
-            state.suggesting = false;
-          }
-        } catch (err) {
-          state.suggesting = false;
-          state.suggestedCol = null;
-          console.error("[Suggest error]", err);
-          render();
-        }
-      };
-
-      // Which bot to use for suggestions — reads the dedicated suggest-select
-      const getSuggestType = () =>
-        document.getElementById("suggest-select").value;
-
-      // ─── Events ───────────────────────────────────────────────────────────────────
-      document.getElementById("board").addEventListener("click", (evt) => {
-        if (!state.started || state.winner || state.thinking) return;
-        if (getPlayerType(state.current) !== "human") return;
-        const boardEl = document.getElementById("board");
-        const rect = boardEl.getBoundingClientRect();
-        const offsetX = evt.clientX - rect.left - 8;
-        const col = Math.floor(offsetX / 60);
-        if (col < 0 || col >= COLS) return;
-        if (!validMoves(state.board).includes(col)) return;
-        applyMove(col);
-        if (!state.winner) scheduleBotMove();
-      });
-
-      document.getElementById("board").addEventListener("mousemove", (evt) => {
-        const boardEl = document.getElementById("board");
-        const rect = boardEl.getBoundingClientRect();
-        const offsetX = evt.clientX - rect.left - 8;
-        const col = Math.floor(offsetX / 60);
-        const newHover = col >= 0 && col < COLS ? col : null;
-        if (newHover !== state.hoverCol) {
-          state.hoverCol = newHover;
-          if (!animating) render();
-        }
-      });
-
-      document.getElementById("board").addEventListener("mouseleave", () => {
-        state.hoverCol = null;
-        if (!animating) render();
-      });
-
-      document.getElementById("start-btn").addEventListener("click", startGame);
-      document.getElementById("reset-btn").addEventListener("click", reset);
-
-      document.getElementById("red-select").addEventListener("change", reset);
-      document
-        .getElementById("yellow-select")
-        .addEventListener("change", reset);
-
-      // ─── Init ─────────────────────────────────────────────────────────────────────
       render();
-    </script>
-  </body>
+    };
+
+    const startGame = () => {
+      state.started = true;
+      render();
+      scheduleBotMove();
+    };
+
+    const getSuggestion = async () => {
+      if (state.suggesting || state.winner || !state.started) return;
+      if (getPlayerType(state.current) !== "human") return;
+      const type = getSuggestType();
+      if (!type) return;
+
+      state.suggesting = true;
+      state.suggestedCol = null;
+      render();
+
+      const {
+        board,
+        current,
+        lastMove,
+        moveHistory
+      } = state;
+      try {
+        let col;
+        if (type === "greedy") col = greedyMove(board, current);
+        else if (type === "minimax") col = minimaxMove(board, current);
+        else if (type === "llava") {
+          const boardState = getBoardState(
+            board,
+            current,
+            lastMove,
+            moveHistory,
+          );
+          col = await llavaMove(boardState);
+        } else if (type === "gemma") {
+          const boardState = getBoardState(
+            board,
+            current,
+            lastMove,
+            moveHistory,
+          );
+          col = await gemmaMove(boardState);
+        }
+        // Only apply if still human's turn (they haven't moved yet)
+        if (getPlayerType(state.current) === "human" && !state.winner) {
+          state.suggesting = false;
+          state.suggestedCol = col;
+          render();
+        } else {
+          state.suggesting = false;
+        }
+      } catch (err) {
+        state.suggesting = false;
+        state.suggestedCol = null;
+        console.error("[Suggest error]", err);
+        render();
+      }
+    };
+
+    // Which bot to use for suggestions — reads the dedicated suggest-select
+    const getSuggestType = () =>
+      document.getElementById("suggest-select").value;
+
+    // ─── Events ───────────────────────────────────────────────────────────────────
+    document.getElementById("board").addEventListener("click", (evt) => {
+      if (!state.started || state.winner || state.thinking) return;
+      if (getPlayerType(state.current) !== "human") return;
+      const boardEl = document.getElementById("board");
+      const rect = boardEl.getBoundingClientRect();
+      const offsetX = evt.clientX - rect.left - 8;
+      const col = Math.floor(offsetX / 60);
+      if (col < 0 || col >= COLS) return;
+      if (!validMoves(state.board).includes(col)) return;
+      applyMove(col);
+      if (!state.winner) scheduleBotMove();
+    });
+
+    document.getElementById("board").addEventListener("mousemove", (evt) => {
+      const boardEl = document.getElementById("board");
+      const rect = boardEl.getBoundingClientRect();
+      const offsetX = evt.clientX - rect.left - 8;
+      const col = Math.floor(offsetX / 60);
+      const newHover = col >= 0 && col < COLS ? col : null;
+      if (newHover !== state.hoverCol) {
+        state.hoverCol = newHover;
+        if (!animating) render();
+      }
+    });
+
+    document.getElementById("board").addEventListener("mouseleave", () => {
+      state.hoverCol = null;
+      if (!animating) render();
+    });
+
+    document.getElementById("start-btn").addEventListener("click", startGame);
+    document.getElementById("reset-btn").addEventListener("click", reset);
+
+    document.getElementById("red-select").addEventListener("change", reset);
+    document
+      .getElementById("yellow-select")
+      .addEventListener("change", reset);
+
+    // ─── Init ─────────────────────────────────────────────────────────────────────
+    render();
+
+  </script>
+</body>
+
 </html>
