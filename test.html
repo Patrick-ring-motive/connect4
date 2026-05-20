@@ -879,13 +879,13 @@
                   json.response ||
                   "";
                 let parsed;
-                try{
+                try {
                   parsed = JSON.parse(token);
-                }catch{}
-                if(parsed?.choices){
-                  if(parsed?.choices?.[0]?.delta?.reasoning){
+                } catch {}
+                if (parsed?.choices) {
+                  if (parsed?.choices?.[0]?.delta?.reasoning) {
                     token = parsed?.choices?.[0]?.delta?.reasoning;
-                  }else{
+                  } else {
                     token = '';
                   }
                 }
