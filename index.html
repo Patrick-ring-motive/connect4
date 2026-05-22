@@ -1355,6 +1355,22 @@
     // ─── Init ─────────────────────────────────────────────────────────────────────
     render();
 
+    document.getElementById("board").addEventListener("touchstart", (evt) => {
+  if (!state.started || state.winner || state.thinking) return;
+  if (getPlayerType(state.current) !== "human") return;
+  evt.preventDefault(); // stops scroll AND synthetic click
+  const touch = evt.touches[0];
+  const boardEl = document.getElementById("board");
+  const rect = boardEl.getBoundingClientRect();
+  const offsetX = touch.clientX - rect.left - 8;
+  const col = Math.floor(offsetX / 60);
+  if (col < 0 || col >= COLS) return;
+  if (!validMoves(state.board).includes(col)) return;
+  applyMove(col);
+  if (!state.winner) scheduleBotMove();
+}, { passive: false }); // passive:false required for preventDefault to work
+
+
   </script>
 </body>
 
