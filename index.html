@@ -932,12 +932,17 @@
       gemmaMessages.push(fullText);
 
       console.log("[Gemma] Full response:", fullText);
-      const col = [...fullText].findLast((x) => x.match(/[0-6]/));
+      let col = [...fullText].findLast((x) => x.match(/[0-6]/));
       thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-      const parsed = parseInt(col);
+      let parsed = parseInt(col);
       if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-        console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
-        return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+        const txt = JSON.stringify([new TextEncoder().encode(fullText)]);
+        col = [...txt].findLast((x) => x.match(/[0-6]/));
+        parsed = parseInt(col);
+        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+          console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
+          return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+        }
       }
       return parsed;
     };
