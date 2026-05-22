@@ -1365,11 +1365,12 @@
   if (!state.started || state.winner || state.thinking) return;
   if (getPlayerType(state.current) !== "human") return;
   evt.preventDefault(); // stops scroll AND synthetic click
-  const touch = evt.touches[0];
+  const wid = document.querySelector('.col-label')?.clientWidth || 60;
+      const touch = evt.touches[0];
   const boardEl = document.getElementById("board");
   const rect = boardEl.getBoundingClientRect();
   const offsetX = touch.clientX - rect.left;
-  const col = Math.floor(offsetX / 60);
+  const col = Math.floor(offsetX / wid);
   if (col < 0 || col >= COLS) return;
   if (!validMoves(state.board).includes(col)) return;
   applyMove(col);
