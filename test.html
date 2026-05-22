@@ -27,7 +27,6 @@
       --min-vw: min(100vw, min(100dvw, 100svw));
     }
 
-    /* FIXED: was "-" */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -43,7 +42,6 @@
       align-items: center;
       justify-content: center;
       font-family: "Courier New", monospace;
-      /* fixed quotes */
       padding: 24px 16px;
       color: var(--text);
     }
@@ -759,17 +757,14 @@
 
     async function bestEffortFetch(input, init) {
       try {
-        // 1. Perform the initial fetch request
         const originalResponse = await fetch(input, init);
 
-        // If there is no body to read (e.g., 204 No Content, HEAD requests), return as-is
         if (!originalResponse.body) {
           return originalResponse;
         }
 
         const originalReader = originalResponse.body.getReader();
 
-        // 2. Create a resilient wrapper stream
         const resilientStream = new ReadableStream({
           async pull(controller) {
             try {
@@ -784,23 +779,18 @@
                 controller.enqueue(value);
               }
             } catch (streamError) {
-              // A mid-stream network drop or timeout caught here!
               console.warn(
                 "Stream interrupted prematurely. Closing stream gracefully with partial data.",
                 streamError,
               );
-
-              // Cleanly close the controller instead of calling controller.error()
               controller.close();
             }
           },
           cancel(reason) {
-            // Ensure the underlying reader is canceled if the consumer aborts early
             originalReader.cancel(reason).catch(() => {});
           },
         });
 
-        // 3. Return a new Response cloning the original metadata but swapping the body
         return new Response(resilientStream, {
           status: originalResponse.status,
           statusText: originalResponse.statusText,
@@ -810,17 +800,16 @@
         new Response(String(initialFetchError));
       }
     }
+
     // Gemma — streaming with thought process display (OpenAI-compatible SSE)
     const gemmaMove = async (boardState) => {
       const thoughtPanel = document.getElementById("thought-panel");
 
-      // Build the user message for this turn
       const userMsg = {
         role: "user",
         content: boardState.prompt
       };
 
-      // Only send system + current board state (no history)
       const messages = [{
           role: "system",
           content: "You are a Connect 4 AI. Analyze the board and choose the best column (0-6). Think through your reasoning, then end with your chosen column number.",
@@ -828,7 +817,6 @@
         userMsg,
       ];
 
-      // Show streaming indicator appended to history
       const moveNum = gemmaMessages.length + 1;
       thoughtPanel.textContent +=
         (thoughtPanel.textContent ? "\n\n" : "") +
@@ -846,7 +834,6 @@
         }),
       });
 
-      // Find where this turn's output starts in the panel
       const prefixEnd =
         thoughtPanel.textContent.lastIndexOf("🧠 Thinking...");
       const prefix = thoughtPanel.textContent.slice(0, prefixEnd);
@@ -898,7 +885,6 @@
           thoughtPanel.textContent = prefix + "🧠 " + fullText;
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         }
-        // Process any remaining buffer
         if (
           buffer.trim() &&
           buffer.trim() !== "data: [DONE]" &&
@@ -922,7 +908,6 @@
         thoughtPanel.textContent = prefix + "🧠 " + fullText;
       }
 
-      // Add assistant response to local history for display
       gemmaMessages.push(fullText);
 
       console.log("[Gemma] Full response:", fullText);
@@ -965,7 +950,7 @@
     };
 
     // ─── Render ───────────────────────────────────────────────────────────────────
-    let dropCell = null; // {row, col} for brief drop flash
+    let dropCell = null;
 
     const render = () => {
       const {
@@ -983,7 +968,6 @@
         started && !winner && getPlayerType(current) === "human";
       const moves = validMoves(board);
 
-      // Start / Reset button visibility
       document.getElementById("start-btn").style.display = started ?
         "none" :
         "inline-block";
@@ -1031,7 +1015,7 @@
 
           disc.className = discClass;
 
-          // Suggest highlight: pulse the landing cell in the suggested column
+          // Suggest highlight
           if (
             suggestedCol === col &&
             cellValue === EMPTY &&
@@ -1046,6 +1030,16 @@
 
           cellEl.appendChild(disc);
           rowEl.appendChild(cellEl);
+
+          // ── Per-cell click handler (works on desktop + mobile) ──
+          const capturedCol = col;
+          cellEl.addEventListener("click", () => {
+            if (!state.started || state.winner || state.thinking) return;
+            if (getPlayerType(state.current) !== "human") return;
+            if (!validMoves(state.board).includes(capturedCol)) return;
+            applyMove(capturedCol);
+            if (!state.winner) scheduleBotMove();
+          });
         }
         boardEl.appendChild(rowEl);
       }
@@ -1115,8 +1109,8 @@
     };
 
     // ─── Game Logic ───────────────────────────────────────────────────────────────
-    let fallingCell = null; // { row, col } — active fall animation target
-    let animating = false; // block re-renders during fall animation
+    let fallingCell = null;
+    let animating = false;
 
     const applyMove = (col) => {
       const {
@@ -1157,7 +1151,6 @@
         state.current = current === RED ? YELLOW : RED;
       }
 
-      // Trigger fall animation then clear it after it completes
       const durationMs = 120 + result.row * 28;
       fallingCell = {
         row: result.row,
@@ -1179,7 +1172,6 @@
       if (state.winner) return;
       const type = getPlayerType(state.current);
       if (type === "human") {
-        // Auto-suggest for human players
         getSuggestion();
         return;
       }
@@ -1277,23 +1269,12 @@
         if (type === "greedy") col = greedyMove(board, current);
         else if (type === "minimax") col = minimaxMove(board, current);
         else if (type === "llava") {
-          const boardState = getBoardState(
-            board,
-            current,
-            lastMove,
-            moveHistory,
-          );
+          const boardState = getBoardState(board, current, lastMove, moveHistory);
           col = await llavaMove(boardState);
         } else if (type === "gemma") {
-          const boardState = getBoardState(
-            board,
-            current,
-            lastMove,
-            moveHistory,
-          );
+          const boardState = getBoardState(board, current, lastMove, moveHistory);
           col = await gemmaMove(boardState);
         }
-        // Only apply if still human's turn (they haven't moved yet)
         if (getPlayerType(state.current) === "human" && !state.winner) {
           state.suggesting = false;
           state.suggestedCol = col;
@@ -1309,24 +1290,10 @@
       }
     };
 
-    // Which bot to use for suggestions — reads the dedicated suggest-select
     const getSuggestType = () =>
       document.getElementById("suggest-select").value;
 
-    // ─── Events ───────────────────────────────────────────────────────────────────
-    document.getElementById("board").addEventListener("click", (evt) => {
-      if (!state.started || state.winner || state.thinking) return;
-      if (getPlayerType(state.current) !== "human") return;
-      const boardEl = document.getElementById("board");
-      const rect = boardEl.getBoundingClientRect();
-      const offsetX = evt.clientX - rect.left - 8;
-      const col = Math.floor(offsetX / 60);
-      if (col < 0 || col >= COLS) return;
-      if (!validMoves(state.board).includes(col)) return;
-      applyMove(col);
-      if (!state.winner) scheduleBotMove();
-    });
-
+    // ─── Hover tracking (mouse only, no coordinate-based clicks) ─────────────────
     document.getElementById("board").addEventListener("mousemove", (evt) => {
       const boardEl = document.getElementById("board");
       const rect = boardEl.getBoundingClientRect();
@@ -1348,9 +1315,7 @@
     document.getElementById("reset-btn").addEventListener("click", reset);
 
     document.getElementById("red-select").addEventListener("change", reset);
-    document
-      .getElementById("yellow-select")
-      .addEventListener("change", reset);
+    document.getElementById("yellow-select").addEventListener("change", reset);
 
     // ─── Init ─────────────────────────────────────────────────────────────────────
     render();
