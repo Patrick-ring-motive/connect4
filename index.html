@@ -941,8 +941,13 @@
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
-          return boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+          parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
+          thoughtPanel.textContent += `\n\nValid move not found, selecting random. Playing ${parsed}.`;
+        }else{
+          thoughtPanel.textContent += `\n\nValid move not found in text.\n\n Valid move found in bytes. Playing ${parsed}.`;
         }
+      }else{
+        thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
       }
       return parsed;
     };
