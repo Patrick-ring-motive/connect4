@@ -33,7 +33,7 @@
       margin: 0;
       padding: 0;
     }
-    
+
     #hover-row {
       max-width: var(--min-vw);
       --border: 1px solid yellow;
@@ -52,7 +52,6 @@
       padding: 24px 16px;
       color: var(--text);
     }
-    
 
     #title-label {
       font-size: 11px;
@@ -943,10 +942,10 @@
           console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
           parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
           thoughtPanel.textContent += `\n\nValid move not found, selecting random. Playing ${parsed}.`;
-        }else{
+        } else {
           thoughtPanel.textContent += `\n\nValid move not found in text.\n\n Valid move found in bytes. Playing ${parsed}.`;
         }
-      }else{
+      } else {
         thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
       }
       thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
@@ -1373,21 +1372,22 @@
     render();
 
     document.getElementById("board").addEventListener("touchstart", (evt) => {
-  if (!state.started || state.winner || state.thinking) return;
-  if (getPlayerType(state.current) !== "human") return;
-  evt.preventDefault(); // stops scroll AND synthetic click
-  const wid = document.querySelector('.col-label')?.clientWidth || 60;
+      if (!state.started || state.winner || state.thinking) return;
+      if (getPlayerType(state.current) !== "human") return;
+      evt.preventDefault(); // stops scroll AND synthetic click
+      const wid = document.querySelector('.col-label')?.clientWidth || 60;
       const touch = evt.touches[0];
-  const boardEl = document.getElementById("board");
-  const rect = boardEl.getBoundingClientRect();
-  const offsetX = touch.clientX - rect.left;
-  const col = Math.floor(offsetX / wid);
-  if (col < 0 || col >= COLS) return;
-  if (!validMoves(state.board).includes(col)) return;
-  applyMove(col);
-  if (!state.winner) scheduleBotMove();
-}, { passive: false }); // passive:false required for preventDefault to work
-
+      const boardEl = document.getElementById("board");
+      const rect = boardEl.getBoundingClientRect();
+      const offsetX = touch.clientX - rect.left;
+      const col = Math.floor(offsetX / wid);
+      if (col < 0 || col >= COLS) return;
+      if (!validMoves(state.board).includes(col)) return;
+      applyMove(col);
+      if (!state.winner) scheduleBotMove();
+    }, {
+      passive: false
+    }); // passive:false required for preventDefault to work
 
   </script>
 </body>
