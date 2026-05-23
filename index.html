@@ -949,6 +949,7 @@
       }else{
         thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
       }
+      thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
       return parsed;
     };
 
