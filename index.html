@@ -813,7 +813,7 @@
           headers: originalResponse.headers,
         });
       } catch (initialFetchError) {
-        new Response(String(initialFetchError));
+        return new Response(String(initialFetchError));
       }
     }
     // Gemma — streaming with thought process display (OpenAI-compatible SSE)
