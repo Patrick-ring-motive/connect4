@@ -857,7 +857,7 @@
         userMsg,
       ];
 
-      const icon = boardState.currentPlayer === RED ? "🧶" : "🧇";
+      const icon = (boardState.currentPlayer === RED ? "🧶" : "🧇") + " [Gemma]";
       // Show streaming indicator appended to history
       const moveNum = gemmaMessages.length + 1;
       thoughtPanel.textContent +=
@@ -968,7 +968,7 @@
           parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
           thoughtPanel.textContent += `\n\nValid move not found, selecting random. Playing ${parsed}.`;
         } else {
-          thoughtPanel.textContent += `\n\nValid move not found in text.\n\n Valid move found in bytes. Playing ${parsed}.`;
+          thoughtPanel.textContent += `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`;
         }
       } else {
         thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
