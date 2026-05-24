@@ -763,14 +763,12 @@
         }),
       });
       const thoughtPanel = document.getElementById("thought-panel");
-      let col = [...text].findLast(
-        (x) => +x >= 0 && +x <= 6 && x.match(/\d/),
-      );
+      let col = [...text].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
       console.log("[LLaVA] Response:", text);
       let parsed = parseInt(col);
       if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
         const txt = stringify([new TextEncoder().encode(text)]);
-        col = [...txt].findLast((x) => x.match(/[0-6]/));
+        col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           console.warn('[LLaVA]  Invalid column', parsed, '- falling back to valid move');
