@@ -441,7 +441,7 @@
 
   <div id="thought-panel"></div>
   <div id="history-line"></div>
-
+<script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
     // ─── Constants ────────────────────────────────────────────────────────────────
     const ROWS = 6,
@@ -1427,7 +1427,6 @@
     document.querySelectorAll('select').forEach(bindSelectToSession);
 
     (async () => {
-      await import('https://patrick-ring-motive.github.io/temp-storage/script.js');
       async function bindSelectToTemp(select) {
         let key = select.id || select.name || select.getAttribute('id');
         if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
