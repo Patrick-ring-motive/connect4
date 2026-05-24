@@ -753,6 +753,8 @@
 
     // LLaVA — simple fetch, return column
     const llavaMove = async (boardState) => {
+      const icon = boardState.currentPlayer === RED ? "🧶" : "🧇";
+     
       const text = await fetchText(LLAVA_URL, {
         method: "POST",
         headers: {
@@ -771,14 +773,14 @@
         col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          console.warn('[LLaVA] Invalid column', parsed, '- falling back to valid move');
+          console.warn(icon+' [LLaVA] Invalid column', parsed, '- falling back to valid move');
           parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-          (thoughtPanel??{}).textContent += `\n\n[LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
+          (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
         } else {
-          (thoughtPanel??{}).textContent += `\n\n[LLaVA] Valid move not found in text.\n\n[LLaVA] Valid move found in bytes. Playing ${parsed}.`;
+          (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n[LLaVA] Valid move found in bytes. Playing ${parsed}.`;
         }
       } else {
-        (thoughtPanel??{}).textContent += `\n\n[LLaVA] Valid move selected. Playing ${parsed}.`;
+        (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`;
       }
       (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
       return parsed;
