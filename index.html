@@ -723,6 +723,18 @@
       };
     };
 
+    const isString = x => typeof x === 'string' || x instanceof String;
+    const stringify = x =>{
+      try{
+        if(isString(x)){
+          return String(x);
+        }
+        return String(JSON.stringify(x));
+      }catch{
+        return String(x);
+      }
+    };
+
     const LLAVA_URL =
       "https://llava-15-7b-hf-summary.language-models.workers.dev/";
     const GEMMA_URL = "https://gemma.connectfour-ai.workers.dev/";
@@ -746,7 +758,7 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
+        body: stringify({
           prompt: boardState.prompt
         }),
       });
@@ -757,7 +769,7 @@
       console.log("[LLaVA] Response:", text);
       let parsed = parseInt(col);
       if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-        const txt = JSON.stringify([new TextEncoder().encode(fullText)]);
+        const txt = stringify([new TextEncoder().encode(text)]);
         col = [...txt].findLast((x) => x.match(/[0-6]/));
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
