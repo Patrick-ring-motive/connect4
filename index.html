@@ -777,7 +777,7 @@
           parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
           (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
         } else {
-          (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n[LLaVA] Valid move found in bytes. Playing ${parsed}.`;
+          (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`;
         }
       } else {
         (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`;
