@@ -855,11 +855,13 @@
         userMsg,
       ];
 
+      
+      const icon = boardState.currentPlayer === RED ? "🧶" : "🧇";
       // Show streaming indicator appended to history
       const moveNum = gemmaMessages.length + 1;
       thoughtPanel.textContent +=
         (thoughtPanel.textContent ? "\n\n" : "") +
-        `── Move ${moveNum} ──\n🧠 Thinking...`;
+        `── Move ${moveNum} ──\n${icon} Thinking...`;
       thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
 
       const res = await bestEffortFetch(GEMMA_URL, {
@@ -875,7 +877,7 @@
 
       // Find where this turn's output starts in the panel
       const prefixEnd =
-        thoughtPanel.textContent.lastIndexOf("🧠 Thinking...");
+        thoughtPanel.textContent.lastIndexOf(icon + " Thinking...");
       const prefix = thoughtPanel.textContent.slice(0, prefixEnd);
 
       let fullText = "";
@@ -922,7 +924,7 @@
               }
             }
           }
-          thoughtPanel.textContent = prefix + "🧠 " + fullText;
+          thoughtPanel.textContent = prefix + icon + " " + fullText;
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         }
         // Process any remaining buffer
@@ -942,11 +944,11 @@
           } catch (e) {
             fullText += buffer.trim().slice(6);
           }
-          thoughtPanel.textContent = prefix + "🧠 " + fullText;
+          thoughtPanel.textContent = prefix + icon + " " + fullText;
         }
       } else {
         fullText = await res.text();
-        thoughtPanel.textContent = prefix + "🧠 " + fullText;
+        thoughtPanel.textContent = prefix + icon + " " + fullText;
       }
 
       // Add assistant response to local history for display
