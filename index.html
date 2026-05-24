@@ -1418,10 +1418,10 @@ function bindSelectToSession(select){
  key = key || select.id || select.name;
  if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
 
- const stored = sessionStorage.getItem(key);
+ const stored = localStorage.getItem(key);
  if (stored !== null) select.value = stored;
 
- select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
+ select.addEventListener('change', () => localStorage.setItem(key, select.value));
 }
 document.querySelectorAll('select').forEach(bindSelectToSession);
   </script>
