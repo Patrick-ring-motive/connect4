@@ -1416,11 +1416,11 @@
     }); // passive:false required for preventDefault to work
 
 function bindSelectToSession(select) {
-  let key = key || select.id || select.name;
+  let key = key || select.id || select.name || select.getAttribute('id');
   if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
 
   const stored = sessionStorage.getItem(key);
-  if (stored !== null) select.value = stored;
+  if (stored != null) select.value = stored;
 
   select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
 }
@@ -1430,11 +1430,11 @@ document.querySelectorAll('select').forEach(bindSelectToSession);
     (async()=>{
       await import('https://patrick-ring-motive.github.io/temp-storage/script.js');
 async function bindSelectToTemp(select) {
-  let key = key || select.id || select.name;
+  let key = key || select.id || select.name || select.getAttribute('id');
   if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
 
   const stored = await tempStorage.getItem(key);
-  if (stored !== null) select.value = stored;
+  if (stored != null) select.value = stored;
 
   select.addEventListener('change', () => tempStorage.setItem(key, select.value));
 }
