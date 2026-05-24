@@ -771,14 +771,14 @@
         col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          console.warn('[LLaVA]  Invalid column', parsed, '- falling back to valid move');
+          console.warn('[LLaVA] Invalid column', parsed, '- falling back to valid move');
           parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-          (thoughtPanel??{}).textContent += `\n\n[LLaVA]  Valid move not found, selecting random. Playing ${parsed}.`;
+          (thoughtPanel??{}).textContent += `\n\n[LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
         } else {
-          (thoughtPanel??{}).textContent += `\n\n[LLaVA]  Valid move not found in text.\n\n Valid move found in bytes. Playing ${parsed}.`;
+          (thoughtPanel??{}).textContent += `\n\n[LLaVA] Valid move not found in text.\n\n[LLaVA] Valid move found in bytes. Playing ${parsed}.`;
         }
       } else {
-        (thoughtPanel??{}).textContent += `\n\n[LLaVA]  Valid move selected. Playing ${parsed}.`;
+        (thoughtPanel??{}).textContent += `\n\n[LLaVA] Valid move selected. Playing ${parsed}.`;
       }
       (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
       return parsed;
@@ -867,7 +867,7 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
+        body: stringify({
           messages,
           stream: true
         }),
@@ -953,12 +953,12 @@
       gemmaMessages.push(fullText);
 
       console.log("[Gemma] Full response:", fullText);
-      let col = [...fullText].findLast((x) => x.match(/[0-6]/));
+      let col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
       thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
       let parsed = parseInt(col);
       if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
         const txt = JSON.stringify([new TextEncoder().encode(fullText)]);
-        col = [...txt].findLast((x) => x.match(/[0-6]/));
+        col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
