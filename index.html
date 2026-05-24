@@ -724,13 +724,13 @@
     };
 
     const isString = x => typeof x === 'string' || x instanceof String;
-    const stringify = x =>{
-      try{
-        if(isString(x)){
+    const stringify = x => {
+      try {
+        if (isString(x)) {
           return String(x);
         }
         return String(JSON.stringify(x));
-      }catch{
+      } catch {
         return String(x);
       }
     };
@@ -754,7 +754,7 @@
     // LLaVA — simple fetch, return column
     const llavaMove = async (boardState) => {
       const icon = boardState.currentPlayer === RED ? "🥩" : "🧀";
-     
+
       const text = await fetchText(LLAVA_URL, {
         method: "POST",
         headers: {
@@ -773,16 +773,16 @@
         col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
         parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          console.warn(icon+' [LLaVA] Invalid column', parsed, '- falling back to valid move');
+          console.warn(icon + ' [LLaVA] Invalid column', parsed, '- falling back to valid move');
           parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-          (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
+          (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
         } else {
-          (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`;
+          (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`;
         }
       } else {
-        (thoughtPanel??{}).textContent += `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`;
+        (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`;
       }
-      (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+      (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
       return parsed;
     };
 
@@ -857,7 +857,6 @@
         userMsg,
       ];
 
-      
       const icon = boardState.currentPlayer === RED ? "🧶" : "🧇";
       // Show streaming indicator appended to history
       const moveNum = gemmaMessages.length + 1;
@@ -1415,32 +1414,33 @@
       passive: false
     }); // passive:false required for preventDefault to work
 
-function bindSelectToSession(select) {
-  let key = select.id || select.name || select.getAttribute('id');
-  if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
+    function bindSelectToSession(select) {
+      let key = select.id || select.name || select.getAttribute('id');
+      if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
 
-  const stored = sessionStorage.getItem(key);
-  if (stored != null) select.value = stored;
+      const stored = sessionStorage.getItem(key);
+      if (stored != null) select.value = stored;
 
-  select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
-}
+      select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
+    }
 
-document.querySelectorAll('select').forEach(bindSelectToSession);
-    
-    (async()=>{
+    document.querySelectorAll('select').forEach(bindSelectToSession);
+
+    (async () => {
       await import('https://patrick-ring-motive.github.io/temp-storage/script.js');
-async function bindSelectToTemp(select) {
-  let key = select.id || select.name || select.getAttribute('id');
-  if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
+      async function bindSelectToTemp(select) {
+        let key = select.id || select.name || select.getAttribute('id');
+        if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
 
-  const stored = await tempStorage.getItem(key);
-  if (stored != null) select.value = stored;
+        const stored = await tempStorage.getItem(key);
+        if (stored != null) select.value = stored;
 
-  select.addEventListener('change', () => tempStorage.setItem(key, select.value));
-}
+        select.addEventListener('change', () => tempStorage.setItem(key, select.value));
+      }
 
-document.querySelectorAll('select').forEach(bindSelectToTemp);
+      document.querySelectorAll('select').forEach(bindSelectToTemp);
     })();
+
   </script>
 </body>
 
