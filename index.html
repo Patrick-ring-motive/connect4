@@ -1414,16 +1414,18 @@
     }, {
       passive: false
     }); // passive:false required for preventDefault to work
-function bindSelectToSession(select){
- key = key || select.id || select.name;
- if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
+function bindSelectToSession(select, key) {
+  key = key || select.id || select.name;
+  if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
 
- const stored = localStorage.getItem(key);
- if (stored != null) select.value = stored;
+  const stored = sessionStorage.getItem(key);
+  if (stored !== null) select.value = stored;
 
- select.addEventListener('change', () => localStorage.setItem(key, select.value));
+  select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
 }
+
 document.querySelectorAll('select').forEach(bindSelectToSession);
+
   </script>
 </body>
 
