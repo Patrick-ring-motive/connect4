@@ -452,38 +452,38 @@
     const MINIMAX_DEPTH = 4;
     const CENTER_WEIGHTS = [3, 4, 5, 7, 5, 4, 3];
     // human utils
-    const documentQuerySelector = (...args)=>{
-      try{
+    const documentQuerySelector = (...args) => {
+      try {
         return document.querySelector(...args);
-      }catch(e){
-        console.warn(e,...args);
+      } catch (e) {
+        console.warn(e, ...args);
       }
     };
-    const documentQuerySelectorAll = (...args)=>{
-      try{
+    const documentQuerySelectorAll = (...args) => {
+      try {
         return [...document.querySelector(...args)];
-      }catch(e){
-        console.warn(e,...args);
+      } catch (e) {
+        console.warn(e, ...args);
         return [];
       }
     };
-    const updateAttribute = (el,key,value)=>{
-      try{
+    const updateAttribute = (el, key, value) => {
+      try {
         const val = el.getAttribute(key);
-        if(val != value){
-          return el.setAttribute(key,value);
+        if (val != value) {
+          return el.setAttribute(key, value);
         }
-      }catch(e){
-        console.warn(e,el,key,value);
+      } catch (e) {
+        console.warn(e, el, key, value);
       };
     };
-    const updateProp = (el,key,value)=>{
-      try{
-        if(el[key] != value){
+    const updateProp = (el, key, value) => {
+      try {
+        if (el[key] != value) {
           return el[key] = value;
         }
-      }catch(e){
-        console.warn(e,el,key,value);
+      } catch (e) {
+        console.warn(e, el, key, value);
       };
     };
     // ─── Board Utilities ──────────────────────────────────────────────────────────
@@ -1059,10 +1059,10 @@
       const moves = validMoves(board);
 
       // Start / Reset button visibility
-      updateProp(document.getElementById("start-btn").style,"display",started ?
+      updateProp(document.getElementById("start-btn").style, "display", started ?
         "none" :
         "inline-block");
-      updateProp(document.getElementById("reset-btn").style,"display",started ?
+      updateProp(document.getElementById("reset-btn").style, "display", started ?
         "inline-block" :
         "none");
 
