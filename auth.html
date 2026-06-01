@@ -608,14 +608,14 @@
     footerLink.addEventListener('click', () => switchTab('signup'));
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
-    function clearAlerts() {
+    function clearAlerts({ keepResend = false } = {}) {
       document.querySelectorAll('.alert').forEach(el => {
         el.className = 'alert';
         el.textContent = '';
       });
       document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
       document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
-      hideResendVerification();
+      if (!keepResend) hideResendVerification();
     }
 
     function fieldError(inputId, errId, msg) {
@@ -661,11 +661,13 @@
 
     function showResendVerification(email) {
       pendingUnverifiedEmail = email;
+      resendButton.dataset.email = email;
       resendSection.style.display = 'block';
     }
 
     function hideResendVerification() {
       pendingUnverifiedEmail = '';
+      resendButton.dataset.email = '';
       resendSection.style.display = 'none';
     }
 
@@ -777,12 +779,12 @@
     });
 
     resendButton.addEventListener('click', async () => {
-      const email = pendingUnverifiedEmail || document.getElementById('login-email').value.trim();
+      const email = (resendButton.dataset.email || pendingUnverifiedEmail || document.getElementById('login-email').value).trim();
       if (!email) {
         showAlert('login-alert', 'fail', 'Enter your email before resending verification.');
         return;
       }
-      clearAlerts();
+      clearAlerts({ keepResend: true });
       const btn = resendButton;
       setLoading(btn, true);
 
@@ -869,5 +871,3 @@
 
   </script>
 </body>
-
-</html>
