@@ -674,10 +674,7 @@
       const token = params.get('token') || params.get('verify');
       if (!token) return;
 
-      const {
-        ok,
-        data
-      } = await apiFetch(`/verify?token=${encodeURIComponent(token)}`);
+      const { ok, data } = await apiFetch(`/verify?token=${encodeURIComponent(token)}`);
       if (ok && data?.ok) {
         switchTab('login');
         showAlert('login-alert', 'success', 'Email verified! You can now log in.');
@@ -750,10 +747,7 @@
       setLoading(btn, true);
 
       try {
-        const {
-          ok,
-          data
-        } = await apiFetch('/login', 'POST', {
+        const { ok, data } = await apiFetch('/login', 'POST', {
           email,
           password,
         });
@@ -783,17 +777,18 @@
     });
 
     resendButton.addEventListener('click', async () => {
-      if (!pendingUnverifiedEmail) return;
+      const email = pendingUnverifiedEmail || document.getElementById('login-email').value.trim();
+      if (!email) {
+        showAlert('login-alert', 'fail', 'Enter your email before resending verification.');
+        return;
+      }
       clearAlerts();
       const btn = resendButton;
       setLoading(btn, true);
 
       try {
-        const {
-          ok,
-          data
-        } = await apiFetch('/resend-verification', 'POST', {
-          email: pendingUnverifiedEmail,
+        const { ok, data } = await apiFetch('/resend-verification', 'POST', {
+          email,
         });
 
         if (!ok) {
@@ -842,10 +837,7 @@
       setLoading(btn, true);
 
       try {
-        const {
-          ok,
-          data
-        } = await apiFetch('/signup', 'POST', {
+        const { ok, data } = await apiFetch('/signup', 'POST', {
           username,
           email,
           password,
