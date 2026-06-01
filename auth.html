@@ -556,9 +556,7 @@
 
   <script>
     // ─── Config ────────────────────────────────────────────────────────────────
-    // Replace with your deployed worker URL + key
     const API_BASE = 'https://db.connectfour.workers.dev';
-    const API_KEY = 'dev-key-change-me';
 
     // After successful login, redirect to:
     const GAME_URL = '/game.html';
@@ -640,7 +638,6 @@
       const opts = {
         method,
         headers: {
-          'X-Internal-Key': API_KEY,
           ...(body ? {
             'Content-Type': 'application/json'
           } : {}),
@@ -683,24 +680,8 @@
         showAlert('login-alert', 'success', 'Email verified! You can now log in.');
       } else {
         const message = data?.error || 'Verification failed. The link may have expired.';
-        // Additional debug: check whether the token exists in the DB and the user's verified state
-        try {
-          const tokenInfo = await apiFetch(`/users?verification_token=${encodeURIComponent(token)}`);
-          if (tokenInfo.ok && tokenInfo.data?.id) {
-            const user = tokenInfo.data;
-            const userState = `User found: ${user.email} — verified=${user.verified} — token_expires=${user.verification_expires}`;
-            switchTab('login');
-            showAlert('login-alert', 'fail', `${message} — ${userState}`);
-          } else {
-            // No token in DB
-            switchTab('login');
-            showAlert('login-alert', 'fail', `${message} — token not found in database.`);
-          }
-        } catch (e) {
-          switchTab('login');
-          showAlert('login-alert', 'fail', `${message} — (debug lookup failed)`);
-          console.error('Debug lookup failed', e);
-        }
+        switchTab('login');
+        showAlert('login-alert', 'fail', message);
       }
       history.replaceState({}, '', window.location.pathname);
     }
@@ -737,7 +718,7 @@
       const {
         ok,
         data
-      } = await apiFetch(`/sessions/${encodeURIComponent(saved.token)}`);
+      } = await apiFetch(`/session?token=${encodeURIComponent(saved.token)}`);
       if (ok && data?.user_id) {
         window.location.href = GAME_URL;
       }
