@@ -51,7 +51,6 @@
 
   <script type="module">
     const API_BASE = 'https://db.connectfour.workers.dev';
-    const API_KEY = 'dev-key-change-me';
     const signInButton = document.getElementById('sign-in');
     const retryButton = document.getElementById('retry');
     const statusEl = document.getElementById('status');
@@ -72,9 +71,6 @@
     async function apiFetch(path) {
       const res = await fetch(API_BASE + path, {
         method: 'GET',
-        headers: {
-          'X-Internal-Key': API_KEY,
-        },
       });
       const data = await res.json().catch(() => ({}));
       return { ok: res.ok, status: res.status, data };
