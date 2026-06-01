@@ -93,7 +93,8 @@
       flex-wrap: wrap;
     }
 
-    #signin-btn {
+    #signin-btn,
+    #logout-btn {
       background: transparent;
       border: 1px solid var(--btn-border);
       color: #888;
@@ -105,7 +106,8 @@
       text-transform: uppercase;
     }
 
-    #signin-btn:hover {
+    #signin-btn:hover,
+    #logout-btn:hover {
       border-color: #777;
       color: #bbb;
     }
@@ -476,6 +478,66 @@
   <div id="history-line"></div>
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
+(() => {
+    //custom utils
+    const isString = x => typeof x === 'string' || x instanceof String;
+    const stringify = x => {
+      try {
+        if (isString(x)) {
+          return String(x);
+        }
+        return String(JSON.stringify(x));
+      } catch {
+        return String(x);
+      }
+    };
+
+    const parse = x => {
+      try {
+        return JSON.parse(x);
+      } catch {
+        return x && Object(x);
+      }
+    };
+
+    const localStore = {
+        get(key) {
+            try {
+            return parse(localStorage.getItem(key));
+            } catch {
+            return null;
+            }
+        },
+        set(key, value) {
+            try {
+            localStorage.setItem(key, stringify(value));
+            } catch {
+            // ignore
+            }
+        },
+        remove(key) {
+            try {
+            localStorage.removeItem(key);
+            } catch {
+            // ignore
+            }
+        },
+    };
+
+    globalThis.localMap ??= new Proxy({}, {
+        get(target, prop) {
+            return localStore.get(prop);
+        },
+        set(target, prop, value) {
+            localStore.set(prop, value);
+            return true;
+        },
+        deleteProperty(target, prop) {
+            localStore.remove(prop);
+            return true;
+        },
+    });
+
     // ─── Constants ────────────────────────────────────────────────────────────────
     const ROWS = 6,
       COLS = 7;
@@ -800,18 +862,6 @@
       };
     };
 
-    const isString = x => typeof x === 'string' || x instanceof String;
-    const stringify = x => {
-      try {
-        if (isString(x)) {
-          return String(x);
-        }
-        return String(JSON.stringify(x));
-      } catch {
-        return String(x);
-      }
-    };
-
     async function apiFetch(path, method = "GET", body = null) {
       const res = await fetch(API_BASE + path, {
         method,
@@ -831,11 +881,7 @@
     }
 
     function loadSavedSession() {
-      try {
-        return JSON.parse(localStorage.getItem(SESSION_KEY));
-      } catch {
-        return null;
-      }
+      return localMap[SESSION_KEY] || null;
     }
 
     function renderAuthBar() {
@@ -847,7 +893,8 @@
       }
       if (auth.user) {
         const name = auth.user.username || auth.user.email || "Signed in";
-        el.innerHTML = `<span>Signed in as ${escapeHtml(name)}</span>`;
+        el.innerHTML = `<span>Signed in as ${escapeHtml(name)}</span><button id="logout-btn" type="button">Log out</button>`;
+        document.getElementById("logout-btn").addEventListener("click", logout);
         return;
       }
       el.innerHTML = `<span>Playing locally</span><button id="signin-btn" type="button">Sign in</button>`;
@@ -871,19 +918,43 @@
           token: saved.token,
           user: result.data.user,
         };
-        localStorage.setItem(SESSION_KEY, JSON.stringify({
+        localMap[SESSION_KEY] = {
           token: saved.token,
           user: result.data.user,
-        }));
+        };
       } else {
         auth = {
           checked: true,
           token: "",
           user: null,
         };
-        localStorage.removeItem(SESSION_KEY);
+        delete localMap[SESSION_KEY];
       }
       renderAuthBar();
+    }
+
+    async function logout() {
+      const token = auth.token;
+      auth = {
+        checked: true,
+        token: "",
+        user: null,
+      };
+      delete localMap[SESSION_KEY];
+      state.gameId = null;
+      state.dbMovesSaved = 0;
+      saveLocalGame();
+      renderAuthBar();
+      render();
+      if (token) {
+        try {
+          await apiFetch("/logout", "POST", {
+            token
+          });
+        } catch (error) {
+          console.warn("[Logout error]", error);
+        }
+      }
     }
 
     function escapeHtml(value) {
@@ -1208,15 +1279,11 @@
     }
 
     function saveLocalGame() {
-      localStorage.setItem(LOCAL_GAME_KEY, JSON.stringify(snapshotState()));
+      localMap[LOCAL_GAME_KEY] = snapshotState();
     }
 
     function loadLocalGame() {
-      try {
-        return JSON.parse(localStorage.getItem(LOCAL_GAME_KEY));
-      } catch {
-        return null;
-      }
+      return localMap[LOCAL_GAME_KEY] || null;
     }
 
     async function ensureDbGame() {
@@ -1254,6 +1321,33 @@
         });
         if (!res.ok) break;
         state.dbMovesSaved += 1;
+      }
+    }
+
+    async function hasAccountGame() {
+      if (!auth.user) return false;
+      const result = await apiFetch(`/games?user_id=${encodeURIComponent(auth.user.id)}&limit=1`);
+      return result.ok && Array.isArray(result.data) && result.data.length > 0;
+    }
+
+    async function carryLocalGameToAccount() {
+      if (!auth.user) return false;
+      const localSnapshot = loadLocalGame();
+      if (!localSnapshot?.state?.started || !localSnapshot.state.moveHistory?.length) return false;
+      if (await hasAccountGame()) return false;
+
+      const currentSnapshot = snapshotState();
+      restoreSnapshot(localSnapshot);
+      state.gameId = null;
+      state.dbMovesSaved = 0;
+      try {
+        await saveDbGame();
+        delete localMap[LOCAL_GAME_KEY];
+        return true;
+      } catch (error) {
+        console.warn("[Carry local game error]", error);
+        restoreSnapshot(currentSnapshot);
+        return false;
       }
     }
 
@@ -1570,7 +1664,7 @@
         gameId: null,
         dbMovesSaved: 0,
       };
-      if (!auth.user) localStorage.removeItem(LOCAL_GAME_KEY);
+      if (!auth.user) delete localMap[LOCAL_GAME_KEY];
       render();
       persistGame();
     };
@@ -1684,10 +1778,16 @@
     // ─── Init ─────────────────────────────────────────────────────────────────────
     renderAuthBar();
     initAuth().then(() => {
-      if (!auth.user) restoreSnapshot(loadLocalGame());
+      if (auth.user) {
+        return carryLocalGameToAccount();
+      }
+      restoreSnapshot(loadLocalGame());
+      return false;
+    }).then((carriedLocalGame) => {
       persistenceReady = true;
       render();
       if (state.started && !state.winner) scheduleBotMove();
+      if (carriedLocalGame) persistGame();
     });
 
     document.getElementById("board").addEventListener("touchstart", (evt) => {
@@ -1733,7 +1833,7 @@
 
       document.querySelectorAll('select').forEach(bindSelectToTemp);
     })();
-
+})();
   </script>
 </body>
 
