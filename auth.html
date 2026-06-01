@@ -350,6 +350,22 @@
       transition: none;
     }
 
+    .link-button {
+      background: none;
+      border: none;
+      color: var(--yellow);
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .link-button:hover {
+      color: #ffffff;
+    }
+
     /* loading spinner inside button */
     .btn-submit .spinner {
       display: none;
@@ -471,6 +487,9 @@
         <!-- ── Login ──────────────────────────────────────────────────────── -->
         <div class="form-panel active" id="panel-login">
           <div class="alert" id="login-alert"></div>
+          <div class="field" id="resend-verification" style="display:none; animation-delay:0.03s">
+            <span style="font-size:12px; color: var(--muted);">Didn't get the email? <button type="button" class="link-button" id="resend-verify-btn">Resend verification</button></span>
+          </div>
 
           <div class="field" style="animation-delay:0.05s">
             <label for="login-email">Email</label>
@@ -598,6 +617,7 @@
       });
       document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
       document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+      hideResendVerification();
     }
 
     function fieldError(inputId, errId, msg) {
@@ -638,15 +658,35 @@
       };
     }
 
-    // Minimal bcrypt-free password hash using SubtleCrypto (SHA-256 + a prefix salt)
-    // In production, use a proper bcrypt/argon2 implementation server-side.
-    async function hashPassword(password) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode('c4:' + password);
-      const hashBuf = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(hashBuf))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+    let pendingUnverifiedEmail = '';
+    const resendSection = document.getElementById('resend-verification');
+    const resendButton = document.getElementById('resend-verify-btn');
+
+    function showResendVerification(email) {
+      pendingUnverifiedEmail = email;
+      resendSection.style.display = 'block';
+    }
+
+    function hideResendVerification() {
+      pendingUnverifiedEmail = '';
+      resendSection.style.display = 'none';
+    }
+
+    async function handleVerifyToken() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token') || params.get('verify');
+      if (!token) return;
+
+      const { ok, data } = await apiFetch(`/verify?token=${encodeURIComponent(token)}`);
+      if (ok && data?.ok) {
+        switchTab('login');
+        showAlert('login-alert', 'success', 'Email verified! You can now log in.');
+      } else {
+        const message = data?.error || 'Verification failed. The link may have expired.';
+        switchTab('login');
+        showAlert('login-alert', 'fail', message);
+      }
+      history.replaceState({}, '', window.location.pathname);
     }
 
     function uuid() {
@@ -687,6 +727,8 @@
       }
     })();
 
+    handleVerifyToken();
+
     // ─── Login ─────────────────────────────────────────────────────────────────
     document.getElementById('login-btn').addEventListener('click', async () => {
       clearAlerts();
@@ -708,44 +750,53 @@
       setLoading(btn, true);
 
       try {
-        // 1. look up user by email
-        const {
-          ok: uOk,
-          data: user
-        } = await apiFetch(`/users?email=${encodeURIComponent(email)}`);
-        if (!uOk || !user?.id) {
-          showAlert('login-alert', 'fail', 'No account found for that email.');
-          return;
-        }
-
-        // 2. verify password hash
-        const hash = await hashPassword(password);
-        if (hash !== user.password_hash) {
-          fieldError('login-password', 'login-password-err', 'Incorrect password.');
-          return;
-        }
-
-        // 3. create session (7-day expiry)
-        const token = uuid();
-        const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
-        const {
-          ok: sOk
-        } = await apiFetch('/sessions', 'POST', {
-          token,
-          user_id: user.id,
-          expires_at: expiresAt
+        const { ok, data } = await apiFetch('/login', 'POST', {
+          email,
+          password,
         });
-        if (!sOk) {
-          showAlert('login-alert', 'fail', 'Could not create session. Try again.');
+
+        if (!ok) {
+          if (data?.error === 'Unverified') {
+            showAlert('login-alert', 'fail', 'Email not verified. Check your inbox or resend verification.');
+            showResendVerification(email);
+          } else {
+            showAlert('login-alert', 'fail', data?.error || 'Invalid credentials.');
+          }
           return;
         }
 
-        saveSession(token, user);
+        saveSession(data.token, data.user);
         showAlert('login-alert', 'success', 'Welcome back! Redirecting…');
         setTimeout(() => {
           window.location.href = GAME_URL;
         }, 800);
 
+      } catch (e) {
+        showAlert('login-alert', 'fail', 'Network error. Check your connection.');
+        console.error(e);
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+
+    resendButton.addEventListener('click', async () => {
+      if (!pendingUnverifiedEmail) return;
+      clearAlerts();
+      const btn = resendButton;
+      setLoading(btn, true);
+
+      try {
+        const { ok, data } = await apiFetch('/resend-verification', 'POST', {
+          email: pendingUnverifiedEmail,
+        });
+
+        if (!ok) {
+          showAlert('login-alert', 'fail', data?.error || 'Could not resend verification email.');
+          return;
+        }
+
+        showAlert('login-alert', 'success', 'Verification email resent. Check your inbox.');
+        hideResendVerification();
       } catch (e) {
         showAlert('login-alert', 'fail', 'Network error. Check your connection.');
         console.error(e);
@@ -785,52 +836,19 @@
       setLoading(btn, true);
 
       try {
-        // 1. check email uniqueness
-        const {
-          data: existing
-        } = await apiFetch(`/users?email=${encodeURIComponent(email)}`);
-        if (existing?.id) {
-          fieldError('signup-email', 'signup-email-err', 'An account with that email already exists.');
+        const { ok, data } = await apiFetch('/signup', 'POST', {
+          username,
+          email,
+          password,
+        });
+
+        if (!ok) {
+          showAlert('signup-alert', 'fail', data?.error || 'Could not create account.');
           return;
         }
 
-        // 2. create user
-        const id = uuid();
-        const password_hash = await hashPassword(password);
-        const {
-          ok: cOk,
-          data: cData
-        } = await apiFetch('/users', 'POST', {
-          id,
-          email,
-          password_hash,
-          username
-        });
-        if (!cOk) {
-          const msg = cData?.error ?? 'Could not create account.';
-          showAlert('signup-alert', 'fail', msg.includes('UNIQUE') ? 'Username already taken.' : msg);
-          return;
-        }
-
-        // 3. auto-login: create session
-        const token = uuid();
-        const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
-        await apiFetch('/sessions', 'POST', {
-          token,
-          user_id: id,
-          expires_at: expiresAt
-        });
-        saveSession(token, {
-          id,
-          email,
-          username
-        });
-
-        showAlert('signup-alert', 'success', 'Account created! Dropping you in…');
-        setTimeout(() => {
-          window.location.href = GAME_URL;
-        }, 900);
-
+        switchTab('login');
+        showAlert('login-alert', 'success', 'Account created! Check your inbox to verify your email.');
       } catch (e) {
         showAlert('signup-alert', 'fail', 'Network error. Check your connection.');
         console.error(e);
@@ -838,6 +856,8 @@
         setLoading(btn, false);
       }
     });
+
+    // ─── Enter key submits ─────────────────────────────────────────────────────
 
     // ─── Enter key submits ─────────────────────────────────────────────────────
     document.addEventListener('keydown', e => {
