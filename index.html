@@ -78,6 +78,38 @@
       justify-content: center;
     }
 
+    #auth-bar {
+      min-height: 26px;
+      margin: -12px 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+      flex-wrap: wrap;
+    }
+
+    #signin-btn {
+      background: transparent;
+      border: 1px solid var(--btn-border);
+      color: #888;
+      padding: 5px 14px;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+
+    #signin-btn:hover {
+      border-color: #777;
+      color: #bbb;
+    }
+
     .player-select-wrap {
       text-align: center;
     }
@@ -392,6 +424,7 @@
 <body>
   <div id="title-label">AI DEMO</div>
   <div id="title">CONNECT 4</div>
+  <div id="auth-bar"></div>
 
   <div id="player-config">
     <div class="player-select-wrap">
@@ -451,6 +484,16 @@
       YELLOW = "Y";
     const MINIMAX_DEPTH = 4;
     const CENTER_WEIGHTS = [3, 4, 5, 7, 5, 4, 3];
+    const API_BASE = "https://db.connectfour.workers.dev";
+    const LOCAL_GAME_KEY = "c4_local_game";
+    const SESSION_KEY = "c4_session";
+    let auth = {
+      checked: false,
+      token: "",
+      user: null,
+    };
+    let persistenceReady = false;
+    let saveTimer = null;
     // human utils
     const documentQuerySelector = (...args) => {
       try {
@@ -769,6 +812,90 @@
       }
     };
 
+    async function apiFetch(path, method = "GET", body = null) {
+      const res = await fetch(API_BASE + path, {
+        method,
+        headers: {
+          ...(body == null ? {} : {
+            "Content-Type": "application/json"
+          }),
+        },
+        body: body == null ? undefined : JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => null);
+      return {
+        ok: res.ok,
+        status: res.status,
+        data,
+      };
+    }
+
+    function loadSavedSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY));
+      } catch {
+        return null;
+      }
+    }
+
+    function renderAuthBar() {
+      const el = document.getElementById("auth-bar");
+      if (!el) return;
+      if (!auth.checked) {
+        el.textContent = "Checking sign in...";
+        return;
+      }
+      if (auth.user) {
+        const name = auth.user.username || auth.user.email || "Signed in";
+        el.innerHTML = `<span>Signed in as ${escapeHtml(name)}</span>`;
+        return;
+      }
+      el.innerHTML = `<span>Playing locally</span><button id="signin-btn" type="button">Sign in</button>`;
+      document.getElementById("signin-btn").addEventListener("click", () => {
+        window.location.href = "/auth.html";
+      });
+    }
+
+    async function initAuth() {
+      renderAuthBar();
+      const saved = loadSavedSession();
+      if (!saved?.token) {
+        auth.checked = true;
+        renderAuthBar();
+        return;
+      }
+      const result = await apiFetch(`/session?token=${encodeURIComponent(saved.token)}`);
+      if (result.ok && result.data?.user) {
+        auth = {
+          checked: true,
+          token: saved.token,
+          user: result.data.user,
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          token: saved.token,
+          user: result.data.user,
+        }));
+      } else {
+        auth = {
+          checked: true,
+          token: "",
+          user: null,
+        };
+        localStorage.removeItem(SESSION_KEY);
+      }
+      renderAuthBar();
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      }[char]));
+    }
+
     const LLAVA_URL =
       "https://llava-15-7b-hf-summary.language-models.workers.dev/";
     const GEMMA_URL = "https://gemma.connectfour-ai.workers.dev/";
@@ -1024,7 +1151,125 @@
       started: false,
       suggesting: false,
       suggestedCol: null,
+      gameId: null,
+      dbMovesSaved: 0,
     };
+
+    function snapshotState() {
+      return {
+        savedAt: Date.now(),
+        state: {
+          ...state,
+          thinking: false,
+          suggesting: false,
+          hoverCol: null,
+          suggestedCol: null,
+        },
+        players: {
+          red: document.getElementById("red-select").value,
+          yellow: document.getElementById("yellow-select").value,
+          suggest: document.getElementById("suggest-select").value,
+        },
+        thoughtText: document.getElementById("thought-panel").textContent,
+        gemmaMessages,
+      };
+    }
+
+    function restoreSnapshot(snapshot) {
+      if (!snapshot?.state) return false;
+      if (snapshot.players) {
+        document.getElementById("red-select").value = snapshot.players.red || "human";
+        document.getElementById("yellow-select").value = snapshot.players.yellow || "gemma";
+        document.getElementById("suggest-select").value = snapshot.players.suggest || "minimax";
+      }
+      state = {
+        board: emptyBoard(),
+        current: RED,
+        winner: null,
+        winCells: [],
+        lastMove: null,
+        moveHistory: [],
+        thinking: false,
+        hoverCol: null,
+        started: false,
+        suggesting: false,
+        suggestedCol: null,
+        gameId: null,
+        dbMovesSaved: 0,
+        ...snapshot.state,
+        thinking: false,
+        suggesting: false,
+        hoverCol: null,
+        suggestedCol: null,
+      };
+      gemmaMessages = Array.isArray(snapshot.gemmaMessages) ? snapshot.gemmaMessages : [];
+      document.getElementById("thought-panel").textContent = snapshot.thoughtText || "";
+      return true;
+    }
+
+    function saveLocalGame() {
+      localStorage.setItem(LOCAL_GAME_KEY, JSON.stringify(snapshotState()));
+    }
+
+    function loadLocalGame() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_GAME_KEY));
+      } catch {
+        return null;
+      }
+    }
+
+    async function ensureDbGame() {
+      if (!auth.user || !state.started) return null;
+      if (state.gameId) return state.gameId;
+      const id = crypto.randomUUID ? crypto.randomUUID() : `game-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const created = await apiFetch("/games", "POST", {
+        id,
+        player_r: auth.user.id,
+      });
+      if (!created.ok) throw new Error(created.data?.error || "Could not create game");
+      state.gameId = id;
+      state.dbMovesSaved = 0;
+      return id;
+    }
+
+    async function saveDbGame() {
+      if (!auth.user || !state.started) return;
+      const id = await ensureDbGame();
+      const dbState = state.winner ? "done" : "active";
+      const winner = state.winner === "DRAW" ? null : state.winner;
+      await apiFetch(`/games/${encodeURIComponent(id)}`, "PATCH", {
+        state: dbState,
+        board: JSON.stringify(state.board),
+        turn: state.current,
+        winner,
+      });
+      while (state.dbMovesSaved < state.moveHistory.length) {
+        const move = state.moveHistory[state.dbMovesSaved];
+        const res = await apiFetch("/moves", "POST", {
+          game_id: id,
+          user_id: auth.user.id,
+          column: move.col,
+          move_num: state.dbMovesSaved + 1,
+        });
+        if (!res.ok) break;
+        state.dbMovesSaved += 1;
+      }
+    }
+
+    function persistGame() {
+      if (!persistenceReady) return;
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
+        try {
+          if (auth.user) await saveDbGame();
+          else saveLocalGame();
+        } catch (error) {
+          console.warn("[Save error]", error);
+          if (!auth.user) saveLocalGame();
+        }
+      }, 120);
+    }
 
     const getPlayerType = (player) =>
       player === RED ?
@@ -1231,6 +1476,7 @@
       } else {
         state.current = current === RED ? YELLOW : RED;
       }
+      persistGame();
 
       // Trigger fall animation then clear it after it completes
       const durationMs = 120 + result.row * 28;
@@ -1321,13 +1567,18 @@
         started: false,
         suggesting: false,
         suggestedCol: null,
+        gameId: null,
+        dbMovesSaved: 0,
       };
+      if (!auth.user) localStorage.removeItem(LOCAL_GAME_KEY);
       render();
+      persistGame();
     };
 
     const startGame = () => {
       state.started = true;
       render();
+      persistGame();
       scheduleBotMove();
     };
 
@@ -1426,9 +1677,18 @@
     document
       .getElementById("yellow-select")
       .addEventListener("change", reset);
+    document
+      .getElementById("suggest-select")
+      .addEventListener("change", persistGame);
 
     // ─── Init ─────────────────────────────────────────────────────────────────────
-    render();
+    renderAuthBar();
+    initAuth().then(() => {
+      if (!auth.user) restoreSnapshot(loadLocalGame());
+      persistenceReady = true;
+      render();
+      if (state.started && !state.winner) scheduleBotMove();
+    });
 
     document.getElementById("board").addEventListener("touchstart", (evt) => {
       if (!state.started || state.winner || state.thinking) return;
