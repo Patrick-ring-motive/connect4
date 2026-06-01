@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Four — Verify Email</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #080C1A;
+      --board: #0E1528;
+      --surface: #141B30;
+      --border: #1E2A48;
+      --text: #E8EAF0;
+      --muted: #7A8DA6;
+      --yellow: #FFD600;
+      --success: #00C864;
+      --fail: #FF5A5A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; background: var(--navy); color: var(--text); font-family: 'DM Mono', monospace; }
+    body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { width: min(560px, 100%); background: var(--board); border: 1px solid var(--border); border-radius: 10px; padding: 32px; box-shadow: 0 32px 80px rgba(0,0,0,.5); }
+    h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: 2px; margin-bottom: 18px; }
+    p { margin-bottom: 16px; line-height: 1.7; color: var(--muted); }
+    .status { display: inline-flex; align-items: center; gap: 10px; padding: 16px 18px; border-radius: 8px; border: 1px solid transparent; margin-bottom: 20px; }
+    .status.success { background: rgba(0,200,100,.08); border-color: rgba(0,200,100,.25); color: var(--success); }
+    .status.fail { background: rgba(255,90,90,.08); border-color: rgba(255,90,90,.25); color: var(--fail); }
+    .status .dot { width: 10px; height: 10px; border-radius: 50%; background-color: currentColor; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .button { padding: 14px 18px; border: none; border-radius: 6px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.94rem; letter-spacing: 1px; text-transform: uppercase; }
+    .button.primary { background: var(--yellow); color: var(--navy); }
+    .button.secondary { background: rgba(255,255,255,.05); color: var(--text); border: 1px solid var(--border); }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--yellow); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Email Verification</h1>
+    <div id="status" class="status hidden"><span class="dot"></span><span id="status-text"></span></div>
+    <p id="description">Verifying your email now. Please wait while we confirm your account.</p>
+    <div class="actions">
+      <button id="sign-in" class="button primary hidden">Go to Sign In</button>
+      <button id="retry" class="button secondary hidden">Try Again</button>
+    </div>
+  </div>
+
+  <script type="module">
+    const API_BASE = 'https://db.connectfour.workers.dev';
+    const API_KEY = 'dev-key-change-me';
+    const signInButton = document.getElementById('sign-in');
+    const retryButton = document.getElementById('retry');
+    const statusEl = document.getElementById('status');
+    const statusText = document.getElementById('status-text');
+    const description = document.getElementById('description');
+
+    function showStatus(type, message) {
+      statusEl.className = `status ${type}`;
+      statusText.textContent = message;
+      statusEl.classList.remove('hidden');
+    }
+
+    function showLinks(success) {
+      signInButton.classList.remove('hidden');
+      retryButton.classList.toggle('hidden', success);
+    }
+
+    async function apiFetch(path) {
+      const res = await fetch(API_BASE + path, {
+        method: 'GET',
+        headers: {
+          'X-Internal-Key': API_KEY,
+        },
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    function getToken() {
+      return new URLSearchParams(globalThis.location.search).get('token');
+    }
+
+    async function verifyEmail() {
+      const token = getToken();
+      if (!token) {
+        showStatus('fail', 'No verification token found.');
+        description.textContent = 'Open the email you received from Connect Four and click the verification link again.';
+        showLinks(false);
+        return;
+      }
+
+      description.textContent = 'Checking your verification link…';
+      const { ok, data } = await apiFetch(`/verify?token=${encodeURIComponent(token)}`);
+
+      if (ok && data?.ok) {
+        showStatus('success', 'Email verified successfully!');
+        description.textContent = 'Your account is now verified. You can sign in and start playing.';
+        showLinks(true);
+      } else {
+        showStatus('fail', data?.error || 'Verification failed.');
+        description.textContent = 'The link may have expired or been used already. You can try again or sign in to request help.';
+        showLinks(false);
+      }
+    }
+
+    signInButton.addEventListener('click', () => {
+      globalThis.location.href = '/auth.html';
+    });
+
+    retryButton.addEventListener('click', verifyEmail);
+
+    await verifyEmail();
+  </script>
+</body>
+</html>
