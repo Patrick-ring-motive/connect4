@@ -683,8 +683,24 @@
         showAlert('login-alert', 'success', 'Email verified! You can now log in.');
       } else {
         const message = data?.error || 'Verification failed. The link may have expired.';
-        switchTab('login');
-        showAlert('login-alert', 'fail', message);
+        // Additional debug: check whether the token exists in the DB and the user's verified state
+        try {
+          const tokenInfo = await apiFetch(`/users?verification_token=${encodeURIComponent(token)}`);
+          if (tokenInfo.ok && tokenInfo.data?.id) {
+            const user = tokenInfo.data;
+            const userState = `User found: ${user.email} — verified=${user.verified} — token_expires=${user.verification_expires}`;
+            switchTab('login');
+            showAlert('login-alert', 'fail', `${message} — ${userState}`);
+          } else {
+            // No token in DB
+            switchTab('login');
+            showAlert('login-alert', 'fail', `${message} — token not found in database.`);
+          }
+        } catch (e) {
+          switchTab('login');
+          showAlert('login-alert', 'fail', `${message} — (debug lookup failed)`);
+          console.error('Debug lookup failed', e);
+        }
       }
       history.replaceState({}, '', window.location.pathname);
     }
