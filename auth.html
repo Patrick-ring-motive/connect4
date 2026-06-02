@@ -1,938 +1,845 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Connect Four — Sign In</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-      <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect Four — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/favicon-waffle.png">
-    <style>
-      /* ─── Tokens ──────────────────────────────────────────────────────────── */
-      :root {
-        --red: #ff2d2d;
-        --yellow: #ffd600;
-        --navy: #080c1a;
-        --board: #0e1528;
-        --surface: #141b30;
-        --border: #1e2a48;
-        --text: #e8eaf0;
-        --muted: #4a5578;
-        --red-glow: rgba(255, 45, 45, 0.25);
-        --yel-glow: rgba(255, 214, 0, 0.2);
-      }
+  <style>
+    /* ─── Tokens ──────────────────────────────────────────────────────────── */
+    :root {
+      --red: #ff2d2d;
+      --yellow: #ffd600;
+      --navy: #080c1a;
+      --board: #0e1528;
+      --surface: #141b30;
+      --border: #1e2a48;
+      --text: #e8eaf0;
+      --muted: #4a5578;
+      --red-glow: rgba(255, 45, 45, 0.25);
+      --yel-glow: rgba(255, 214, 0, 0.2);
+    }
 
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-      html,
-      body {
-        height: 100%;
-        background: var(--navy);
-        color: var(--text);
-        font-family: "DM Mono", monospace;
-        overflow: hidden;
-      }
+    html,
+    body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--text);
+      font-family: "DM Mono", monospace;
+      overflow: hidden;
+    }
 
-      input {
-        -webkit-text-stroke: 0.1px black;
-        text-shadow:
-          -1px -1px 0 #000,
-          1px -1px 0 #000,
-          -1px 1px 0 #000,
-          1px 1px 0 #000;
-      }
+    input {
+      -webkit-text-stroke: 0.1px black;
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    }
 
-      /* ─── Animated grid background ───────────────────────────────────────── */
-      .bg {
-        position: fixed;
-        inset: 0;
-        background-image:
-          linear-gradient(rgba(255, 214, 0, 0.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 214, 0, 0.04) 1px, transparent 1px);
-        background-size: 60px 60px;
-        animation: bgScroll 20s linear infinite;
-      }
+    /* ─── Animated grid background ───────────────────────────────────────── */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 214, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 214, 0, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: bgScroll 20s linear infinite;
+    }
 
-      @keyframes bgScroll {
-        to {
-          background-position: 0 60px;
-        }
+    @keyframes bgScroll {
+      to {
+        background-position: 0 60px;
       }
+    }
 
-      /* ─── Falling tokens ─────────────────────────────────────────────────── */
-      .tokens-canvas {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        overflow: hidden;
-      }
+    /* ─── Falling tokens ─────────────────────────────────────────────────── */
+    .tokens-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
 
-      .token {
-        position: absolute;
-        top: -80px;
-        border-radius: 50%;
+    .token {
+      position: absolute;
+      top: -80px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: fall linear infinite;
+    }
+
+    .token.r {
+      background: radial-gradient(circle at 35% 35%, #ff7070, var(--red));
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .token.y {
+      background: radial-gradient(circle at 35% 35%, #ffe566, var(--yellow));
+      box-shadow: 0 0 16px var(--yel-glow);
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
         opacity: 0;
-        animation: fall linear infinite;
       }
 
-      .token.r {
-        background: radial-gradient(circle at 35% 35%, #ff7070, var(--red));
-        box-shadow: 0 0 16px var(--red-glow);
+      5% {
+        opacity: 0.6;
       }
 
-      .token.y {
-        background: radial-gradient(circle at 35% 35%, #ffe566, var(--yellow));
-        box-shadow: 0 0 16px var(--yel-glow);
+      95% {
+        opacity: 0.3;
       }
 
-      @keyframes fall {
-        0% {
-          transform: translateY(0) rotate(0deg);
-          opacity: 0;
-        }
-
-        5% {
-          opacity: 0.6;
-        }
-
-        95% {
-          opacity: 0.3;
-        }
-
-        100% {
-          transform: translateY(110vh) rotate(360deg);
-          opacity: 0;
-        }
-      }
-
-      /* ─── Layout ─────────────────────────────────────────────────────────── */
-      .page {
-        position: relative;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-      }
-
-      .card {
-        width: 100%;
-        max-width: 420px;
-        background: var(--board);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        box-shadow:
-          0 0 0 1px rgba(255, 214, 0, 0.06),
-          0 32px 80px rgba(0, 0, 0, 0.6),
-          inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        overflow: hidden;
-        animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-
-      @keyframes cardIn {
-        from {
-          opacity: 0;
-          transform: translateY(24px) scale(0.97);
-        }
-
-        to {
-          opacity: 1;
-          transform: none;
-        }
-      }
-
-      /* ─── Header ─────────────────────────────────────────────────────────── */
-      .card-header {
-        padding: 32px 32px 24px;
-        border-bottom: 1px solid var(--border);
-        text-align: center;
-        position: relative;
-      }
-
-      .logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-
-      .logo-discs {
-        display: flex;
-        gap: 6px;
-      }
-
-      .logo-disc {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-      }
-
-      .logo-disc.r {
-        background: var(--red);
-        box-shadow: 0 0 10px var(--red-glow);
-      }
-
-      .logo-disc.y {
-        background: var(--yellow);
-        box-shadow: 0 0 10px var(--yel-glow);
-      }
-
-      .logo-name {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 26px;
-        letter-spacing: 3px;
-        color: var(--text);
-      }
-
-      /* ─── Tab toggle ─────────────────────────────────────────────────────── */
-      .tabs {
-        display: flex;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 3px;
-        gap: 3px;
-      }
-
-      .tab-btn {
-        flex: 1;
-        padding: 8px 12px;
-        background: none;
-        border: none;
-        border-radius: 2px;
-        font-family: "DM Mono", monospace;
-        font-size: 11px;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: var(--muted);
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .tab-btn.active {
-        background: var(--board);
-        color: var(--yellow);
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-      }
-
-      .tab-btn:not(.active):hover {
-        color: var(--text);
-      }
-
-      /* ─── Form ───────────────────────────────────────────────────────────── */
-      .card-body {
-        padding: 28px 32px 32px;
-      }
-
-      .form-panel {
-        display: none;
-      }
-
-      .form-panel.active {
-        display: block;
-      }
-
-      .field {
-        margin-bottom: 16px;
-        animation: fieldIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-
-      @keyframes fieldIn {
-        from {
-          opacity: 0;
-          transform: translateX(-8px);
-        }
-
-        to {
-          opacity: 1;
-          transform: none;
-        }
-      }
-
-      label {
-        display: block;
-        font-size: 10px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--muted);
-        margin-bottom: 7px;
-      }
-
-      input {
-        width: 100%;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 3px;
-        padding: 11px 14px;
-        font-family: "DM Mono", monospace;
-        font-size: 14px;
-        color: var(--text);
-        outline: none;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
-        -webkit-autofill: none;
-      }
-
-      input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0 100px var(--surface) inset;
-        -webkit-text-fill-color: var(--text);
-      }
-
-      input:focus {
-        border-color: var(--yellow);
-        box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.1);
-      }
-
-      input.error {
-        border-color: var(--red);
-        box-shadow: 0 0 0 3px rgba(255, 45, 45, 0.12);
-      }
-
-      input::placeholder {
-        color: var(--muted);
-      }
-
-      .field-error {
-        font-size: 11px;
-        color: var(--red);
-        margin-top: 5px;
-        min-height: 14px;
-        letter-spacing: 0.3px;
-      }
-
-      /* ─── Submit button ──────────────────────────────────────────────────── */
-      .btn-submit {
-        width: 100%;
-        margin-top: 8px;
-        padding: 13px;
-        background: var(--yellow);
-        border: none;
-        border-radius: 3px;
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 18px;
-        letter-spacing: 3px;
-        color: var(--navy);
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition:
-          transform 0.12s,
-          box-shadow 0.2s,
-          background 0.2s;
-        box-shadow: 0 4px 20px rgba(255, 214, 0, 0.25);
-      }
-
-      .btn-submit:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 28px rgba(255, 214, 0, 0.35);
-      }
-
-      .btn-submit:active:not(:disabled) {
-        transform: translateY(0);
-      }
-
-      .btn-submit:disabled {
-        background: var(--muted);
-        box-shadow: none;
-        cursor: not-allowed;
-        color: rgba(232, 234, 240, 0.5);
-      }
-
-      /* ripple */
-      .btn-submit::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.3) 0%,
-          transparent 70%
-        );
-        transform: scale(0);
+      100% {
+        transform: translateY(110vh) rotate(360deg);
         opacity: 0;
-        transition:
-          transform 0.4s,
-          opacity 0.4s;
-        border-radius: 3px;
+      }
+    }
+
+    /* ─── Layout ─────────────────────────────────────────────────────────── */
+    .page {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--board);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow:
+        0 0 0 1px rgba(255, 214, 0, 0.06),
+        0 32px 80px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+      animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
       }
 
-      .btn-submit:active::after {
-        transform: scale(2);
+      to {
         opacity: 1;
-        transition: none;
+        transform: none;
+      }
+    }
+
+    /* ─── Header ─────────────────────────────────────────────────────────── */
+    .card-header {
+      padding: 32px 32px 24px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .logo-discs {
+      display: flex;
+      gap: 6px;
+    }
+
+    .logo-disc {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+    }
+
+    .logo-disc.r {
+      background: var(--red);
+      box-shadow: 0 0 10px var(--red-glow);
+    }
+
+    .logo-disc.y {
+      background: var(--yellow);
+      box-shadow: 0 0 10px var(--yel-glow);
+    }
+
+    .logo-name {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 26px;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+
+    /* ─── Tab toggle ─────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      background: none;
+      border: none;
+      border-radius: 2px;
+      font-family: "DM Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--board);
+      color: var(--yellow);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .tab-btn:not(.active):hover {
+      color: var(--text);
+    }
+
+    /* ─── Form ───────────────────────────────────────────────────────────── */
+    .card-body {
+      padding: 28px 32px 32px;
+    }
+
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    .field {
+      margin-bottom: 16px;
+      animation: fieldIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes fieldIn {
+      from {
+        opacity: 0;
+        transform: translateX(-8px);
       }
 
-      .link-button {
-        background: none;
-        border: none;
-        color: var(--yellow);
-        cursor: pointer;
-        font-family: "DM Mono", monospace;
-        font-size: 12px;
-        letter-spacing: 0.5px;
-        padding: 0;
-        text-decoration: underline;
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 11px 14px;
+      font-family: "DM Mono", monospace;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+      -webkit-autofill: none;
+    }
+
+    input:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 100px var(--surface) inset;
+      -webkit-text-fill-color: var(--text);
+    }
+
+    input:focus {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.1);
+    }
+
+    input.error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(255, 45, 45, 0.12);
+    }
+
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    .field-error {
+      font-size: 11px;
+      color: var(--red);
+      margin-top: 5px;
+      min-height: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ─── Submit button ──────────────────────────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      margin-top: 8px;
+      padding: 13px;
+      background: var(--yellow);
+      border: none;
+      border-radius: 3px;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 18px;
+      letter-spacing: 3px;
+      color: var(--navy);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform 0.12s,
+        box-shadow 0.2s,
+        background 0.2s;
+      box-shadow: 0 4px 20px rgba(255, 214, 0, 0.25);
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(255, 214, 0, 0.35);
+    }
+
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      background: var(--muted);
+      box-shadow: none;
+      cursor: not-allowed;
+      color: rgba(232, 234, 240, 0.5);
+    }
+
+    /* ripple */
+    .btn-submit::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle,
+          rgba(255, 255, 255, 0.3) 0%,
+          transparent 70%);
+      transform: scale(0);
+      opacity: 0;
+      transition:
+        transform 0.4s,
+        opacity 0.4s;
+      border-radius: 3px;
+    }
+
+    .btn-submit:active::after {
+      transform: scale(2);
+      opacity: 1;
+      transition: none;
+    }
+
+    .link-button {
+      background: none;
+      border: none;
+      color: var(--yellow);
+      cursor: pointer;
+      font-family: "DM Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .link-button:hover {
+      color: #ffffff;
+    }
+
+    /* loading spinner inside button */
+    .btn-submit .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(8, 12, 26, 0.3);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+
+    .btn-submit.loading .btn-label {
+      display: none;
+    }
+
+    .btn-submit.loading .spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ─── Global alert ───────────────────────────────────────────────────── */
+    .alert {
+      display: none;
+      margin-bottom: 18px;
+      padding: 10px 14px;
+      border-radius: 3px;
+      font-size: 12px;
+      line-height: 1.5;
+      letter-spacing: 0.3px;
+      border-left: 3px solid;
+      animation: alertIn 0.25s ease both;
+    }
+
+    @keyframes alertIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
       }
 
-      .link-button:hover {
-        color: #ffffff;
+      to {
+        opacity: 1;
+        transform: none;
       }
+    }
 
-      /* loading spinner inside button */
-      .btn-submit .spinner {
-        display: none;
-        width: 16px;
-        height: 16px;
-        border: 2px solid rgba(8, 12, 26, 0.3);
-        border-top-color: var(--navy);
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-        margin: 0 auto;
-      }
+    .alert.success {
+      display: block;
+      background: rgba(0, 200, 100, 0.08);
+      border-color: #00c864;
+      color: #00c864;
+    }
 
-      .btn-submit.loading .btn-label {
-        display: none;
-      }
+    .alert.fail {
+      display: block;
+      background: rgba(255, 45, 45, 0.08);
+      border-color: var(--red);
+      color: var(--red);
+    }
 
-      .btn-submit.loading .spinner {
-        display: block;
-      }
+    /* ─── Footer link ────────────────────────────────────────────────────── */
+    .card-footer {
+      padding: 0 32px 24px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
 
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
+    .card-footer a {
+      color: var(--yellow);
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-      /* ─── Global alert ───────────────────────────────────────────────────── */
-      .alert {
-        display: none;
-        margin-bottom: 18px;
-        padding: 10px 14px;
-        border-radius: 3px;
-        font-size: 12px;
-        line-height: 1.5;
-        letter-spacing: 0.3px;
-        border-left: 3px solid;
-        animation: alertIn 0.25s ease both;
-      }
+    .card-footer a:hover {
+      text-decoration: underline;
+    }
 
-      @keyframes alertIn {
-        from {
-          opacity: 0;
-          transform: translateY(-6px);
-        }
+  </style>
+</head>
 
-        to {
-          opacity: 1;
-          transform: none;
-        }
-      }
+<body>
+  <div class="bg"></div>
 
-      .alert.success {
-        display: block;
-        background: rgba(0, 200, 100, 0.08);
-        border-color: #00c864;
-        color: #00c864;
-      }
+  <!-- Falling tokens -->
+  <div class="tokens-canvas" id="tokensCanvas"></div>
 
-      .alert.fail {
-        display: block;
-        background: rgba(255, 45, 45, 0.08);
-        border-color: var(--red);
-        color: var(--red);
-      }
-
-      /* ─── Footer link ────────────────────────────────────────────────────── */
-      .card-footer {
-        padding: 0 32px 24px;
-        text-align: center;
-        font-size: 11px;
-        color: var(--muted);
-      }
-
-      .card-footer a {
-        color: var(--yellow);
-        text-decoration: none;
-        cursor: pointer;
-      }
-
-      .card-footer a:hover {
-        text-decoration: underline;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="bg"></div>
-
-    <!-- Falling tokens -->
-    <div class="tokens-canvas" id="tokensCanvas"></div>
-
-    <div class="page">
-      <div class="card">
-        <div class="card-header">
-          <div class="logo">
-            <div class="logo-discs">
-              <div class="logo-disc r"></div>
-              <div class="logo-disc y"></div>
-              <div class="logo-disc r"></div>
-            </div>
-            <span class="logo-name">Connect Four</span>
-            <div class="logo-discs">
-              <div class="logo-disc y"></div>
-              <div class="logo-disc r"></div>
-              <div class="logo-disc y"></div>
-            </div>
+  <div class="page">
+    <div class="card">
+      <div class="card-header">
+        <div class="logo">
+          <div class="logo-discs">
+            <div class="logo-disc r"></div>
+            <div class="logo-disc y"></div>
+            <div class="logo-disc r"></div>
           </div>
-          <div class="tabs">
-            <button class="tab-btn active" data-tab="login">Log In</button>
-            <button class="tab-btn" data-tab="signup">Sign Up</button>
+          <span class="logo-name">Connect Four</span>
+          <div class="logo-discs">
+            <div class="logo-disc y"></div>
+            <div class="logo-disc r"></div>
+            <div class="logo-disc y"></div>
           </div>
         </div>
-
-        <div class="card-body">
-          <!-- ── Login ──────────────────────────────────────────────────────── -->
-          <div class="form-panel active" id="panel-login">
-            <div class="alert" id="login-alert"></div>
-            <div
-              class="field"
-              id="resend-verification"
-              style="display: none; animation-delay: 0.03s"
-            >
-              <span style="font-size: 12px; color: var(--muted)"
-                >Didn't get the email?
-                <button
-                  type="button"
-                  class="link-button"
-                  id="resend-verify-btn"
-                >
-                  Resend verification
-                </button></span
-              >
-            </div>
-
-            <div class="field" style="animation-delay: 0.05s">
-              <label for="login-email">Email</label>
-              <input
-                id="login-email"
-                type="email"
-                placeholder="you@example.com"
-                autocomplete="email"
-              />
-              <div class="field-error" id="login-email-err"></div>
-            </div>
-
-            <div class="field" style="animation-delay: 0.1s">
-              <label for="login-password">Password</label>
-              <input
-                id="login-password"
-                type="password"
-                placeholder="••••••••"
-                autocomplete="current-password"
-              />
-              <div class="field-error" id="login-password-err"></div>
-            </div>
-
-            <button
-              class="btn-submit"
-              id="login-btn"
-              style="animation-delay: 0.15s"
-            >
-              <span class="btn-label">Play</span>
-              <div class="spinner"></div>
-            </button>
-          </div>
-
-          <!-- ── Sign Up ────────────────────────────────────────────────────── -->
-          <div class="form-panel" id="panel-signup">
-            <div class="alert" id="signup-alert"></div>
-
-            <div class="field" style="animation-delay: 0.05s">
-              <label for="signup-username">Username</label>
-              <input
-                id="signup-username"
-                type="text"
-                placeholder="drop_zone_king"
-                autocomplete="username"
-              />
-              <div class="field-error" id="signup-username-err"></div>
-            </div>
-
-            <div class="field" style="animation-delay: 0.08s">
-              <label for="signup-email">Email</label>
-              <input
-                id="signup-email"
-                type="email"
-                placeholder="you@example.com"
-                autocomplete="email"
-              />
-              <div class="field-error" id="signup-email-err"></div>
-            </div>
-
-            <div class="field" style="animation-delay: 0.11s">
-              <label for="signup-password">Password</label>
-              <input
-                id="signup-password"
-                type="password"
-                placeholder="••••••••"
-                autocomplete="new-password"
-              />
-              <div class="field-error" id="signup-password-err"></div>
-            </div>
-
-            <div class="field" style="animation-delay: 0.14s">
-              <label for="signup-confirm">Confirm Password</label>
-              <input
-                id="signup-confirm"
-                type="password"
-                placeholder="••••••••"
-                autocomplete="new-password"
-              />
-              <div class="field-error" id="signup-confirm-err"></div>
-            </div>
-
-            <button
-              class="btn-submit"
-              id="signup-btn"
-              style="animation-delay: 0.17s"
-            >
-              <span class="btn-label">Create Account</span>
-              <div class="spinner"></div>
-            </button>
-          </div>
-        </div>
-        <!-- /card-body -->
-
-        <div class="card-footer">
-          <span id="footer-text"
-            >No account?
-            <a id="footer-link">Sign up free</a>
-          </span>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="login">Log In</button>
+          <button class="tab-btn" data-tab="signup">Sign Up</button>
         </div>
       </div>
-      <!-- /card -->
+
+      <div class="card-body">
+        <!-- ── Login ──────────────────────────────────────────────────────── -->
+        <div class="form-panel active" id="panel-login">
+          <div class="alert" id="login-alert"></div>
+          <div class="field" id="resend-verification" style="display: none; animation-delay: 0.03s">
+            <span style="font-size: 12px; color: var(--muted)">Didn't get the email?
+              <button type="button" class="link-button" id="resend-verify-btn">
+                Resend verification
+              </button></span>
+          </div>
+
+          <div class="field" style="animation-delay: 0.05s">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" placeholder="you@example.com" autocomplete="email" />
+            <div class="field-error" id="login-email-err"></div>
+          </div>
+
+          <div class="field" style="animation-delay: 0.1s">
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+            <div class="field-error" id="login-password-err"></div>
+          </div>
+
+          <button class="btn-submit" id="login-btn" style="animation-delay: 0.15s">
+            <span class="btn-label">Play</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+
+        <!-- ── Sign Up ────────────────────────────────────────────────────── -->
+        <div class="form-panel" id="panel-signup">
+          <div class="alert" id="signup-alert"></div>
+
+          <div class="field" style="animation-delay: 0.05s">
+            <label for="signup-username">Username</label>
+            <input id="signup-username" type="text" placeholder="drop_zone_king" autocomplete="username" />
+            <div class="field-error" id="signup-username-err"></div>
+          </div>
+
+          <div class="field" style="animation-delay: 0.08s">
+            <label for="signup-email">Email</label>
+            <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" />
+            <div class="field-error" id="signup-email-err"></div>
+          </div>
+
+          <div class="field" style="animation-delay: 0.11s">
+            <label for="signup-password">Password</label>
+            <input id="signup-password" type="password" placeholder="••••••••" autocomplete="new-password" />
+            <div class="field-error" id="signup-password-err"></div>
+          </div>
+
+          <div class="field" style="animation-delay: 0.14s">
+            <label for="signup-confirm">Confirm Password</label>
+            <input id="signup-confirm" type="password" placeholder="••••••••" autocomplete="new-password" />
+            <div class="field-error" id="signup-confirm-err"></div>
+          </div>
+
+          <button class="btn-submit" id="signup-btn" style="animation-delay: 0.17s">
+            <span class="btn-label">Create Account</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+      </div>
+      <!-- /card-body -->
+
+      <div class="card-footer">
+        <span id="footer-text">No account?
+          <a id="footer-link">Sign up free</a>
+        </span>
+      </div>
     </div>
-    <!-- /page -->
+    <!-- /card -->
+  </div>
+  <!-- /page -->
 
-    <script>
-      // ─── Config ────────────────────────────────────────────────────────────────
-      const API_BASE = "https://db.connectfour.workers.dev";
+  <script>
+    // ─── Config ────────────────────────────────────────────────────────────────
+    const API_BASE = "https://db.connectfour.workers.dev";
 
-      // After successful login, redirect to:
-      const GAME_URL = "/game.html";
+    // After successful login, redirect to:
+    const GAME_URL = "/game.html";
 
-      // ─── Falling tokens ────────────────────────────────────────────────────────
-      (function spawnTokens() {
-        const canvas = document.getElementById("tokensCanvas");
-        const count = 18;
-        for (let i = 0; i < count; i++) {
-          const el = document.createElement("div");
-          el.className = "token " + (Math.random() > 0.5 ? "r" : "y");
-          const size = 24 + Math.random() * 28;
-          el.style.cssText = `
+    // ─── Falling tokens ────────────────────────────────────────────────────────
+    (function spawnTokens() {
+      const canvas = document.getElementById("tokensCanvas");
+      const count = 18;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement("div");
+        el.className = "token " + (Math.random() > 0.5 ? "r" : "y");
+        const size = 24 + Math.random() * 28;
+        el.style.cssText = `
       width:${size}px; height:${size}px;
       left:${Math.random() * 100}%;
       animation-duration:${6 + Math.random() * 10}s;
       animation-delay:${-Math.random() * 14}s;
     `;
-          canvas.appendChild(el);
-        }
-      })();
-
-      // ─── Tab switching ─────────────────────────────────────────────────────────
-      const tabs = document.querySelectorAll(".tab-btn");
-      const panels = document.querySelectorAll(".form-panel");
-      const footerText = document.getElementById("footer-text");
-      const footerLink = document.getElementById("footer-link");
-
-      let activeTab = "login";
-
-      function switchTab(tab) {
-        activeTab = tab;
-        tabs.forEach((b) =>
-          b.classList.toggle("active", b.dataset.tab === tab),
-        );
-        panels.forEach((p) =>
-          p.classList.toggle("active", p.id === `panel-${tab}`),
-        );
-
-        if (tab === "login") {
-          footerText.innerHTML =
-            'No account? <a id="footer-link">Sign up free</a>';
-        } else {
-          footerText.innerHTML =
-            'Already have one? <a id="footer-link">Log in</a>';
-        }
-        // rebind after innerHTML replacement
-        document.getElementById("footer-link").addEventListener("click", () => {
-          switchTab(tab === "login" ? "signup" : "login");
-        });
-        clearAlerts();
+        canvas.appendChild(el);
       }
+    })();
 
+    // ─── Tab switching ─────────────────────────────────────────────────────────
+    const tabs = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".form-panel");
+    const footerText = document.getElementById("footer-text");
+    const footerLink = document.getElementById("footer-link");
+
+    let activeTab = "login";
+
+    function switchTab(tab) {
+      activeTab = tab;
       tabs.forEach((b) =>
-        b.addEventListener("click", () => switchTab(b.dataset.tab)),
+        b.classList.toggle("active", b.dataset.tab === tab),
       );
-      footerLink.addEventListener("click", () => switchTab("signup"));
+      panels.forEach((p) =>
+        p.classList.toggle("active", p.id === `panel-${tab}`),
+      );
 
-      // ─── Helpers ───────────────────────────────────────────────────────────────
-      function clearAlerts({ keepResend = false } = {}) {
-        document.querySelectorAll(".alert").forEach((el) => {
-          el.className = "alert";
-          el.textContent = "";
-        });
-        document
-          .querySelectorAll("input")
-          .forEach((el) => el.classList.remove("error"));
-        document
-          .querySelectorAll(".field-error")
-          .forEach((el) => (el.textContent = ""));
-        if (!keepResend) hideResendVerification();
+      if (tab === "login") {
+        footerText.innerHTML =
+          'No account? <a id="footer-link">Sign up free</a>';
+      } else {
+        footerText.innerHTML =
+          'Already have one? <a id="footer-link">Log in</a>';
       }
+      // rebind after innerHTML replacement
+      document.getElementById("footer-link").addEventListener("click", () => {
+        switchTab(tab === "login" ? "signup" : "login");
+      });
+      clearAlerts();
+    }
 
-      function fieldError(inputId, errId, msg) {
-        document.getElementById(inputId).classList.add("error");
-        document.getElementById(errId).textContent = msg;
-      }
+    tabs.forEach((b) =>
+      b.addEventListener("click", () => switchTab(b.dataset.tab)),
+    );
+    footerLink.addEventListener("click", () => switchTab("signup"));
 
-      function showAlert(id, type, msg) {
-        const el = document.getElementById(id);
-        el.textContent = msg;
-        el.className = `alert ${type}`;
-      }
-
-      function setLoading(btn, on) {
-        btn.disabled = on;
-        btn.classList.toggle("loading", on);
-      }
-
-      async function apiFetch(path, method = "GET", body = null) {
-        const opts = {
-          method,
-          headers: {
-            ...(body
-              ? {
-                  "Content-Type": "application/json",
-                }
-              : {}),
-          },
-          ...(body
-            ? {
-                body: JSON.stringify(body),
-              }
-            : {}),
-        };
-        const res = await fetch(API_BASE + path, opts);
-        const data = await res.json().catch(() => ({}));
-        return {
-          ok: res.ok,
-          status: res.status,
-          data,
-        };
-      }
-
-      let pendingUnverifiedEmail = "";
-      const resendSection = document.getElementById("resend-verification");
-      const resendButton = document.getElementById("resend-verify-btn");
-
-      function showResendVerification(email) {
-        pendingUnverifiedEmail = email;
-        resendButton.dataset.email = email;
-        resendSection.style.display = "block";
-      }
-
-      function hideResendVerification() {
-        pendingUnverifiedEmail = "";
-        resendButton.dataset.email = "";
-        resendSection.style.display = "none";
-      }
-
-      async function handleVerifyToken() {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("token") || params.get("verify");
-        if (!token) return;
-
-        const { ok, data } = await apiFetch(
-          `/verify?token=${encodeURIComponent(token)}`,
-        );
-        if (ok && data?.ok) {
-          switchTab("login");
-          showAlert(
-            "login-alert",
-            "success",
-            "Email verified! You can now log in.",
-          );
-        } else {
-          const message =
-            data?.error || "Verification failed. The link may have expired.";
-          switchTab("login");
-          showAlert("login-alert", "fail", message);
-        }
-        history.replaceState({}, "", window.location.pathname);
-      }
-
-      function uuid() {
-        return crypto.randomUUID
-          ? crypto.randomUUID()
-          : "xxxx-xxxx-4xxx-yxxx".replace(/[xy]/g, (c) => {
-              const r = (Math.random() * 16) | 0;
-              return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-            });
-      }
-
-      // Session helpers (localStorage)
-      function saveSession(token, user) {
-        localStorage.setItem(
-          "c4_session",
-          JSON.stringify({
-            token,
-            user,
-          }),
-        );
-      }
-
-      function loadSession() {
-        try {
-          return JSON.parse(localStorage.getItem("c4_session"));
-        } catch {
-          return null;
-        }
-      }
-
-      // ─── Auto-login if session exists ─────────────────────────────────────────
-      (async function checkExistingSession() {
-        const saved = loadSession();
-        if (!saved?.token) return;
-        const { ok, data } = await apiFetch(
-          `/session?token=${encodeURIComponent(saved.token)}`,
-        );
-        if (ok && data?.user_id) {
-          window.location.href = GAME_URL;
-        }
-      })();
-
-      handleVerifyToken();
-
-      // ─── Login ─────────────────────────────────────────────────────────────────
+    // ─── Helpers ───────────────────────────────────────────────────────────────
+    function clearAlerts({
+      keepResend = false
+    } = {}) {
+      document.querySelectorAll(".alert").forEach((el) => {
+        el.className = "alert";
+        el.textContent = "";
+      });
       document
-        .getElementById("login-btn")
-        .addEventListener("click", async () => {
-          clearAlerts();
-          const email = document.getElementById("login-email").value.trim();
-          const password = document.getElementById("login-password").value;
-          let valid = true;
+        .querySelectorAll("input")
+        .forEach((el) => el.classList.remove("error"));
+      document
+        .querySelectorAll(".field-error")
+        .forEach((el) => (el.textContent = ""));
+      if (!keepResend) hideResendVerification();
+    }
 
-          if (!email) {
-            fieldError("login-email", "login-email-err", "Email is required.");
-            valid = false;
-          }
-          if (!password) {
-            fieldError(
-              "login-password",
-              "login-password-err",
-              "Password is required.",
-            );
-            valid = false;
-          }
-          if (!valid) return;
+    function fieldError(inputId, errId, msg) {
+      document.getElementById(inputId).classList.add("error");
+      document.getElementById(errId).textContent = msg;
+    }
 
-          const btn = document.getElementById("login-btn");
-          setLoading(btn, true);
+    function showAlert(id, type, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = `alert ${type}`;
+    }
 
-          try {
-            const { ok, data } = await apiFetch("/login", "POST", {
-              email,
-              password,
-            });
+    function setLoading(btn, on) {
+      btn.disabled = on;
+      btn.classList.toggle("loading", on);
+    }
 
-            if (!ok) {
-              if (data?.error === "Unverified") {
-                showAlert(
-                  "login-alert",
-                  "fail",
-                  "Email not verified. Check your inbox or resend verification.",
-                );
-                showResendVerification(email);
-              } else {
-                showAlert(
-                  "login-alert",
-                  "fail",
-                  data?.error || "Invalid credentials.",
-                );
-              }
-              return;
-            }
+    async function apiFetch(path, method = "GET", body = null) {
+      const opts = {
+        method,
+        headers: {
+          ...(body ?
+            {
+              "Content-Type": "application/json",
+            } :
+            {}),
+        },
+        ...(body ?
+          {
+            body: JSON.stringify(body),
+          } :
+          {}),
+      };
+      const res = await fetch(API_BASE + path, opts);
+      const data = await res.json().catch(() => ({}));
+      return {
+        ok: res.ok,
+        status: res.status,
+        data,
+      };
+    }
 
-            saveSession(data.token, data.user);
-            showAlert("login-alert", "success", "Welcome back! Redirecting…");
-            setTimeout(() => {
-              window.location.href = GAME_URL;
-            }, 800);
-          } catch (e) {
-            showAlert(
-              "login-alert",
-              "fail",
-              "Network error. Check your connection.",
-            );
-            console.error(e);
-          } finally {
-            setLoading(btn, false);
-          }
+    let pendingUnverifiedEmail = "";
+    const resendSection = document.getElementById("resend-verification");
+    const resendButton = document.getElementById("resend-verify-btn");
+
+    function showResendVerification(email) {
+      pendingUnverifiedEmail = email;
+      resendButton.dataset.email = email;
+      resendSection.style.display = "block";
+    }
+
+    function hideResendVerification() {
+      pendingUnverifiedEmail = "";
+      resendButton.dataset.email = "";
+      resendSection.style.display = "none";
+    }
+
+    async function handleVerifyToken() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token") || params.get("verify");
+      if (!token) return;
+
+      const {
+        ok,
+        data
+      } = await apiFetch(
+        `/verify?token=${encodeURIComponent(token)}`,
+      );
+      if (ok && data?.ok) {
+        switchTab("login");
+        showAlert(
+          "login-alert",
+          "success",
+          "Email verified! You can now log in.",
+        );
+      } else {
+        const message =
+          data?.error || "Verification failed. The link may have expired.";
+        switchTab("login");
+        showAlert("login-alert", "fail", message);
+      }
+      history.replaceState({}, "", window.location.pathname);
+    }
+
+    function uuid() {
+      return crypto.randomUUID ?
+        crypto.randomUUID() :
+        "xxxx-xxxx-4xxx-yxxx".replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0;
+          return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
         });
+    }
 
-      resendButton.addEventListener("click", async () => {
-        const email = (
-          resendButton.dataset.email ||
-          pendingUnverifiedEmail ||
-          document.getElementById("login-email").value
-        ).trim();
+    // Session helpers (localStorage)
+    function saveSession(token, user) {
+      localStorage.setItem(
+        "c4_session",
+        JSON.stringify({
+          token,
+          user,
+        }),
+      );
+    }
+
+    function loadSession() {
+      try {
+        return JSON.parse(localStorage.getItem("c4_session"));
+      } catch {
+        return null;
+      }
+    }
+
+    // ─── Auto-login if session exists ─────────────────────────────────────────
+    (async function checkExistingSession() {
+      const saved = loadSession();
+      if (!saved?.token) return;
+      const {
+        ok,
+        data
+      } = await apiFetch(
+        `/session?token=${encodeURIComponent(saved.token)}`,
+      );
+      if (ok && data?.user_id) {
+        window.location.href = GAME_URL;
+      }
+    })();
+
+    handleVerifyToken();
+
+    // ─── Login ─────────────────────────────────────────────────────────────────
+    document
+      .getElementById("login-btn")
+      .addEventListener("click", async () => {
+        clearAlerts();
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value;
+        let valid = true;
+
         if (!email) {
-          showAlert(
-            "login-alert",
-            "fail",
-            "Enter your email before resending verification.",
-          );
-          return;
+          fieldError("login-email", "login-email-err", "Email is required.");
+          valid = false;
         }
-        clearAlerts({
-          keepResend: true,
-        });
-        const btn = resendButton;
+        if (!password) {
+          fieldError(
+            "login-password",
+            "login-password-err",
+            "Password is required.",
+          );
+          valid = false;
+        }
+        if (!valid) return;
+
+        const btn = document.getElementById("login-btn");
         setLoading(btn, true);
 
         try {
-          const { ok, data } = await apiFetch("/resend-verification", "POST", {
+          const {
+            ok,
+            data
+          } = await apiFetch("/login", "POST", {
             email,
+            password,
           });
 
           if (!ok) {
-            showAlert(
-              "login-alert",
-              "fail",
-              data?.error || "Could not resend verification email.",
-            );
+            if (data?.error === "Unverified") {
+              showAlert(
+                "login-alert",
+                "fail",
+                "Email not verified. Check your inbox or resend verification.",
+              );
+              showResendVerification(email);
+            } else {
+              showAlert(
+                "login-alert",
+                "fail",
+                data?.error || "Invalid credentials.",
+              );
+            }
             return;
           }
 
-          showAlert(
-            "login-alert",
-            "success",
-            "Verification email resent. Check your inbox.",
-          );
-          hideResendVerification();
+          saveSession(data.token, data.user);
+          showAlert("login-alert", "success", "Welcome back! Redirecting…");
+          setTimeout(() => {
+            window.location.href = GAME_URL;
+          }, 800);
         } catch (e) {
           showAlert(
             "login-alert",
@@ -945,99 +852,159 @@
         }
       });
 
-      // ─── Sign Up ───────────────────────────────────────────────────────────────
-      document
-        .getElementById("signup-btn")
-        .addEventListener("click", async () => {
-          clearAlerts();
-          const username = document
-            .getElementById("signup-username")
-            .value.trim();
-          const email = document.getElementById("signup-email").value.trim();
-          const password = document.getElementById("signup-password").value;
-          const confirm = document.getElementById("signup-confirm").value;
-          let valid = true;
+    resendButton.addEventListener("click", async () => {
+      const email = (
+        resendButton.dataset.email ||
+        pendingUnverifiedEmail ||
+        document.getElementById("login-email").value
+      ).trim();
+      if (!email) {
+        showAlert(
+          "login-alert",
+          "fail",
+          "Enter your email before resending verification.",
+        );
+        return;
+      }
+      clearAlerts({
+        keepResend: true,
+      });
+      const btn = resendButton;
+      setLoading(btn, true);
 
-          if (!username || username.length < 3) {
-            fieldError(
-              "signup-username",
-              "signup-username-err",
-              "At least 3 characters.",
-            );
-            valid = false;
-          }
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            fieldError(
-              "signup-email",
-              "signup-email-err",
-              "Enter a valid email.",
-            );
-            valid = false;
-          }
-          if (password.length < 8) {
-            fieldError(
-              "signup-password",
-              "signup-password-err",
-              "At least 8 characters.",
-            );
-            valid = false;
-          }
-          if (password !== confirm) {
-            fieldError(
-              "signup-confirm",
-              "signup-confirm-err",
-              "Passwords do not match.",
-            );
-            valid = false;
-          }
-          if (!valid) return;
+      try {
+        const {
+          ok,
+          data
+        } = await apiFetch("/resend-verification", "POST", {
+          email,
+        });
 
-          const btn = document.getElementById("signup-btn");
-          setLoading(btn, true);
+        if (!ok) {
+          showAlert(
+            "login-alert",
+            "fail",
+            data?.error || "Could not resend verification email.",
+          );
+          return;
+        }
 
-          try {
-            const { ok, data } = await apiFetch("/signup", "POST", {
-              username,
-              email,
-              password,
-            });
+        showAlert(
+          "login-alert",
+          "success",
+          "Verification email resent. Check your inbox.",
+        );
+        hideResendVerification();
+      } catch (e) {
+        showAlert(
+          "login-alert",
+          "fail",
+          "Network error. Check your connection.",
+        );
+        console.error(e);
+      } finally {
+        setLoading(btn, false);
+      }
+    });
 
-            if (!ok) {
-              showAlert(
-                "signup-alert",
-                "fail",
-                data?.error || "Could not create account.",
-              );
-              return;
-            }
+    // ─── Sign Up ───────────────────────────────────────────────────────────────
+    document
+      .getElementById("signup-btn")
+      .addEventListener("click", async () => {
+        clearAlerts();
+        const username = document
+          .getElementById("signup-username")
+          .value.trim();
+        const email = document.getElementById("signup-email").value.trim();
+        const password = document.getElementById("signup-password").value;
+        const confirm = document.getElementById("signup-confirm").value;
+        let valid = true;
 
-            switchTab("login");
-            showAlert(
-              "login-alert",
-              "success",
-              "Account created! Check your inbox to verify your email.",
-            );
-          } catch (e) {
+        if (!username || username.length < 3) {
+          fieldError(
+            "signup-username",
+            "signup-username-err",
+            "At least 3 characters.",
+          );
+          valid = false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          fieldError(
+            "signup-email",
+            "signup-email-err",
+            "Enter a valid email.",
+          );
+          valid = false;
+        }
+        if (password.length < 8) {
+          fieldError(
+            "signup-password",
+            "signup-password-err",
+            "At least 8 characters.",
+          );
+          valid = false;
+        }
+        if (password !== confirm) {
+          fieldError(
+            "signup-confirm",
+            "signup-confirm-err",
+            "Passwords do not match.",
+          );
+          valid = false;
+        }
+        if (!valid) return;
+
+        const btn = document.getElementById("signup-btn");
+        setLoading(btn, true);
+
+        try {
+          const {
+            ok,
+            data
+          } = await apiFetch("/signup", "POST", {
+            username,
+            email,
+            password,
+          });
+
+          if (!ok) {
             showAlert(
               "signup-alert",
               "fail",
-              "Network error. Check your connection.",
+              data?.error || "Could not create account.",
             );
-            console.error(e);
-          } finally {
-            setLoading(btn, false);
+            return;
           }
-        });
 
-      // ─── Enter key submits ─────────────────────────────────────────────────────
-
-      // ─── Enter key submits ─────────────────────────────────────────────────────
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Enter") return;
-        if (activeTab === "login") document.getElementById("login-btn").click();
-        if (activeTab === "signup")
-          document.getElementById("signup-btn").click();
+          switchTab("login");
+          showAlert(
+            "login-alert",
+            "success",
+            "Account created! Check your inbox to verify your email.",
+          );
+        } catch (e) {
+          showAlert(
+            "signup-alert",
+            "fail",
+            "Network error. Check your connection.",
+          );
+          console.error(e);
+        } finally {
+          setLoading(btn, false);
+        }
       });
-    </script>
-  </body>
+
+    // ─── Enter key submits ─────────────────────────────────────────────────────
+
+    // ─── Enter key submits ─────────────────────────────────────────────────────
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      if (activeTab === "login") document.getElementById("login-btn").click();
+      if (activeTab === "signup")
+        document.getElementById("signup-btn").click();
+    });
+
+  </script>
+</body>
+
 </html>
