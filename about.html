@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Connect 4 AI</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --board: #1a1a2e;
+      --board-border: #2a2a4e;
+      --cell-empty: #0d0d1a;
+      --cell-empty-border: #1e1e3a;
+      --red: #cc0044;
+      --red-win: #ff2266;
+      --red-glow: #ff2266;
+      --yellow: #cc8800;
+      --yellow-win: #ffcc00;
+      --yellow-glow: #ffcc00;
+      --text: #ccc;
+      --text-dim: #555;
+      --text-dimmer: #333;
+      --btn-border: #333;
+      --min-vh: min(100vh, min(100dvh, 100svh));
+      --min-vw: min(100vw, min(100dvw, 100svw));
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: var(--min-vh);
+      max-width: var(--min-vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      font-family: "Courier New", monospace;
+      padding: 24px 16px;
+      color: var(--text);
+    }
+
+    #title-label {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    #title {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    #content {
+      max-width: 600px;
+      line-height: 1.6;
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    #content h2 {
+      font-size: 18px;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      color: #aaa;
+      letter-spacing: 0.05em;
+    }
+
+    #content p {
+      margin-bottom: 12px;
+      color: #999;
+    }
+
+    #content ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+      color: #999;
+    }
+
+    #content li {
+      margin-bottom: 8px;
+    }
+
+    #content strong {
+      color: #bbb;
+    }
+
+    #nav {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid var(--btn-border);
+      color: #666;
+      padding: 8px 24px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      border-color: #666;
+      color: #aaa;
+    }
+
+    .nav-btn.primary {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .nav-btn.primary:hover {
+      border-color: var(--yellow-win);
+      color: var(--yellow-win);
+      box-shadow: 0 0 12px rgba(255, 204, 0, 0.2);
+    }
+    .nav-divider {
+      color: #444;
+    }
+
+    #about-nav-links {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    #about-nav-links a {
+      color: #888;
+      text-decoration: none;
+      margin: 0 12px;
+      transition: color 0.2s;
+    }
+
+    #about-nav-links a:hover {
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="title-label">Educational Tool</div>
+  <h1 id="title">Connect 4 — AI</h1>
+  <div id="about-nav-links">
+    <a href="about.html">About</a>
+    <span class="nav-divider">•</span>
+    <a href="game.html">Play</a>
+  </div>
+
+  <div id="content">
+    <h2>What is this?</h2>
+    <p>
+      <strong>Connect 4 AI</strong> is an interactive learning tool designed to teach programming
+      and artificial intelligence concepts through the classic game of Connect Four.
+    </p>
+
+    <h2>Why Connect Four?</h2>
+    <p>
+      Connect Four is an excellent platform for learning because it:
+    </p>
+    <ul>
+      <li><strong>Is simple to understand</strong> — but strategically deep</li>
+      <li><strong>Has a finite game tree</strong> — making it perfect for AI exploration</li>
+      <li><strong>Allows visualization</strong> — you can see AI decision-making in real time</li>
+      <li><strong>Scales well</strong> — from basic algorithms to advanced AI techniques</li>
+    </ul>
+
+    <h2>Learning Opportunities</h2>
+    <p>
+      This tool demonstrates several key programming and AI concepts:
+    </p>
+    <ul>
+      <li><strong>Game State Management</strong> — tracking board positions and player moves</li>
+      <li><strong>Minimax Algorithm</strong> — how AI evaluates future game states</li>
+      <li><strong>Board Evaluation</strong> — scoring positions to guide AI decisions</li>
+      <li><strong>Search Strategies</strong> — exploring the game tree efficiently</li>
+      <li><strong>Database Integration</strong> — storing and retrieving game data</li>
+      <li><strong>Authentication</strong> — managing user sessions and accounts</li>
+    </ul>
+
+    <h2>How to Use It</h2>
+    <p>
+      Start a game against the AI, watch how it plays, and explore the code to understand
+      how its decision-making works. Try different strategies and see if you can beat it!
+    </p>
+
+    <h2>Dive Into the Code</h2>
+    <p>
+      The source code is the best learning resource. Check out:
+    </p>
+    <ul>
+      <li><strong>game.html</strong> — Main game interface and controls</li>
+      <li><strong>db.connectfour.js</strong> — Game logic and AI engine</li>
+      <li><strong>do-db.connectfour-db.js</strong> — Database operations</li>
+    </ul>
+  </div>
+</body>
+
+</html>
