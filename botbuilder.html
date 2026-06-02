@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Builder — Connect 4</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon-waffle.png">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --board: #1a1a2e;
+      --board-border: #2a2a4e;
+      --cell-empty: #0d0d1a;
+      --cell-empty-border: #1e1e3a;
+      --red: #cc0044;
+      --yellow: #cc8800;
+      --text: #ccc;
+      --text-dim: #555;
+      --text-dimmer: #333;
+      --btn-border: #333;
+      --block-red: #ee4455;
+      --block-blue: #4488dd;
+      --block-green: #44bb44;
+      --block-orange: #dd8844;
+      --block-purple: #bb44dd;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      font-family: "Courier New", monospace;
+      padding: 24px 16px;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #title-label {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    #title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    #nav-links {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    #nav-links a {
+      color: #888;
+      text-decoration: none;
+      margin: 0 12px;
+      transition: color 0.2s;
+    }
+
+    #nav-links a:hover {
+      color: #aaa;
+    }
+
+    .nav-divider {
+      color: #444;
+    }
+
+    #container {
+      display: flex;
+      gap: 16px;
+      max-width: 1400px;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    #editor-panel {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #blocks-palette {
+      background: var(--board);
+      border: 1px solid var(--board-border);
+      border-radius: 4px;
+      padding: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .block-category {
+      margin-bottom: 12px;
+    }
+
+    .block-category-title {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .block {
+      background: var(--block-blue);
+      color: #fff;
+      padding: 6px 10px;
+      margin-bottom: 4px;
+      border-radius: 3px;
+      cursor: move;
+      font-size: 11px;
+      border: none;
+      font-family: inherit;
+      -webkit-user-select: none;
+      user-select: none;
+      transition: opacity 0.2s;
+    }
+
+    .block:hover {
+      opacity: 0.9;
+    }
+
+    .block.control {
+      background: var(--block-orange);
+    }
+
+    #bot-name {
+      width: 100%;
+      padding: 6px;
+      background: var(--cell-empty);
+      border: 1px solid var(--cell-empty-border);
+      color: var(--text);
+      font-family: inherit;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+
+    .block.logic {
+      background: var(--block-purple);
+    }
+
+    .block.analysis {
+      background: var(--block-green);
+    }
+
+    .block.board {
+      background: var(--block-red);
+    }
+
+    #script-area {
+      background: var(--cell-empty);
+      border: 2px solid var(--board-border);
+      border-radius: 4px;
+      padding: 16px;
+      min-height: 400px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .script-block {
+      background: var(--block-blue);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 3px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+      -webkit-user-select: none;
+      user-select: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .script-block:active {
+      cursor: grabbing;
+    }
+
+    .script-block.control {
+      background: var(--block-orange);
+    }
+
+    .script-block.logic {
+      background: var(--block-purple);
+    }
+
+    .script-block.analysis {
+      background: var(--block-green);
+    }
+
+    .script-block.board {
+      background: var(--block-red);
+    }
+
+    .script-block-delete {
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 10px;
+    }
+
+    .script-block-delete:hover {
+      background: rgba(255, 0, 0, 0.4);
+    }
+
+    #test-panel {
+      flex: 0 0 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel {
+      background: var(--board);
+      border: 1px solid var(--board-border);
+      border-radius: 4px;
+      padding: 12px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    #test-board {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 12px;
+    }
+
+    .test-cell {
+      width: 30px;
+      height: 30px;
+      background: var(--cell-empty);
+      border: 1px solid var(--cell-empty-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: bold;
+    }
+
+    .test-cell.red {
+      background: var(--red);
+      border: none;
+    }
+
+    .test-cell.yellow {
+      background: var(--yellow);
+      border: none;
+      color: #000;
+    }
+
+    #test-info {
+      font-size: 10px;
+      color: var(--text-dim);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    button {
+      background: transparent;
+      border: 1px solid var(--btn-border);
+      color: #666;
+      padding: 6px 12px;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+      flex: 1;
+    }
+
+    button:hover {
+      border-color: #666;
+      color: #aaa;
+    }
+
+    button.primary {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    button.primary:hover {
+      border-color: #ffcc00;
+      color: #ffcc00;
+    }
+
+    button.danger {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    button.danger:hover {
+      border-color: #ff2266;
+      color: #ff2266;
+    }
+
+    #test-log {
+      background: var(--cell-empty);
+      border: 1px solid var(--cell-empty-border);
+      padding: 8px;
+      border-radius: 2px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 9px;
+      color: #7a7aaa;
+      line-height: 1.3;
+    }
+
+    .log-error {
+      color: #ff6666;
+    }
+
+    .log-success {
+      color: #66ff66;
+    }
+
+    #empty-script {
+      color: var(--text-dimmer);
+      font-size: 12px;
+      text-align: center;
+      padding: 40px 20px;
+      font-style: italic;
+    }
+
+    @media (max-width: 1100px) {
+      #container {
+        flex-direction: column;
+      }
+
+      #test-panel {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="title-label">Programming Tool</div>
+  <h1 id="title">Bot Builder</h1>
+  <div id="nav-links">
+    <a href="about.html">About</a>
+    <span class="nav-divider">•</span>
+    <a href="game.html">Play</a>
+    <span class="nav-divider">•</span>
+    <a href="botbuilder.html">Build</a>
+  </div>
+
+  <div id="container">
+    <div id="editor-panel">
+      <div id="blocks-palette">
+        <div class="block-category">
+          <div class="block-category-title">📊 Board</div>
+          <button class="block board" draggable="true" data-type="get_board">Get Board State</button>
+          <button class="block board" draggable="true" data-type="get_piece">Get Piece At [row] [col]</button>
+          <button class="block board" draggable="true" data-type="get_valid_moves">Get Valid Moves</button>
+        </div>
+
+        <div class="block-category">
+          <div class="block-category-title">🧠 Analysis</div>
+          <button class="block analysis" draggable="true" data-type="count_pieces">Count Pieces: [player]</button>
+          <button class="block analysis" draggable="true" data-type="check_threat">Check Threat At [col]</button>
+          <button class="block analysis" draggable="true" data-type="find_center">Find Center Pieces</button>
+        </div>
+
+        <div class="block-category">
+          <div class="block-category-title">🎯 Logic</div>
+          <button class="block logic" draggable="true" data-type="if_then">If [condition] Then [action]</button>
+          <button class="block logic" draggable="true" data-type="compare">Compare [a] [op] [b]</button>
+          <button class="block logic" draggable="true" data-type="and_or">AND / OR</button>
+        </div>
+
+        <div class="block-category">
+          <div class="block-category-title">▶ Control</div>
+          <button class="block control" draggable="true" data-type="choose_move">Choose Move: [col]</button>
+          <button class="block control" draggable="true" data-type="loop">Loop Through [list]</button>
+          <button class="block control" draggable="true" data-type="set_var">Set [var] to [value]</button>
+        </div>
+      </div>
+
+      <div id="script-area">
+        <div id="empty-script">Drag blocks here to build your bot logic</div>
+      </div>
+    </div>
+
+    <div id="test-panel">
+      <div class="panel">
+        <div class="panel-title">Test Board</div>
+        <div id="test-board"></div>
+        <div id="test-info">
+          <div>Turn: <strong id="test-turn">Red</strong></div>
+          <div>Valid Moves: <strong id="test-moves">0,1,2,3,4,5,6</strong></div>
+        </div>
+        <div class="button-row">
+          <button id="test-simple" class="primary">Test Simple</button>
+          <button id="test-random">Random Move</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Test Results</div>
+        <div id="test-log"></div>
+        <div class="button-row">
+          <button id="clear-log">Clear</button>
+          <button id="save-bot" class="primary">Save Bot</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Bot Name</div>
+        <input id="bot-name" type="text" placeholder="My Awesome Bot">
+        <div class="button-row">
+          <button id="play-bot" class="primary">Play Game</button>
+          <button id="load-bot">Load Saved</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // ─── State ────────────────────────────────────────────────────────────
+      let scriptBlocks = [];
+      let testBoard = new Array(6).fill(null).map(() => new Array(7).fill(null));
+      let testState = {
+        current: 'R',
+        validMoves: [0, 1, 2, 3, 4, 5, 6],
+      };
+
+      const COLORS = {
+        RED: 'R',
+        YELLOW: 'Y',
+        EMPTY: null,
+      };
+
+      // ─── Block Palette Dragging ───────────────────────────────────────
+      document.querySelectorAll('.block').forEach(el => {
+        el.addEventListener('dragstart', (e) => {
+          const type = el.dataset.type;
+          const text = el.textContent;
+          e.dataTransfer.effectAllowed = 'copy';
+          e.dataTransfer.setData('text/plain', JSON.stringify({ type, text }));
+        });
+      });
+
+      // ─── Script Area Drag & Drop ──────────────────────────────────────
+      const scriptArea = document.getElementById('script-area');
+
+      scriptArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        scriptArea.style.background = 'rgba(100, 150, 200, 0.1)';
+      });
+
+      scriptArea.addEventListener('dragleave', () => {
+        scriptArea.style.background = 'var(--cell-empty)';
+      });
+
+      scriptArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        scriptArea.style.background = 'var(--cell-empty)';
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        addBlockToScript(data.type, data.text);
+      });
+
+      function addBlockToScript(type, text) {
+        const block = {
+          id: Date.now() + Math.random(),
+          type,
+          text,
+          params: {},
+        };
+        scriptBlocks.push(block);
+        renderScript();
+      }
+
+      function renderScript() {
+        scriptArea.innerHTML = '';
+        
+        if (scriptBlocks.length === 0) {
+          scriptArea.innerHTML = '<div id="empty-script">Drag blocks here to build your bot logic</div>';
+          return;
+        }
+
+        scriptBlocks.forEach((block, idx) => {
+          const el = document.createElement('div');
+          el.className = `script-block ${getBlockCategory(block.type)}`;
+          el.textContent = block.text;
+          
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'script-block-delete';
+          deleteBtn.textContent = '✕';
+          deleteBtn.addEventListener('click', () => {
+            scriptBlocks.splice(idx, 1);
+            renderScript();
+          });
+          
+          el.appendChild(deleteBtn);
+          scriptArea.appendChild(el);
+        });
+      }
+
+      function getBlockCategory(type) {
+        if (type.startsWith('get_') || type.startsWith('find_') || type.startsWith('count_') || type.startsWith('check_')) 
+          return 'analysis';
+        if (type.startsWith('if_') || type.startsWith('compare') || type.startsWith('and_'))
+          return 'logic';
+        if (type.startsWith('choose_') || type.startsWith('loop') || type.startsWith('set_'))
+          return 'control';
+        if (type.startsWith('board'))
+          return 'board';
+        return 'board';
+      }
+
+      // ─── Test Board ──────────────────────────────────────────────────
+      function renderTestBoard() {
+        const boardEl = document.getElementById('test-board');
+        boardEl.innerHTML = '';
+        
+        for (let row = 0; row < 6; row++) {
+          for (let col = 0; col < 7; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'test-cell';
+            const piece = testBoard[row][col];
+            if (piece === COLORS.RED) cell.classList.add('red');
+            if (piece === COLORS.YELLOW) cell.classList.add('yellow');
+            if (piece) cell.textContent = piece;
+            boardEl.appendChild(cell);
+          }
+        }
+
+        document.getElementById('test-turn').textContent = testState.current === COLORS.RED ? 'Red (R)' : 'Yellow (Y)';
+        document.getElementById('test-moves').textContent = testState.validMoves.join(', ');
+      }
+
+      function log(message, type = 'info') {
+        const logEl = document.getElementById('test-log');
+        const line = document.createElement('div');
+        if (type === 'error') line.classList.add('log-error');
+        if (type === 'success') line.classList.add('log-success');
+        line.textContent = '> ' + message;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function resetTestBoard() {
+        testBoard = new Array(6).fill(null).map(() => new Array(7).fill(null));
+        testState = {
+          current: COLORS.RED,
+          validMoves: [0, 1, 2, 3, 4, 5, 6],
+        };
+        renderTestBoard();
+        document.getElementById('test-log').innerHTML = '';
+      }
+
+      // ─── Bot Execution ────────────────────────────────────────────────
+      function executeScript() {
+        log('Analyzing board...', 'info');
+        try {
+          let chosenMove = null;
+
+          for (const block of scriptBlocks) {
+            if (block.type === 'choose_move') {
+              // Extract column number from text like "Choose Move: 3"
+              const match = block.text.match(/\d+/);
+              chosenMove = match ? Number.parseInt(match[0], 10) : null;
+              log(`Chose move: column ${chosenMove}`, 'success');
+            }
+          }
+
+          if (chosenMove === null) {
+            chosenMove = testState.validMoves[0];
+            log(`No move chosen, defaulting to column ${chosenMove}`, 'info');
+          }
+
+          if (!testState.validMoves.includes(chosenMove)) {
+            log(`ERROR: Column ${chosenMove} is not valid!`, 'error');
+            return null;
+          }
+
+          return chosenMove;
+        } catch (err) {
+          log(`ERROR: ${err.message}`, 'error');
+          return null;
+        }
+      }
+
+      // ─── Event Listeners ──────────────────────────────────────────────
+      document.getElementById('test-simple').addEventListener('click', () => {
+        resetTestBoard();
+        log('Testing bot on empty board...', 'info');
+        const move = executeScript();
+        if (move !== null && testBoard[5][move] === null) {
+          testBoard[5][move] = testState.current;
+          log(`Placed ${testState.current} at column ${move}`, 'success');
+          renderTestBoard();
+        }
+      });
+
+      document.getElementById('test-random').addEventListener('click', () => {
+        resetTestBoard();
+        
+        // Random board state
+        for (let i = 0; i < 10; i++) {
+          const col = testState.validMoves[Math.floor(Math.random() * testState.validMoves.length)];
+          for (let row = 5; row >= 0; row--) {
+            if (testBoard[row][col] === null) {
+              testBoard[row][col] = testState.current;
+              testState.current = testState.current === COLORS.RED ? COLORS.YELLOW : COLORS.RED;
+              break;
+            }
+          }
+        }
+
+        log('Generated random board position', 'info');
+        renderTestBoard();
+        const move = executeScript();
+        if (move !== null) {
+          log(`Bot would play column ${move}`, 'success');
+        }
+      });
+
+      document.getElementById('clear-log').addEventListener('click', () => {
+        document.getElementById('test-log').innerHTML = '';
+      });
+
+      document.getElementById('save-bot').addEventListener('click', () => {
+        const botName = document.getElementById('bot-name').value || 'Unnamed Bot';
+        const botData = {
+          name: botName,
+          blocks: scriptBlocks,
+          savedAt: new Date().toISOString(),
+        };
+        localStorage.setItem(`bot_${botName}`, JSON.stringify(botData));
+        log(`Saved bot: "${botName}"`, 'success');
+      });
+
+      document.getElementById('load-bot').addEventListener('click', () => {
+        const botName = prompt('Enter bot name to load:');
+        if (!botName) return;
+        const stored = localStorage.getItem(`bot_${botName}`);
+        if (!stored) {
+          log(`Bot not found: "${botName}"`, 'error');
+          return;
+        }
+        const botData = JSON.parse(stored);
+        scriptBlocks = botData.blocks || [];
+        document.getElementById('bot-name').value = botData.name;
+        renderScript();
+        log(`Loaded bot: "${botData.name}"`, 'success');
+      });
+
+      document.getElementById('play-bot').addEventListener('click', () => {
+        const botName = document.getElementById('bot-name').value || 'My Bot';
+        // Save and redirect to game
+        const botData = {
+          name: botName,
+          blocks: scriptBlocks,
+          savedAt: new Date().toISOString(),
+        };
+        localStorage.setItem('active_bot', JSON.stringify(botData));
+        log(`Saved and ready to play as "${botName}"`, 'success');
+        // Future: Redirect to game.html with bot selected as player
+        setTimeout(() => {
+          alert(`Bot "${botName}" is ready!\n\nNext: Open game.html to test against your bot`);
+        }, 500);
+      });
+
+      // ─── Init ─────────────────────────────────────────────────────────
+      renderTestBoard();
+      renderScript();
+    })();
+  </script>
+</body>
+
+</html>
