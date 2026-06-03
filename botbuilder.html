@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bot Builder — Connect 4</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/favicon-waffle.png">
   <style>
     :root {
@@ -371,6 +371,7 @@
         flex: 1;
       }
     }
+
   </style>
 </head>
 
@@ -478,7 +479,10 @@
           const type = el.dataset.type;
           const text = el.textContent;
           e.dataTransfer.effectAllowed = 'copy';
-          e.dataTransfer.setData('text/plain', JSON.stringify({ type, text }));
+          e.dataTransfer.setData('text/plain', JSON.stringify({
+            type,
+            text
+          }));
         });
       });
 
@@ -515,7 +519,7 @@
 
       function renderScript() {
         scriptArea.innerHTML = '';
-        
+
         if (scriptBlocks.length === 0) {
           scriptArea.innerHTML = '<div id="empty-script">Drag blocks here to build your bot logic</div>';
           return;
@@ -525,7 +529,7 @@
           const el = document.createElement('div');
           el.className = `script-block ${getBlockCategory(block.type)}`;
           el.textContent = block.text;
-          
+
           const deleteBtn = document.createElement('button');
           deleteBtn.className = 'script-block-delete';
           deleteBtn.textContent = '✕';
@@ -533,14 +537,14 @@
             scriptBlocks.splice(idx, 1);
             renderScript();
           });
-          
+
           el.appendChild(deleteBtn);
           scriptArea.appendChild(el);
         });
       }
 
       function getBlockCategory(type) {
-        if (type.startsWith('get_') || type.startsWith('find_') || type.startsWith('count_') || type.startsWith('check_')) 
+        if (type.startsWith('get_') || type.startsWith('find_') || type.startsWith('count_') || type.startsWith('check_'))
           return 'analysis';
         if (type.startsWith('if_') || type.startsWith('compare') || type.startsWith('and_'))
           return 'logic';
@@ -555,7 +559,7 @@
       function renderTestBoard() {
         const boardEl = document.getElementById('test-board');
         boardEl.innerHTML = '';
-        
+
         for (let row = 0; row < 6; row++) {
           for (let col = 0; col < 7; col++) {
             const cell = document.createElement('div');
@@ -638,7 +642,7 @@
 
       document.getElementById('test-random').addEventListener('click', () => {
         resetTestBoard();
-        
+
         // Random board state
         for (let i = 0; i < 10; i++) {
           const col = testState.validMoves[Math.floor(Math.random() * testState.validMoves.length)];
@@ -709,6 +713,7 @@
       renderTestBoard();
       renderScript();
     })();
+
   </script>
 </body>
 
