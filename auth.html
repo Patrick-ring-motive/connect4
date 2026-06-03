@@ -673,17 +673,13 @@
       const opts = {
         method,
         headers: {
-          ...(body ?
-            {
-              "Content-Type": "application/json",
-            } :
-            {}),
+          ...(body ? {
+            "Content-Type": "application/json",
+          } : {}),
         },
-        ...(body ?
-          {
-            body: JSON.stringify(body),
-          } :
-          {}),
+        ...(body ? {
+          body: JSON.stringify(body),
+        } : {}),
       };
       const res = await fetch(API_BASE + path, opts);
       const data = await res.json().catch(() => ({}));
