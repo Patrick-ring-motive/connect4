@@ -1220,6 +1220,7 @@
         gemmaMessages.push(fullText);
 
         console.log("[Gemma] Full response:", fullText);
+        fullText = fullText.replace(/connect\s*4/g, 'Connect Four');
         let col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         let parsed = parseInt(col);
