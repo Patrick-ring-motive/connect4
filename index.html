@@ -1226,6 +1226,10 @@
         if(isNaN(parsed) || !boardState.validMoves.includes(parsed)){
           col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
+        }else {
+          thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
+          thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+          return parsed;
         }
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
@@ -1240,7 +1244,7 @@
             thoughtPanel.textContent += `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`;
           }
         } else {
-          thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
+          thoughtPanel.textContent += `\n\nValid move found in text. Playing ${parsed}.`;
         }
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         return parsed;
