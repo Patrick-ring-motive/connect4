@@ -511,23 +511,23 @@
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
     let runReady = import('/logs-highlighter/func.js?' + new Date().getTime());
-    globalThis.runEnhancent = async()=>{
-      await runReady;
-    };
     (async () => {
       await runReady;
       try{
         await runEnhancement();
-        await runEnhancement();
+      }catch{}
         setTimeout(async()=>{
-          await runEnhancement();
-          await runEnhancement();
+          try{
+            await runEnhancement();
+          }catch{}
           setTimeout(async()=>{
+          try{
             await runEnhancement();
-            await runEnhancement();
+          }catch{}
             setTimeout(async()=>{
-              await runEnhancement();
-              await runEnhancement();
+              try{
+                await runEnhancement();
+              }catch{}
             },1000);
           },1000);
         },500);
