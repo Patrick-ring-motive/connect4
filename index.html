@@ -1448,7 +1448,7 @@
 
       // ─── Render ───────────────────────────────────────────────────────────────────
       let dropCell = null; // {row, col} for brief drop flash
-
+      let rendering = false;
       const render = () => {
         const {
           board,
@@ -1532,9 +1532,12 @@
           boardEl.appendChild(rowEl);
           (async()=>{
             try{
+              if(renduring)return;
+              renduring = true;
               await runEnhancement();
               await runEnhancement();
             }catch{}
+            rendering = false;
           })();
         }
 
