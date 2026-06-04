@@ -512,6 +512,10 @@
   <script>
     (async () => {
       await import('/logs-highlighter/func.js?' + new Date().getTime());
+      try{
+        await runEnhancement();
+        await runEnhancement();
+      }catch{}
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -1526,6 +1530,7 @@
             rowEl.appendChild(cellEl);
           }
           boardEl.appendChild(rowEl);
+          runEnhancement().then(runEnancement);
         }
 
         // Hover row
