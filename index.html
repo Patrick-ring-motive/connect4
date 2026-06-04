@@ -513,25 +513,25 @@
     let runReady = import('/logs-highlighter/func.js?' + new Date().getTime());
     (async () => {
       await runReady;
-      try{
+      try {
         await runEnhancement();
-      }catch{}
-        setTimeout(async()=>{
-          try{
+      } catch {}
+      setTimeout(async () => {
+        try {
+          await runEnhancement();
+        } catch {}
+        setTimeout(async () => {
+          try {
             await runEnhancement();
-          }catch{}
-          setTimeout(async()=>{
-          try{
-            await runEnhancement();
-          }catch{}
-            setTimeout(async()=>{
-              try{
-                await runEnhancement();
-              }catch{}
-            },1000);
-          },1000);
-        },500);
-  
+          } catch {}
+          setTimeout(async () => {
+            try {
+              await runEnhancement();
+            } catch {}
+          }, 1000);
+        }, 1000);
+      }, 500);
+
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -984,10 +984,10 @@
           delete localMap[SESSION_KEY];
         }
         renderAuthBar();
-        try{
+        try {
           await runEnhancement();
           await runEnhancement();
-        }catch{}
+        } catch {}
       }
 
       async function logout() {
@@ -1550,13 +1550,13 @@
             rowEl.appendChild(cellEl);
           }
           boardEl.appendChild(rowEl);
-          (async()=>{
-            try{
-              if(renduring)return;
+          (async () => {
+            try {
+              if (renduring) return;
               renduring = true;
               await runEnhancement();
               await runEnhancement();
-            }catch{}
+            } catch {}
             rendering = false;
           })();
         }
