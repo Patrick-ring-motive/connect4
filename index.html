@@ -510,8 +510,8 @@
   <div id="history-line"></div>
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
-    (async() => {
-      await import('/logs-highlighter/func.js?'+new Date().getTime());
+    (async () => {
+      await import('/logs-highlighter/func.js?' + new Date().getTime());
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -1238,10 +1238,10 @@
         fullText = fullText.replace(/connect\s*4/g, 'Connect Four');
         let col = [...String(fullText.match(/the\D+(best|move|answer)\D+\d/i)?.[0])].pop();
         let parsed = parseInt(col);
-        if(isNaN(parsed) || !boardState.validMoves.includes(parsed)){
+        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
-        }else {
+        } else {
           thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
           await runEnhancement();
           await runEnhancement();
@@ -1250,7 +1250,7 @@
         }
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g,''))]);
+          const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
           if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
