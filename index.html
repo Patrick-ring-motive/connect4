@@ -1221,9 +1221,13 @@
 
         console.log("[Gemma] Full response:", fullText);
         fullText = fullText.replace(/connect\s*4/g, 'Connect Four');
-        let col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
+        let col = [...String(fullText.match(/the\D+best\D+\d/)?.[0])].pop();
+        let parse = parseInt(col);
+        if(isNaN(parsed) || !boardState.validMoves.includes(parsed)){
+          col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
+          parsed = parseInt(col);
+        }
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-        let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g,''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
