@@ -506,11 +506,12 @@
     <span id="move-count"></span>
   </div>
 
-  <div id="thought-panel"></div>
+  <pre id="thought-panel"></pre>
   <div id="history-line"></div>
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
-    (() => {
+    (async() => {
+      await import('/logs-highlighter/func.js');
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -1040,11 +1041,14 @@
             console.warn(icon + ' [LLaVA] Invalid column', parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
             (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
+            await runEnhancement()
           } else {
             (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`;
+            await runEnhancement()
           }
         } else {
           (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`;
+          await runEnhancement()
         }
         (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
@@ -1127,6 +1131,7 @@
         thoughtPanel.textContent +=
           (thoughtPanel.textContent ? "\n\n" : "") +
           `── Move ${moveNum} ──\n${icon} Thinking...`;
+        await runEnhancement()
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
 
         const res = await bestEffortFetch(GEMMA_URL, {
@@ -1190,6 +1195,7 @@
               }
             }
             thoughtPanel.textContent = prefix + icon + " " + fullText;
+            await runEnhancement()
             thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           }
           // Process any remaining buffer
@@ -1210,10 +1216,12 @@
               fullText += buffer.trim().slice(6);
             }
             thoughtPanel.textContent = prefix + icon + " " + fullText;
+            await runEnhancement()
           }
         } else {
           fullText = await res.text();
           thoughtPanel.textContent = prefix + icon + " " + fullText;
+          await runEnhancement()
         }
 
         // Add assistant response to local history for display
@@ -1228,6 +1236,7 @@
           parsed = parseInt(col);
         }else {
           thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
+          await runEnhancement()
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           return parsed;
         }
@@ -1240,11 +1249,14 @@
             console.warn('[Gemma] Invalid column', parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
             thoughtPanel.textContent += `\n\nValid move not found, selecting random. Playing ${parsed}.`;
+            await runEnhancement()
           } else {
             thoughtPanel.textContent += `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`;
+            await runEnhancement()
           }
         } else {
           thoughtPanel.textContent += `\n\nValid move found in text. Playing ${parsed}.`;
+          await runEnhancement()
         }
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         return parsed;
