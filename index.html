@@ -1530,7 +1530,12 @@
             rowEl.appendChild(cellEl);
           }
           boardEl.appendChild(rowEl);
-          runEnhancement().then(runEnancement);
+          (async()=>{
+            try{
+              await runEnhancement();
+              await runEnhancement();
+            }catch{}
+          })();
         }
 
         // Hover row
