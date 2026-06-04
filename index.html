@@ -1222,7 +1222,7 @@
         console.log("[Gemma] Full response:", fullText);
         fullText = fullText.replace(/connect\s*4/g, 'Connect Four');
         let col = [...String(fullText.match(/the\D+(best|move|answer)\D+\d/)?.[0])].pop();
-        let parse = parseInt(col);
+        let parsed = parseInt(col);
         if(isNaN(parsed) || !boardState.validMoves.includes(parsed)){
           col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
