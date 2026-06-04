@@ -1225,7 +1225,7 @@
         thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-          const txt = JSON.stringify([new TextEncoder().encode(fullText)]);
+          const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g,''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
           if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
