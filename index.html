@@ -519,6 +519,10 @@
       try{
         await runEnhancement();
         await runEnhancement();
+        setTimeout(async()=>{
+          await runEnhancement();
+          await runEnhancement();
+        },500);
       }catch{}
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
