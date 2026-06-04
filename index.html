@@ -522,6 +522,14 @@
         setTimeout(async()=>{
           await runEnhancement();
           await runEnhancement();
+          setTimeout(async()=>{
+            await runEnhancement();
+            await runEnhancement();
+            setTimeout(async()=>{
+              await runEnhancement();
+              await runEnhancement();
+            },1000);
+          },1000);
         },500);
       }catch{}
       //custom utils
