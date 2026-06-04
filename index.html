@@ -511,7 +511,7 @@
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
     (async() => {
-      await import('/logs-highlighter/func.js');
+      await import('/logs-highlighter/func.js?'+new Date().getTime());
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
