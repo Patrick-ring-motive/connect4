@@ -1035,7 +1035,9 @@ async function apiFetch(path, method = "GET", body = null) {
       // Helper: Append text as a text node (no repaint of entire content)
       function appendTextNode(element, text) {
         if (!element) return;
-        element.appendChild(document.createTextNode(text));
+        const span = document.createElement('span');
+        span.appendChild(document.createTextNode(text));
+        element.appendChild(span);
       }
 
       // Helper: Clear element and set initial text
