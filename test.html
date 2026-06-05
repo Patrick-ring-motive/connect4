@@ -1179,9 +1179,12 @@ async function apiFetch(path, method = "GET", body = null) {
         const icon = (boardState.currentPlayer === RED ? "🧶" : "🧇") + ` [${botLabel}]`;
         // Show streaming indicator appended to history
         const moveNum = gemmaMessages.length + 1;
+        // Use a dedicated element for streaming output so only its subtree repaints
+        const streamEl = document.createElement('span');
+        streamEl.textContent = `── Move ${moveNum} ──\n${icon} Thinking...`;
         if (thoughtPanel) {
-          if (thoughtPanel.textContent) appendTextNode(thoughtPanel, "\n\n");
-          appendTextNode(thoughtPanel, `── Move ${moveNum} ──\n${icon} Thinking...`);
+          if (thoughtPanel.childNodes.length) appendTextNode(thoughtPanel, "\n\n");
+          thoughtPanel.appendChild(streamEl);
           await runEnhancement();
           await runEnhancement();
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
@@ -1197,11 +1200,6 @@ async function apiFetch(path, method = "GET", body = null) {
             stream: true
           }),
         });
-
-        // Find where this turn's output starts in the panel
-        const prefixEnd =
-          thoughtPanel.textContent.lastIndexOf(icon + " Thinking...");
-        const prefix = thoughtPanel.textContent.slice(0, prefixEnd);
 
         let fullText = "";
         if (res.body && res.body.getReader) {
@@ -1247,10 +1245,10 @@ async function apiFetch(path, method = "GET", body = null) {
                 }
               }
             }
-            thoughtPanel.textContent = prefix + icon + " " + fullText;
+            streamEl.textContent = `── Move ${moveNum} ──\n${icon} ${fullText}`;
             await runEnhancement();
             await runEnhancement();
-            thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+            if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           }
           // Process any remaining buffer
           if (
@@ -1269,13 +1267,13 @@ async function apiFetch(path, method = "GET", body = null) {
             } catch (e) {
               fullText += buffer.trim().slice(6);
             }
-            thoughtPanel.textContent = prefix + icon + " " + fullText;
+            streamEl.textContent = `── Move ${moveNum} ──\n${icon} ${fullText}`;
             await runEnhancement();
             await runEnhancement();
           }
         } else {
           fullText = await res.text();
-          thoughtPanel.textContent = prefix + icon + " " + fullText;
+          streamEl.textContent = `── Move ${moveNum} ──\n${icon} ${fullText}`;
           await runEnhancement();
           await runEnhancement();
         }
