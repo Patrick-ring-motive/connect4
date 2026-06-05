@@ -1035,6 +1035,18 @@ async function apiFetch(path, method = "GET", body = null) {
       // Gemma conversation history (OpenAI-compatible messages format)
       let gemmaMessages = [];
 
+      // Helper: Append text as a text node (no repaint of entire content)
+      function appendTextNode(element, text) {
+        if (!element) return;
+        element.appendChild(document.createTextNode(text));
+      }
+
+      // Helper: Clear element and set initial text
+      function setTextContent(element, text) {
+        if (!element) return;
+        element.textContent = text;
+      }
+
       const fetchText = async (url, options) => {
         try {
           const res = await fetch(url, options);
@@ -1058,30 +1070,36 @@ async function apiFetch(path, method = "GET", body = null) {
           }),
         });
         const thoughtPanel = document.getElementById("thought-panel");
-        let col = [...text].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
+        let col = [...text].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
         console.log("[LLaVA] Response:", text);
-        let parsed = parseInt(col);
-        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+        let parsed = Number.parseInt(col, 10);
+        if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = stringify([new TextEncoder().encode(text)]);
-          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
-          parsed = parseInt(col);
-          if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
+          parsed = Number.parseInt(col, 10);
+          if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
             console.warn(icon + ' [LLaVA] Invalid column', parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-            (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`;
-            await runEnhancement();
-            await runEnhancement();
+            if (thoughtPanel) {
+              appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`);
+              await runEnhancement();
+              await runEnhancement();
+            }
           } else {
-            (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`;
+            if (thoughtPanel) {
+              appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`);
+              await runEnhancement();
+              await runEnhancement();
+            }
+          }
+        } else {
+          if (thoughtPanel) {
+            appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`);
             await runEnhancement();
             await runEnhancement();
           }
-        } else {
-          (thoughtPanel ?? {}).textContent += `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`;
-          await runEnhancement();
-          await runEnhancement();
         }
-        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
+        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
 
@@ -1161,12 +1179,13 @@ async function apiFetch(path, method = "GET", body = null) {
         const icon = (boardState.currentPlayer === RED ? "🧶" : "🧇") + ` [${botLabel}]`;
         // Show streaming indicator appended to history
         const moveNum = gemmaMessages.length + 1;
-        thoughtPanel.textContent +=
-          (thoughtPanel.textContent ? "\n\n" : "") +
-          `── Move ${moveNum} ──\n${icon} Thinking...`;
-        await runEnhancement();
-        await runEnhancement();
-        thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        if (thoughtPanel) {
+          if (thoughtPanel.textContent) appendTextNode(thoughtPanel, "\n\n");
+          appendTextNode(thoughtPanel, `── Move ${moveNum} ──\n${icon} Thinking...`);
+          await runEnhancement();
+          await runEnhancement();
+          thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        }
 
         const res = await bestEffortFetch(GEMMA_URL, {
           method: "POST",
@@ -1288,34 +1307,34 @@ async function apiFetch(path, method = "GET", body = null) {
           col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
         } else {
-          thoughtPanel.textContent += `\n\nValid move selected. Playing ${parsed}.`;
+          if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
           await runEnhancement();
           await runEnhancement();
-          thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+          if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           return parsed;
         }
-        thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
-          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
-          parsed = parseInt(col);
-          if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
+          parsed = Number.parseInt(col, 10);
+          if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
             console.warn(`[${botLabel}] Invalid column`, parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-            thoughtPanel.textContent += `\n\nValid move not found, selecting random. Playing ${parsed}.`;
+            if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
             await runEnhancement();
             await runEnhancement();
           } else {
-            thoughtPanel.textContent += `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`;
+            if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
             await runEnhancement();
             await runEnhancement();
           }
         } else {
-          thoughtPanel.textContent += `\n\nValid move found in text. Playing ${parsed}.`;
+          if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
           await runEnhancement();
           await runEnhancement();
         }
-        thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
 
