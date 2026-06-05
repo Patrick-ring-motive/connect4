@@ -1297,7 +1297,7 @@ async function apiFetch(path, method = "GET", body = null) {
           .replace(/depth\s*of\s*4/gi, 'depth of ④')
           .replace(/0-6/gi, '⓪-⑥')
           .replace(/6x6/gi,'⑥x⑥')
-          .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*6\s*/gi,'⓪-⑥')
+          .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s(and)?*6\s*/gi,'⓪-⑥')
         let col = String(fullText)
           .match(/(answer|best|recommend)\D+\d/ig)
           ?.map?.(x=>String(x).match(/[0-6]/)?.[0])?.find?.((x) =>boardState.validMoves.includes(Number.parseInt(x, 10)));
