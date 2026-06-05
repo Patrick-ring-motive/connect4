@@ -1265,7 +1265,10 @@ async function apiFetch(path, method = "GET", body = null) {
         gemmaMessages.push(fullText);
 
         console.log(`[${botLabel}] Full response:`, fullText);
-        fullText = fullText.replace(/(connect|depth)\s*4/gi, '$1 ④');
+        fullText = fullText.replace(/(connect|depth)\s*4/gi, '$1 ④')
+          .replace(/0-6/gi, '⓪-⑥')
+          .replace(/6x6/gi,'⑥x⑥')
+          .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*6\s*/gi,'⓪-⑥')
         let col = [...String(fullText.match(/(answer|best|recommend|move|column)\D+\d/i)?.[0])].pop();
         let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
