@@ -1181,7 +1181,7 @@ async function apiFetch(path, method = "GET", body = null) {
         const moveNum = gemmaMessages.length + 1;
         // Use a dedicated element for streaming output so only its subtree repaints
         const streamEl = document.createElement('span');
-        streamEl.textContent = `── Move ${moveNum} ──\n${icon} Thinking...`;
+        appendTextNode(streamEl,`── Move ${moveNum} ──\n${icon} Thinking...`);
         if (thoughtPanel) {
           if (thoughtPanel.childNodes.length) appendTextNode(thoughtPanel, "\n\n");
           thoughtPanel.appendChild(streamEl);
@@ -1245,7 +1245,8 @@ async function apiFetch(path, method = "GET", body = null) {
                 }
               }
             }
-            streamEl.textContent = `── Move ${moveNum} ──\n${icon} ${fullText}`;
+            streamEl.textContent='';
+            appendTextNode(streamEl,`── Move ${moveNum} ──\n${icon} ${fullText}`);
             await runEnhancement();
             await runEnhancement();
             if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
@@ -1267,13 +1268,15 @@ async function apiFetch(path, method = "GET", body = null) {
             } catch (e) {
               fullText += buffer.trim().slice(6);
             }
-            streamEl.textContent = `── Move ${moveNum} ──\n${icon} ${fullText}`;
+            streamEl.textContent ='';
+            appendTextNode(streamEl,`── Move ${moveNum} ──\n${icon} ${fullText}`);
             await runEnhancement();
             await runEnhancement();
           }
         } else {
           fullText = await res.text();
-          streamEl.textContent = `── Move ${moveNum} ──\n${icon} ${fullText}`;
+          streamEl.textContent = '';
+         appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
           await runEnhancement();
           await runEnhancement();
         }
