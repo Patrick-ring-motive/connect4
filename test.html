@@ -514,25 +514,6 @@
     globalThis.runEnhancement = _ => _;
     (async () => {
       await import('https://patrick-ring-motive.github.io/connect4/color.js?'+Math.random());
-      try {
-        await runEnhancement();
-      } catch {}
-      setTimeout(async () => {
-        try {
-          await runEnhancement();
-        } catch {}
-        setTimeout(async () => {
-          try {
-            await runEnhancement();
-          } catch {}
-          setTimeout(async () => {
-            try {
-              await runEnhancement();
-            } catch {}
-          }, 1000);
-        }, 1000);
-      }, 500);
-
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
