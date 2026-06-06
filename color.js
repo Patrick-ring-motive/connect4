@@ -19,6 +19,7 @@
   const allRegex = re(Object.values(regexes).map(x => x[0].source).join('|'), 'ig');
   const span = 'span';
   const b = 'b';
+  const textShadow = 'grey';
   let bold = false;
   globalThis.color = function color(text) {
     return text.replace(allRegex, ch => {
@@ -33,7 +34,7 @@
   }
   const style = document.createElement('style');
   for (const key in regexes) {
-    style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; } `;
+    style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; text-shadow: -.1ch -.1ch 0 ${textShadow}, .1ch -.1ch 0 ${textShadow}, -.1ch .1ch 0 ${textShadow}, .1ch .1ch 0 ${textShadow} !important; } `;
   }
   document.firstElementChild.appendChild(style);
 })();
