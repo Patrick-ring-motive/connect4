@@ -23,10 +23,11 @@
   let bold = false;
   globalThis.color = function color(text) {
     return text.replace(allRegex, ch => {
-      if(ch.includes('**'))bold = !bold;
+      const star = ch.includes('**');
+      if(star)bold = !bold;
       for (const key in regexes) {
         if (regexes[key][0].test(ch)) {
-          return `${!bold?'</b>':''}<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>${bold?'<b>':''}`;
+          return `${(star&&!bold)?'</b>':''}<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>${(star&&bold)?'<b>':''}`;
         }
       }
       return ch;
