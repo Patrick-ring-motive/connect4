@@ -8,7 +8,7 @@
     }
   };
   const regexes = {
-    star:[/\*+/,'blue'],
+    star:[/(\bx\b)|\*+/,'cornflowerblue'],
     curly: [/[\{\}‘’']/, '#ff79c6'],
     square: [/[\[\]“”""]/, '#ba7dff'],
     paren: [/[\(\)]/, 'orange'],
@@ -18,9 +18,8 @@
     red: [/\b(R|Red)\b/, 'red']
   };
   const allRegex = re(Object.values(regexes).map(x => x[0].source).join('|'), 'ig');
-  const span = 'span';
-  const b = 'b';
   const textShadow = 'black';
+  cinst shadowSize ='0.1ch';
   let bold = false;
   globalThis.color =  (text) => 
     text.replace(allRegex,ch => {
@@ -33,7 +32,7 @@
     });
   const style = document.createElement('style');
   for (const key in regexes) {
-    style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; text-shadow: -.1ch -.1ch 0 ${textShadow}, .1ch -.1ch 0 ${textShadow}, -.1ch .1ch 0 ${textShadow}, .1ch .1ch 0 ${textShadow} !important; } `;
+    style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; text-shadow: -${shadowSize} -${shadowSize} 0 ${textShadow}, ${shadowSize} -${shadowSize} 0 ${textShadow}, -${shadowSize} ${shadowSize} 0 ${textShadow}, ${shadowSize} ${shadowSize} 0 ${textShadow} !important; } `;
   }
   document.firstElementChild.appendChild(style);
 })();
