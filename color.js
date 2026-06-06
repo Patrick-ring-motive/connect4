@@ -7,23 +7,27 @@ const re = (...args)=>{
   }
 };
 const regexes = {
- curly : /[\{\}‘’']/,
- square : /[\[\]“”""]/,
- paren : /[\(\)]/,
- symbol : /[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,
- number : /[0-9]+/,
- yellow : /\bY\b/,
- red : /\bR\b/
+ curly : [/[\{\}‘’']/,'#ff79c6'],
+ square : /[\[\]“”""]/,'#ba7dff'],
+ paren : [/[\(\)]/,'orange'],
+ symbol : [/[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,'#00ff00'],
+ number : [/[0-9]+/,'deepskyblue'],
+ yellow : [/\bY\b/,'yellow'],
+ red : [/\bR\b/,'red']
 };
-const allRegex = re(Object.values(regexes).map(x=>x.source).join('|'),'g');
-
+const allRegex = re(Object.values(regexes).map(x=>x[0].source).join('|'),'g');
 function color(text){
   return text.replace(allRegx,ch=>{
     for(const key in regexes){
-      if(regexes[key].test(ch)){
+      if(regexes[key][0].test(ch)){
          return `<span class="color-${key}">${ch}</span>`;
       }
     }
     return ch;
   });
 }
+const style = document.createElement('style');
+for(const key in regexes){
+  style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; } `;
+}
+document.firstElementChild.appendChild(style);
