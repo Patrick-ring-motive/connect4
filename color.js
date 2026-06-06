@@ -17,7 +17,7 @@ const regexes = {
 };
 const allRegex = re(Object.values(regexes).map(x=>x[0].source).join('|'),'g');
 function color(text){
-  return text.replace(allRegx,ch=>{
+  return text.replace(allRegex,ch=>{
     for(const key in regexes){
       if(regexes[key][0].test(ch)){
          return `<span class="color-${key}">${ch}</span>`;
