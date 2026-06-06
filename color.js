@@ -32,4 +32,4 @@ for(const key in regexes){
   style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; } `;
 }
 document.firstElementChild.appendChild(style);
-}
+})();
