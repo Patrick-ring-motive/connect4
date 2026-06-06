@@ -21,8 +21,13 @@ const allRegex = re([
   numRegex,
   yRegex,
   rRegex
-  ].map(x=>x.source).join('|'));
+].map(x=>x.source).join('|'),'g');
 
 function color(text){
-  
+  text = text.replace(allRegx,ch=>{
+    if(curlyRegex.test(ch)){
+      return `<span curly>${ch}</span>`;
+    }
+    return ch;
+  });
 }
