@@ -19,7 +19,7 @@
   };
   const allRegex = re(Object.values(regexes).map(x => x[0].source).join('|'), 'ig');
   const textShadow = 'black';
-  cinst shadowSize ='0.1ch';
+  const shadowSize ='0.1ch';
   let bold = false;
   globalThis.color =  (text) => 
     text.replace(allRegex,ch => {
