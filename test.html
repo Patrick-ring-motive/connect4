@@ -1062,21 +1062,15 @@
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
             if (thoughtPanel) {
               appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`);
-              await runEnhancement();
-              await runEnhancement();
             }
           } else {
             if (thoughtPanel) {
               appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`);
-              await runEnhancement();
-              await runEnhancement();
             }
           }
         } else {
           if (thoughtPanel) {
             appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`);
-            await runEnhancement();
-            await runEnhancement();
           }
         }
         if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
@@ -1165,8 +1159,6 @@
         if (thoughtPanel) {
           if (thoughtPanel.childNodes.length) appendTextNode(thoughtPanel, "\n\n");
           thoughtPanel.appendChild(streamEl);
-          await runEnhancement();
-          await runEnhancement();
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         }
 
@@ -1227,8 +1219,6 @@
             }
             streamEl.textContent = '';
             appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-            await runEnhancement();
-            await runEnhancement();
             if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           }
           // Process any remaining buffer
@@ -1250,15 +1240,11 @@
             }
             streamEl.textContent = '';
             appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-            await runEnhancement();
-            await runEnhancement();
           }
         } else {
           fullText = await res.text();
           streamEl.textContent = '';
           appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-          await runEnhancement();
-          await runEnhancement();
         }
 
         // Add assistant response to local history for display
@@ -1296,13 +1282,11 @@
           col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
         } else {
-          if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-          await runEnhancement();
-          await runEnhancement();
-          if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+          appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
+          (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
           return parsed;
         }
-        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
         if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
@@ -1310,20 +1294,14 @@
           if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
             console.warn(`[${botLabel}] Invalid column`, parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-            if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
-            await runEnhancement();
-            await runEnhancement();
+            appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
           } else {
-            if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
-            await runEnhancement();
-            await runEnhancement();
+            appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
           }
         } else {
-          if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
-          await runEnhancement();
-          await runEnhancement();
+          appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
         }
-        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
 
