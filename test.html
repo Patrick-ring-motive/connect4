@@ -1309,7 +1309,9 @@
       const gemmaMaxMove = async (boardState) => {
         const minimaxCol = minimaxMove(boardState.board, boardState.currentPlayer);
         const enhancedPrompt = boardState.prompt +
-          `\n\nMinimax analysis (depth ${MINIMAX_DEPTH}) recommends column ${minimaxCol} as the strongest move. Consider this carefully, but choose what you think is best.`;
+          `You are a stubborn, confident Connect 4 AI. Form your OWN opinion first. A minimax hint is provided but you frequently disagree with it — only follow it if you independently reached the same conclusion.
+          
+           Engine note: column ${minimaxCol}. Make your own call.`;
         return gemmaMove({
           ...boardState,
           prompt: enhancedPrompt
