@@ -7,23 +7,22 @@ const re = (...args)=>{
   }
 };
 const regexes = {
- curlyRegex : /[\{\}‘’']/,
- squareRegex : /[\[\]“”""]/,
- pRegex : /[\(\)]/,
- symRegex : /[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,
- numRegex : /[0-9]+/,
- yRegex : /\bY\b/,
- rRegex : /\bR\b/
+ curly : /[\{\}‘’']/,
+ square : /[\[\]“”""]/,
+ paren : /[\(\)]/,
+ symbol : /[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,
+ number : /[0-9]+/,
+ yellow : /\bY\b/,
+ red : /\bR\b/
 };
 const allRegex = re(Object.values(regexes).map(x=>x.source).join('|'),'g');
 
 function color(text){
-  text = text.replace(allRegx,ch=>{
-    if(curlyRegex.test(ch)){
-      return `<span curly>${ch}</span>`;
-    }
-    if(Regex.test(ch)){
-      return `<span curly>${ch}</span>`;
+  return text.replace(allRegx,ch=>{
+    for(const key in regexes){
+      if(regexes[key].test(ch)){
+         return `<span class="color-${key}">${ch}</span>`;
+      }
     }
     return ch;
   });
