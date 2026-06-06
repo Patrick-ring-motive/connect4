@@ -8,7 +8,7 @@
     }
   };
   const regexes = {
-    bold:[/(^|\r|\n)\*\*[^\*]+|[^\*]+\*\*]($|\r|\n)/,'#ffffff'],
+    bold:[/\*\*.*($|\r|\n)/,'#ffffff'],
     curly: [/[\{\}‘’']/, '#ff79c6'],
     square: [/[\[\]“”""]/, '#ba7dff'],
     paren: [/[\(\)]/, 'orange'],
