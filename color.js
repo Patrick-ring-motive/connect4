@@ -8,7 +8,7 @@
     }
   };
   const regexes = {
-    bold:[/(^|\r|\n)\*\*.*\*\*($|\r|\n)/,'#ffffff'],
+    //bold:[/(^|\r|\n)\*\*.*\*\*($|\r|\n)/,'#ffffff'],
     curly: [/[\{\}‘’']/, '#ff79c6'],
     square: [/[\[\]“”""]/, '#ba7dff'],
     paren: [/[\(\)]/, 'orange'],
@@ -26,9 +26,9 @@
     let rep;
     rep = ch => {
       for (const key in regexes) {
-        if(key === 'bold'){
+        /*if(key === 'bold'){
           ch = ch.replace(/[^\*]+/g,rep);
-        }
+        }*/
         if (regexes[key][0].test(ch)) {
           return `<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>`;
         }
