@@ -23,14 +23,19 @@
   const textShadow = 'black';
   let bold = false;
   globalThis.color = function color(text) {
-    return text.replace(allRegex, ch => {
+    let rep;
+    rep = ch => {
       for (const key in regexes) {
+        if(key === 'bold'){
+          ch = ch.replace(/[^\*]+/g,rep);
+        }
         if (regexes[key][0].test(ch)) {
           return `<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>`;
         }
       }
       return ch;
-    });
+    };
+    return text.replace(allRegex,rep);
   }
   const style = document.createElement('style');
   for (const key in regexes) {
