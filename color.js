@@ -8,11 +8,11 @@
     }
   };
   const regexes = {
-    //bold:[/(^|\r|\n)\*\*.*\*\*($|\r|\n)/,'#ffffff'],
+    star:[/\*+/,'blue'],
     curly: [/[\{\}‘’']/, '#ff79c6'],
     square: [/[\[\]“”""]/, '#ba7dff'],
     paren: [/[\(\)]/, 'orange'],
-    symbol: [/[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/, '#00ff00'],
+    symbol: [/[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"\*]+/, '#00ff00'],
     number: [/[0-9]+/, 'deepskyblue'],
     yellow: [/\b(Y|Yellow)\b/, 'yellow'],
     red: [/\b(R|Red)\b/, 'red']
