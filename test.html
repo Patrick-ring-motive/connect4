@@ -1,7 +1,7 @@
 <!doctype html>
 
 <html lang="en">
-<script src="color.js"></script>
+
 
 <head>
 
@@ -514,7 +514,7 @@
     globalThis.runEnhancement = _ => _;
     let runReady; // = import('/logs-highlighter/func.js?' + new Date().getTime());
     (async () => {
-      await runReady;
+      await import('color.js?'+Math.random());
       try {
         await runEnhancement();
       } catch {}
