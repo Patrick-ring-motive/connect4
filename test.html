@@ -1014,8 +1014,9 @@
       let gemmaMessages = [];
 
       // Helper: Append text as a text node (no repaint of entire content)
-      globalThis.appendTextNode = function appendTextNode(element, text) {
+      globalThis.appendTextNode = function appendTextNode(element, text){
         if (!element) return;
+        text = text.replace(/(confident|stubborn),?/gi,'');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element.appendChild(span);
