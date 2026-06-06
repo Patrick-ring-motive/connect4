@@ -1,7 +1,7 @@
 <!doctype html>
 
 <html lang="en">
-
+<script src="color.js"></script>
 <head>
 
   <meta charset="UTF-8" />
@@ -1036,7 +1036,7 @@ async function apiFetch(path, method = "GET", body = null) {
       function appendTextNode(element, text) {
         if (!element) return;
         const span = document.createElement('span');
-        span.appendChild(document.createTextNode(text));
+        span.innerHTML=color(text);
         element.appendChild(span);
       }
 
