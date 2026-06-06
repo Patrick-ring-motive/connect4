@@ -6,26 +6,23 @@ const re = (...args)=>{
     return RegExp();
   }
 };
-const curlyRegex = /[\{\}‘’']/;
-const squareRegex = /[\[\]“”""]/;
-const pRegex = /[\(\)]/;
-const symRegex = /[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/g;
-const numRegex = /[0-9]+/;
-const yRegex = /\bY\b/;
-const rRegex = /\bR\b/;
-const allRegex = re([
-  curlyRegex,
-  squareRegex,
-  pRegex,
-  symRegex,
-  numRegex,
-  yRegex,
-  rRegex
-].map(x=>x.source).join('|'),'g');
+const regexes = {
+ curlyRegex : /[\{\}‘’']/,
+ squareRegex : /[\[\]“”""]/,
+ pRegex : /[\(\)]/,
+ symRegex : /[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,
+ numRegex : /[0-9]+/,
+ yRegex : /\bY\b/,
+ rRegex : /\bR\b/
+};
+const allRegex = re(Object.values(regexes).map(x=>x.source).join('|'),'g');
 
 function color(text){
   text = text.replace(allRegx,ch=>{
     if(curlyRegex.test(ch)){
+      return `<span curly>${ch}</span>`;
+    }
+    if(Regex.test(ch)){
       return `<span curly>${ch}</span>`;
     }
     return ch;
