@@ -13,10 +13,10 @@ const regexes = {
  paren : [/[\(\)]/,'orange'],
  symbol : [/[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,'#00ff00'],
  number : [/[0-9]+/,'deepskyblue'],
- yellow : [/\bY\b/,'yellow'],
- red : [/\bR\b/,'red']
+ yellow : [/\b(Y|Yellow)\b/,'yellow'],
+ red : [/\b(R|Red)\b/,'red']
 };
-const allRegex = re(Object.values(regexes).map(x=>x[0].source).join('|'),'g');
+const allRegex = re(Object.values(regexes).map(x=>x[0].source).join('|'),'ig');
 globalThis.color=function color(text){
   return text.replace(allRegex,ch=>{
     for(const key in regexes){
