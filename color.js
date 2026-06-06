@@ -19,11 +19,11 @@
   const allRegex = re(Object.values(regexes).map(x => x[0].source).join('|'), 'ig');
   const span = 'span';
   const b = 'b';
-  const textShadow = 'grey';
+  const textShadow = 'black';
   let bold = false;
   globalThis.color = function color(text) {
     return text.replace(allRegex, ch => {
-      if(ch.includes('**'))bold = !bold;
+      //if(ch.includes('**'))bold = !bold;
       for (const key in regexes) {
         if (regexes[key][0].test(ch)) {
           return `<${bold?b:span} class="color-${key}">${ch.replace(/[<>]/g,'^')}</${bold?b:span}>`;
@@ -36,5 +36,6 @@
   for (const key in regexes) {
     style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; text-shadow: -.1ch -.1ch 0 ${textShadow}, .1ch -.1ch 0 ${textShadow}, -.1ch .1ch 0 ${textShadow}, .1ch .1ch 0 ${textShadow} !important; } `;
   }
+
   document.firstElementChild.appendChild(style);
 })();
