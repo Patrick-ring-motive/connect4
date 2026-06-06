@@ -17,7 +17,8 @@
     red: [/\b(R|Red)\b/, 'red']
   };
   const allRegex = re(Object.values(regexes).map(x => x[0].source).join('|'), 'ig');
-  const span,b = 'span','b';
+  const span = 'span';
+  const b = 'b';
   let bold = false;
   globalThis.color = function color(text) {
     return text.replace(allRegex, ch => {
