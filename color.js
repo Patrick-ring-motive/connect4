@@ -22,25 +22,18 @@
   const b = 'b';
   const textShadow = 'black';
   let bold = false;
-  globalThis.color = function color(text) {
-    let rep;
-    rep = ch => {
+  globalThis.color =  (text) => 
+    text.replace(allRegex,ch => {
       for (const key in regexes) {
-        /*if(key === 'bold'){
-          ch = ch.replace(/[^\*]+/g,rep);
-        }*/
         if (regexes[key][0].test(ch)) {
           return `<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>`;
         }
       }
       return ch;
-    };
-    return text.replace(allRegex,rep);
-  }
+    });
   const style = document.createElement('style');
   for (const key in regexes) {
     style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; text-shadow: -.1ch -.1ch 0 ${textShadow}, .1ch -.1ch 0 ${textShadow}, -.1ch .1ch 0 ${textShadow}, .1ch .1ch 0 ${textShadow} !important; } `;
   }
-
   document.firstElementChild.appendChild(style);
 })();
