@@ -17,11 +17,14 @@
     red: [/\b(R|Red)\b/, 'red']
   };
   const allRegex = re(Object.values(regexes).map(x => x[0].source).join('|'), 'ig');
+  const span,b = 'span','b';
+  let bold = false;
   globalThis.color = function color(text) {
     return text.replace(allRegex, ch => {
       for (const key in regexes) {
+        if(ch.includes('**'))bold = !bold;
         if (regexes[key][0].test(ch)) {
-          return `<span class="color-${key}">${ch}</span>`;
+          return `<${bold?b:span} class="color-${key}">${ch.replace(/[<>]/g,'^'}</${bold?b:span}>`;
         }
       }
       return ch;
