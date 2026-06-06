@@ -25,7 +25,7 @@ globalThis.color=function color(text){
       }
     }
     return ch;
-  }).replace(/\*\*([^\*]+)\*\*/g,'<b>$1</b></br>');
+  });
 }
 const style = document.createElement('style');
 for(const key in regexes){
