@@ -1,3 +1,4 @@
+(()=>{
 const re = (...args)=>{
   try{
     return RegExp(...args);
@@ -16,7 +17,7 @@ const regexes = {
  red : [/\bR\b/,'red']
 };
 const allRegex = re(Object.values(regexes).map(x=>x[0].source).join('|'),'g');
-function color(text){
+globalThis.color=function color(text){
   return text.replace(allRegex,ch=>{
     for(const key in regexes){
       if(regexes[key][0].test(ch)){
@@ -31,3 +32,4 @@ for(const key in regexes){
   style.textContent += ` .color-${key} { color: ${regexes[key][1]} !important; } `;
 }
 document.firstElementChild.appendChild(style);
+}
