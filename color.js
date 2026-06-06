@@ -26,7 +26,7 @@
       //if(ch.includes('**'))bold = !bold;
       for (const key in regexes) {
         if (regexes[key][0].test(ch)) {
-          return `<${bold?b:span} class="color-${key}">${ch.replace(/[<>]/g,'^')}</${bold?b:span}>`;
+          return `${!bold?'</b>':''}<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>${bold?'<b>':''}`;
         }
       }
       return ch;
