@@ -9,7 +9,7 @@ const re = (...args)=>{
 };
 const regexes = {
  curly : [/[\{\}‘’']/,'#ff79c6'],
- square : /[\[\]“”""]/,'#ba7dff'],
+ square : [/[\[\]“”""]/,'#ba7dff'],
  paren : [/[\(\)]/,'orange'],
  symbol : [/[^a-zA-Z0-9\s\[\]\{\}\(\)“”"‘’'"]+/,'#00ff00'],
  number : [/[0-9]+/,'deepskyblue'],
