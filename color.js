@@ -24,7 +24,6 @@
   const allRegex = re(Object.values(compoundRe).map(x => x[0].source).join('|'), 'ig');
   const ts = 'black';
   const sz ='0.1ch';
-  let bold = false;
   globalThis.color =  (text) => 
     text.replace(allRegex,ch => {
       for (const key in compoundRe) {
