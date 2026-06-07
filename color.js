@@ -29,7 +29,7 @@
     text.replace(allRegex, ch => {
       for (const key in compoundRe) {
         if (compoundRe[key][0].test(ch)) {
-          return `<span class="color-${key}">${rn(ch,/[<>]/g)}</span>`;
+          return `<span class="color-${key}">${rm(ch,/[<>]/g)}</span>`;
         }
       }
       return ch;
