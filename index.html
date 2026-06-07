@@ -1253,6 +1253,7 @@
           .replace(/6x6/gi, '⑥x⑥')
           .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s*a?n?d?6\s*/gi, '⓪-⑥');
         let col,parsed;
+        findMove : {
         for(const moveMatch of [
           /I\b[^\d\.]+\d/g,
           /\d[^\d\.]+I\b/g,
@@ -1263,30 +1264,28 @@
           .match(moveMatch)
           ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
-          if (boardState.validMoves.includes(parsed)) break;
+          if (boardState.validMoves.includes(parsed)){
+            appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
+            break findMove;
+          }
         }
-        if (!boardState.validMoves.includes(parsed)) {
-          col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
-          parsed = parseInt(col);
-        } else {
-          appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-          (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
-          return parsed;
+        
+        col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
+        parsed = parseInt(col);
+        if (boardState.validMoves.includes(parsed)) {
+          appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
+          break findMove;
         }
-        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
-        if (!boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
-          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
+          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
-          if (!boardState.validMoves.includes(parsed)) {
+          if (boardState.validMoves.includes(parsed)) {
+            appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
+            break findMove;
+          } 
             console.warn(`[${botLabel}] Invalid column`, parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
             appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
-          } else {
-            appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
-          }
-        } else {
-          appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
         }
         (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
