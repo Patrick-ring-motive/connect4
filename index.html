@@ -1279,10 +1279,10 @@
           parsed = parseInt(col);
         } else {
           appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-          (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
+          (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
           return parsed;
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
         if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
@@ -1297,7 +1297,7 @@
         } else {
           appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
 
@@ -1565,15 +1565,6 @@
             rowEl.appendChild(cellEl);
           }
           boardEl.appendChild(rowEl);
-          (async () => {
-            try {
-              if (renduring) return;
-              renduring = true;
-              await runEnhancement();
-              await runEnhancement();
-            } catch {}
-            rendering = false;
-          })();
         }
 
         // Hover row
