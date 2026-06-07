@@ -8,7 +8,7 @@
     }
   };
   const regexes = {
-    star:[/\*+/,'cornflowerblue'],
+    star: [/\*+/, 'cornflowerblue'],
     curly: [/[\{\}‘’']+/, '#ff79c6'],
     square: [/[\[\]“”""]+/, '#ba7dff'],
     paren: [/[\(\)]+/, 'orange'],
@@ -17,15 +17,15 @@
   const compoundRe = {
     yellow: [/\b(Y|Yellow)\b/, 'yellow'],
     red: [/\b(R|Red)\b/, 'red'],
-    x:[/(\bx\b)/,'#ffffff'],
+    x: [/(\bx\b)/, '#ffffff'],
     symbol: [re(`[^a-zA-Z0-9\s${Object.values(regexes).map(x => x[0].source.slice(1,-2)).join('')}]+`), '#00ff00'],
     ...regexes
   }
   const allRegex = re(Object.values(compoundRe).map(x => x[0].source).join('|'), 'ig');
   const ts = 'black';
-  const sz ='0.1ch';
-  globalThis.color =  (text) => 
-    text.replace(allRegex,ch => {
+  const sz = '0.1ch';
+  globalThis.color = (text) =>
+    text.replace(allRegex, ch => {
       for (const key in compoundRe) {
         if (compoundRe[key][0].test(ch)) {
           return `<span class="color-${key}">${ch.replace(/[<>]/g,'^')}</span>`;
