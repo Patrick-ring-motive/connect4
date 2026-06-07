@@ -1062,20 +1062,14 @@
           if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
             console.warn(icon + ' [LLaVA] Invalid column', parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-            if (thoughtPanel) {
-              appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`);
-            }
+            appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`);
           } else {
-            if (thoughtPanel) {
-              appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`);
-            }
+            appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`;
           }
         } else {
-          if (thoughtPanel) {
             appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`);
-          }
         }
-        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
 
