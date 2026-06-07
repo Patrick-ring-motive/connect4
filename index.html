@@ -511,7 +511,7 @@
   <div id="history-line"></div>
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
-    globalThis.runEnhancement = _ => _;
+      globalThis.runEnhancement = _ => _;
     (async () => {
       await import('https://patrick-ring-motive.github.io/connect4/color.js?' + Math.random());
       //custom utils
@@ -526,7 +526,6 @@
           return String(x);
         }
       };
-
       const parse = x => {
         try {
           return JSON.parse(x);
@@ -534,7 +533,6 @@
           return x && Object(x);
         }
       };
-
       const localStore = {
         get(key) {
           try {
@@ -558,7 +556,6 @@
           }
         },
       };
-
       globalThis.localMap ??= new Proxy({}, {
         get(target, prop) {
           return localStore.get(prop);
@@ -572,7 +569,6 @@
           return true;
         },
       });
-
       // ─── Constants ────────────────────────────────────────────────────────────────
       const ROWS = 6,
         COLS = 7;
@@ -627,15 +623,11 @@
         };
       };
       // ─── Board Utilities ──────────────────────────────────────────────────────────
-      const emptyBoard = () =>
-        Array.from({
-            length: ROWS,
-          },
-          () => Array(COLS).fill(EMPTY),
-        );
-
+      const emptyBoard = () => Array.from({
+          length: ROWS,
+        },
+        () => Array(COLS).fill(EMPTY), );
       const cloneBoard = (board) => board.map((row) => [...row]);
-
       const dropPiece = (board, col, player) => {
         const next = cloneBoard(board);
         for (let row = ROWS - 1; row >= 0; row--) {
@@ -649,27 +641,16 @@
         }
         return null;
       };
-
-      const validMoves = (board) =>
-        Array.from({
-            length: COLS,
-          },
-          (_, col) => col,
-        ).filter((col) => board[0][col] === EMPTY);
-
+      const validMoves = (board) => Array.from({
+          length: COLS,
+        },
+        (_, col) => col, ).filter((col) => board[0][col] === EMPTY);
       const checkWinner = (board) => {
         const check = (row, col, deltaRow, deltaCol, player) => {
           for (let i = 0; i < 4; i++) {
             const nextRow = row + deltaRow * i,
               nextCol = col + deltaCol * i;
-            if (
-              nextRow < 0 ||
-              nextRow >= ROWS ||
-              nextCol < 0 ||
-              nextCol >= COLS ||
-              board[nextRow][nextCol] !== player
-            )
-              return false;
+            if (nextRow < 0 || nextRow >= ROWS || nextCol < 0 || nextCol >= COLS || board[nextRow][nextCol] !== player) return false;
           }
           return true;
         };
@@ -685,21 +666,13 @@
                 if (check(row, col, deltaRow, deltaCol, player)) return player;
         return validMoves(board).length === 0 ? "DRAW" : null;
       };
-
       const getWinCells = (board) => {
         const check = (row, col, deltaRow, deltaCol, player) => {
           const cells = [];
           for (let i = 0; i < 4; i++) {
             const nextRow = row + deltaRow * i,
               nextCol = col + deltaCol * i;
-            if (
-              nextRow < 0 ||
-              nextRow >= ROWS ||
-              nextCol < 0 ||
-              nextCol >= COLS ||
-              board[nextRow][nextCol] !== player
-            )
-              return null;
+            if (nextRow < 0 || nextRow >= ROWS || nextCol < 0 || nextCol >= COLS || board[nextRow][nextCol] !== player) return null;
             cells.push([nextRow, nextCol]);
           }
           return cells;
@@ -718,7 +691,6 @@
               }
         return [];
       };
-
       // ─── Heuristic ────────────────────────────────────────────────────────────────
       const scoreWindow = (cells, player) => {
         const opp = player === RED ? YELLOW : RED;
@@ -733,49 +705,35 @@
         if (oppCount === 2 && emptyCount === 2) return -3;
         return 0;
       };
-
       const heuristicScore = (board, player) => {
         let score = 0;
         for (let r = 0; r < ROWS; r++)
           for (let c = 0; c < COLS; c++)
             if (board[r][c] === player) score += CENTER_WEIGHTS[c];
         for (let r = 0; r < ROWS; r++)
-          for (let c = 0; c <= COLS - 4; c++)
-            score += scoreWindow(
-              [board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]],
-              player,
-            );
+          for (let c = 0; c <= COLS - 4; c++) score += scoreWindow(
+            [board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]], player, );
         for (let c = 0; c < COLS; c++)
-          for (let r = 0; r <= ROWS - 4; r++)
-            score += scoreWindow(
-              [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]],
-              player,
-            );
+          for (let r = 0; r <= ROWS - 4; r++) score += scoreWindow(
+            [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]], player, );
         for (let r = 0; r <= ROWS - 4; r++)
-          for (let c = 0; c <= COLS - 4; c++)
-            score += scoreWindow(
-              [
-                board[r][c],
-                board[r + 1][c + 1],
-                board[r + 2][c + 2],
-                board[r + 3][c + 3],
-              ],
-              player,
-            );
+          for (let c = 0; c <= COLS - 4; c++) score += scoreWindow(
+            [
+              board[r][c],
+              board[r + 1][c + 1],
+              board[r + 2][c + 2],
+              board[r + 3][c + 3],
+            ], player, );
         for (let r = 3; r < ROWS; r++)
-          for (let c = 0; c <= COLS - 4; c++)
-            score += scoreWindow(
-              [
-                board[r][c],
-                board[r - 1][c + 1],
-                board[r - 2][c + 2],
-                board[r - 3][c + 3],
-              ],
-              player,
-            );
+          for (let c = 0; c <= COLS - 4; c++) score += scoreWindow(
+            [
+              board[r][c],
+              board[r - 1][c + 1],
+              board[r - 2][c + 2],
+              board[r - 3][c + 3],
+            ], player, );
         return score;
       };
-
       // ─── Bots ─────────────────────────────────────────────────────────────────────
       const greedyMove = (board, player) => {
         const moves = validMoves(board);
@@ -794,22 +752,18 @@
         }
         return bestCol;
       };
-
       const minimax = (board, depth, alpha, beta, maximizing, player) => {
         const opp = player === RED ? YELLOW : RED;
         const winner = checkWinner(board);
-        if (winner === player)
-          return {
-            score: 10000 + depth,
-          };
-        if (winner === opp)
-          return {
-            score: -10000 - depth,
-          };
-        if (winner === "DRAW" || depth === 0)
-          return {
-            score: heuristicScore(board, player),
-          };
+        if (winner === player) return {
+          score: 10000 + depth,
+        };
+        if (winner === opp) return {
+          score: -10000 - depth,
+        };
+        if (winner === "DRAW" || depth === 0) return {
+          score: heuristicScore(board, player),
+        };
         const moves = validMoves(board);
         let bestCol = moves[0];
         if (maximizing) {
@@ -819,14 +773,7 @@
             if (!result) continue;
             const {
               score
-            } = minimax(
-              result.board,
-              depth - 1,
-              alpha,
-              beta,
-              false,
-              player,
-            );
+            } = minimax(result.board, depth - 1, alpha, beta, false, player, );
             if (score > best) {
               best = score;
               bestCol = col;
@@ -845,14 +792,7 @@
             if (!result) continue;
             const {
               score
-            } = minimax(
-              result.board,
-              depth - 1,
-              alpha,
-              beta,
-              true,
-              player,
-            );
+            } = minimax(result.board, depth - 1, alpha, beta, true, player, );
             if (score < best) {
               best = score;
               bestCol = col;
@@ -866,23 +806,14 @@
           };
         }
       };
-
-      const minimaxMove = (board, player) =>
-        minimax(board, MINIMAX_DEPTH, -Infinity, Infinity, true, player).col;
-
+      const minimaxMove = (board, player) => minimax(board, MINIMAX_DEPTH, -Infinity, Infinity, true, player).col;
       // ─── Board Serialization (LLM hook) ──────────────────────────────────────────
       const getBoardState = (board, currentPlayer, lastMove, moveHistory) => {
         const colLabels = "0123456";
         const rowLabels = ["5", "4", "3", "2", "1", "0"];
         const header = "  " + colLabels.split("").join(" ");
-        const grid = board
-          .map(
-            (row, rowIndex) =>
-            rowLabels[rowIndex] +
-            " " +
-            row.map((cell) => (cell === EMPTY ? "." : cell)).join(" "),
-          )
-          .join("\n");
+        const grid = board.map(
+          (row, rowIndex) => rowLabels[rowIndex] + " " + row.map((cell) => (cell === EMPTY ? "." : cell)).join(" "), ).join("\n");
         const formatted = `${header}\n${grid}`;
         const moves = validMoves(board);
         const prompt = `Connect 4 board state:\n${formatted}\n\nCurrent turn: ${currentPlayer}\nValid columns: ${moves.join(", ")}\nLast move: ${lastMove ? `${lastMove.player} played column ${lastMove.col}` : "None"}\n\nLegend: R=Red, Y=Yellow, .=Empty\nRows 0-5 (0=bottom), Columns 0-6\n\nYou are playing as ${currentPlayer}. Choose the best column.\nRespond with a single integer (0-6). No explanation.`;
@@ -896,7 +827,6 @@
           prompt,
         };
       };
-
       async function apiFetch(path, method = "GET", body = null) {
         const res = await fetch(API_BASE + path, {
           method,
@@ -937,7 +867,6 @@
           window.location.href = "/auth.html";
         });
       }
-
       async function initAuth() {
         renderAuthBar();
         const saved = loadSavedSession();
@@ -967,7 +896,6 @@
         }
         renderAuthBar();
       }
-
       async function logout() {
         const token = auth.token;
         auth = {
@@ -1001,28 +929,21 @@
           "'": "&#39;",
         } [char]));
       }
-
-      const LLAVA_URL =
-        "https://llava-15-7b-hf-summary.language-models.workers.dev/";
+      const LLAVA_URL = "https://llava-15-7b-hf-summary.language-models.workers.dev/";
       const GEMMA_URL = "https://gemma.connectfour-ai.workers.dev/";
-
       // Gemma conversation history (OpenAI-compatible messages format)
       let gemmaMessages = [];
-
       // Helper: Append text as a text node (no repaint of entire content)
       globalThis.appendTextNode = function appendTextNode(element, text) {
-        text = text.replace(/(confident|stubborn),?/gi, '')
-          .replace(/disagree/gi, 'deliberate').replace(/[ ]+/g, ' ');
+        text = text.replace(/(confident|stubborn),?/gi, '').replace(/disagree/gi, 'deliberate').replace(/[ ]+/g, ' ');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element?.appendChild?.(span);
       }
-
       // Helper: Clear element and set initial text
       function setTextContent(element, text) {
         (element ?? {}).textContent = text;
       }
-
       const fetchText = async (url, options) => {
         try {
           const res = await fetch(url, options);
@@ -1031,11 +952,9 @@
           return String(e);
         }
       };
-
       // LLaVA — simple fetch, return column
       const llavaMove = async (boardState) => {
         const icon = boardState.currentPlayer === RED ? "🥩" : "🧀";
-
         const text = await fetchText(LLAVA_URL, {
           method: "POST",
           headers: {
@@ -1066,19 +985,15 @@
         (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
-
       async function bestEffortFetch(input, init) {
         try {
           // 1. Perform the initial fetch request
           const originalResponse = await fetch(input, init);
-
           // If there is no body to read (e.g., 204 No Content, HEAD requests), return as-is
           if (!originalResponse.body) {
             return originalResponse;
           }
-
           const originalReader = originalResponse.body.getReader();
-
           // 2. Create a resilient wrapper stream
           const resilientStream = new ReadableStream({
             async pull(controller) {
@@ -1087,7 +1002,6 @@
                   done,
                   value
                 } = await originalReader.read();
-
                 if (done) {
                   controller.close();
                 } else {
@@ -1095,11 +1009,7 @@
                 }
               } catch (streamError) {
                 // A mid-stream network drop or timeout caught here!
-                console.warn(
-                  "Stream interrupted prematurely. Closing stream gracefully with partial data.",
-                  streamError,
-                );
-
+                console.warn("Stream interrupted prematurely. Closing stream gracefully with partial data.", streamError, );
                 // Cleanly close the controller instead of calling controller.error()
                 controller.close();
               }
@@ -1109,7 +1019,6 @@
               originalReader.cancel(reason).catch(() => {});
             },
           });
-
           // 3. Return a new Response cloning the original metadata but swapping the body
           return new Response(resilientStream, {
             status: originalResponse.status,
@@ -1120,18 +1029,15 @@
           return new Response(String(initialFetchError));
         }
       }
-
       // Gemma — streaming with thought process display (OpenAI-compatible SSE)
       // botLabel param allows GemmaMax to identify itself in the thought panel
       const gemmaMove = async (boardState, botLabel = "Gemma") => {
         const thoughtPanel = document.getElementById("thought-panel");
-
         // Build the user message for this turn
         const userMsg = {
           role: "user",
           content: boardState.prompt
         };
-
         // Only send system + current board state (no history)
         const messages = [{
             role: "system",
@@ -1139,7 +1045,6 @@
           },
           userMsg,
         ];
-
         const icon = (boardState.currentPlayer === RED ? "🧶" : "🧇") + ` [${botLabel}]`;
         // Show streaming indicator appended to history
         const moveNum = gemmaMessages.length + 1;
@@ -1149,7 +1054,6 @@
         if (thoughtPanel?.childNodes?.length) appendTextNode(thoughtPanel, "\n\n");
         thoughtPanel?.appendChild?.(streamEl);
         (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
-
         const res = await bestEffortFetch(GEMMA_URL, {
           method: "POST",
           headers: {
@@ -1160,7 +1064,6 @@
             stream: true
           }),
         });
-
         let fullText = "";
         if (res?.body?.getReader) {
           const reader = res.body.getReader();
@@ -1183,11 +1086,7 @@
               if (trimmed.startsWith("data: ")) {
                 try {
                   const json = JSON.parse(trimmed.slice(6));
-                  let token =
-                    json.choices?.[0]?.delta?.content ||
-                    json.choices?.[0]?.text ||
-                    json.response ||
-                    "";
+                  let token = json.choices?.[0]?.delta?.content || json.choices?.[0]?.text || json.response || "";
                   let parsed;
                   try {
                     parsed = JSON.parse(token);
@@ -1213,11 +1112,7 @@
           if (buffer?.trim?.() !== "data: [DONE]" && buffer?.trim?.()?.startsWith?.("data: ")) {
             try {
               const json = JSON.parse(buffer.trim().slice(6));
-              const token =
-                json.choices?.[0]?.delta?.content ||
-                json.choices?.[0]?.text ||
-                json.response ||
-                "";
+              const token = json.choices?.[0]?.delta?.content || json.choices?.[0]?.text || json.response || "";
               fullText += token;
             } catch (e) {
               fullText += buffer.trim().slice(6);
@@ -1230,10 +1125,8 @@
           streamEl.textContent = '';
           appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
         }
-
         // Add assistant response to local history for display
         gemmaMessages.push(fullText);
-
         console.log(`[${botLabel}] Full response:`, fullText);
         const numDict = {
           zero: 0,
@@ -1247,55 +1140,41 @@
         for (const n in numDict) {
           fullText = fullText.replace(RegExp(n, "gi"), numDict[n]);
         }
-        fullText = fullText.replace(/(connect|depth)\s*4/gi, '$1 ④')
-          .replace(/depth\s*of\s*4/gi, 'depth of ④')
-          .replace(/0-6/gi, '⓪-⑥')
-          .replace(/6x6/gi, '⑥x⑥')
-          .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s*a?n?d?6\s*/gi, '⓪-⑥');
-        let col,parsed;
-        findMove : {
-        for(const moveMatch of [
-          /I\b[^\d\.]+\d/g,
-          /\d[^\d\.]+I\b/g,
-          /(answer|best|recommend)[\D^\.]+\d/ig,
-          /\d[\D^\.]+(answer|best|recommend)/ig
-        ]){
-          col = String(fullText)
-          .match(moveMatch)
-          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(parseInt(x)));
-          parsed = parseInt(col);
-          if (boardState.validMoves.includes(parsed)){
-            appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-            break findMove;
-          }
-        }
-        
-        col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
-        parsed = parseInt(col);
-        if (boardState.validMoves.includes(parsed)) {
-          appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
-          break findMove;
-        }
-          const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
-          col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
-          parsed = parseInt(col);
-          if (boardState.validMoves.includes(parsed)) {
-            appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
-            break findMove;
-          } 
+        fullText = fullText.replace(/(connect|depth)\s*4/gi, '$1 ④').replace(/depth\s*of\s*4/gi, 'depth of ④').replace(/0-6/gi, '⓪-⑥').replace(/6x6/gi, '⑥x⑥').replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s*a?n?d?6\s*/gi, '⓪-⑥');
+        let col, parsed;
+        findMove: {
+            for (const moveMatch of [/I\b[^\d\.]+\d/g, /\d[^\d\.]+I\b/g, /(answer|best|recommend)[\D^\.]+\d/ig, /\d[\D^\.]+(answer|best|recommend)/ig]) {
+              col = String(fullText).match(moveMatch)?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(parseInt(x)));
+              parsed = parseInt(col);
+              if (boardState.validMoves.includes(parsed)) {
+                appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
+                break findMove;
+              }
+            }
+            col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
+            parsed = parseInt(col);
+            if (boardState.validMoves.includes(parsed)) {
+              appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
+              break findMove;
+            }
+            const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
+            col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
+            parsed = parseInt(col);
+            if (boardState.validMoves.includes(parsed)) {
+              appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
+              break findMove;
+            }
             console.warn(`[${botLabel}] Invalid column`, parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
             appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
-        }
-        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
+          }
+          (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
-
       // GemmaMax — runs minimax first, injects hint into prompt, Gemma decides
       const gemmaMaxMove = async (boardState) => {
         const minimaxCol = minimaxMove(boardState.board, boardState.currentPlayer);
-        const enhancedPrompt = boardState.prompt +
-          `You are a stubborn, confident Connect 4 AI. Form your OWN opinion first. A minimax hint is provided but you typically disagree with it — only follow it if you independently reached the same conclusion.
+        const enhancedPrompt = boardState.prompt + `You are a stubborn, confident Connect 4 AI. Form your OWN opinion first. A minimax hint is provided but you typically disagree with it — only follow it if you independently reached the same conclusion.
           
            Engine note: column ${minimaxCol}. Make your own call.`;
         return gemmaMove({
@@ -1303,7 +1182,6 @@
           prompt: enhancedPrompt
         }, "GemmaMax");
       };
-
       // ─── Game State ───────────────────────────────────────────────────────────────
       let state = {
         board: emptyBoard(),
@@ -1378,7 +1256,6 @@
       function loadLocalGame() {
         return localMap[LOCAL_GAME_KEY] || null;
       }
-
       async function ensureDbGame() {
         if (!auth.user || !state.started) return null;
         if (state.gameId) return state.gameId;
@@ -1392,7 +1269,6 @@
         state.dbMovesSaved = 0;
         return id;
       }
-
       async function saveDbGame() {
         if (!auth.user || !state.started) return;
         const id = await ensureDbGame();
@@ -1416,19 +1292,16 @@
           state.dbMovesSaved += 1;
         }
       }
-
       async function hasAccountGame() {
         if (!auth.user) return false;
         const result = await apiFetch(`/games?user_id=${encodeURIComponent(auth.user.id)}&limit=1`);
         return result.ok && Array.isArray(result.data) && result.data.length > 0;
       }
-
       async function carryLocalGameToAccount() {
         if (!auth.user) return false;
         const localSnapshot = loadLocalGame();
         if (!localSnapshot?.state?.started || !localSnapshot?.state?.moveHistory?.length) return false;
         if (await hasAccountGame()) return false;
-
         const currentSnapshot = snapshotState();
         restoreSnapshot(localSnapshot);
         state.gameId = null;
@@ -1457,12 +1330,7 @@
           }
         }, 120);
       }
-
-      const getPlayerType = (player) =>
-        player === RED ?
-        document.getElementById("red-select").value :
-        document.getElementById("yellow-select").value;
-
+      const getPlayerType = (player) => player === RED ? document.getElementById("red-select").value : document.getElementById("yellow-select").value;
       const PLAYER_LABELS = {
         human: "Human",
         greedy: "Greedy Bot",
@@ -1471,7 +1339,6 @@
         gemma: "Gemma Bot",
         gemmamax: "GemmaMax Bot",
       };
-
       // ─── Render ───────────────────────────────────────────────────────────────────
       let dropCell = null; // {row, col} for brief drop flash
       let rendering = false;
@@ -1487,24 +1354,16 @@
           suggesting,
           suggestedCol,
         } = state;
-        const isHuman =
-          started && !winner && getPlayerType(current) === "human";
+        const isHuman = started && !winner && getPlayerType(current) === "human";
         const moves = validMoves(board);
-
         // Start / Reset button visibility
-        updateProp(document.getElementById("start-btn").style, "display", started ?
-          "none" :
-          "inline-block");
-        updateProp(document.getElementById("reset-btn").style, "display", started ?
-          "inline-block" :
-          "none");
-
+        updateProp(document.getElementById("start-btn").style, "display", started ? "none" : "inline-block");
+        updateProp(document.getElementById("reset-btn").style, "display", started ? "inline-block" : "none");
         // Board
         const boardEl = document.getElementById("board");
         boardEl.innerHTML = "";
         const CELL_SIZE = 60;
         const BOARD_PADDING = 8;
-
         for (let row = 0; row < ROWS; row++) {
           const rowEl = document.createElement("div");
           rowEl.className = "board-row";
@@ -1514,20 +1373,12 @@
             const disc = document.createElement("div");
             const cellValue = board[row][col];
             const isWin = winCells.some(
-              ([winRow, winCol]) => winRow === row && winCol === col,
-            );
-
+              ([winRow, winCol]) => winRow === row && winCol === col, );
             let discClass = "disc";
             if (cellValue === RED) discClass += isWin ? " win-red" : " red";
-            if (cellValue === YELLOW)
-              discClass += isWin ? " win-yellow" : " yellow";
-
+            if (cellValue === YELLOW) discClass += isWin ? " win-yellow" : " yellow";
             // Fall animation
-            if (
-              fallingCell?.col === col &&
-              fallingCell?.row === row &&
-              cellValue !== EMPTY
-            ) {
+            if (fallingCell?.col === col && fallingCell?.row === row && cellValue !== EMPTY) {
               discClass += " falling";
               const landingOffsetPx = row * CELL_SIZE + BOARD_PADDING;
               const fallFromPx = -(landingOffsetPx + 40);
@@ -1535,28 +1386,17 @@
               disc.style.setProperty("--fall-from", `${fallFromPx}px`);
               disc.style.setProperty("--fall-duration", `${durationMs}ms`);
             }
-
             disc.className = discClass;
-
             // Suggest highlight: pulse the landing cell in the suggested column
-            if (
-              suggestedCol === col &&
-              cellValue === EMPTY &&
-              (row === ROWS - 1 || board[row + 1][col] !== EMPTY)
-            ) {
+            if (suggestedCol === col && cellValue === EMPTY && (row === ROWS - 1 || board[row + 1][col] !== EMPTY)) {
               disc.classList.add("suggested");
-              disc.style.setProperty(
-                "--suggest-color",
-                current === RED ? "#ff2255" : "#ffcc00",
-              );
+              disc.style.setProperty("--suggest-color", current === RED ? "#ff2255" : "#ffcc00", );
             }
-
             cellEl.appendChild(disc);
             rowEl.appendChild(cellEl);
           }
           boardEl.appendChild(rowEl);
         }
-
         // Hover row
         const hoverRow = document.getElementById("hover-row");
         hoverRow.innerHTML = "";
@@ -1566,14 +1406,11 @@
           const pip = document.createElement("div");
           pip.className = "hover-pip";
           pip.style.background = current === RED ? "#e05" : "#fa0";
-          pip.style.opacity =
-            hoverCol === col && isHuman && moves.includes(col) ? "0.7" : "0";
+          pip.style.opacity = hoverCol === col && isHuman && moves.includes(col) ? "0.7" : "0";
           hoverCell.appendChild(pip);
           hoverRow.appendChild(hoverCell);
         }
-
         boardEl.style.cursor = isHuman ? "pointer" : "default";
-
         // Col labels
         const labelsEl = document.getElementById("col-labels");
         if (!labelsEl?.children?.length) {
@@ -1584,7 +1421,6 @@
             labelsEl?.appendChild?.(label);
           }
         }
-
         // Status
         const statusEl = document.getElementById("status-bar");
         if (!started) {
@@ -1592,12 +1428,8 @@
         } else if (state.thinking) {
           statusEl.innerHTML = `<span style="color:#555;font-size:11px;letter-spacing:0.15em">${PLAYER_LABELS[getPlayerType(current)].toUpperCase()} THINKING<span class="blink">...</span></span>`;
         } else if (winner) {
-          const color =
-            winner === RED ? "#e05" : winner === YELLOW ? "#fa0" : "#888";
-          const msg =
-            winner === "DRAW" ?
-            "Draw!" :
-            `${winner === RED ? "🔴 Red" : "🟡 Yellow"} wins!`;
+          const color = winner === RED ? "#e05" : winner === YELLOW ? "#fa0" : "#888";
+          const msg = winner === "DRAW" ? "Draw!" : `${winner === RED ? "🔴 Red" : "🟡 Yellow"} wins!`;
           statusEl.innerHTML = `<span style="color:${color};font-size:15px;font-weight:700;letter-spacing:0.1em">${msg}</span>`;
         } else if (suggestedCol !== null) {
           const color = current === RED ? "#e05" : "#fa0";
@@ -1608,23 +1440,18 @@
           const extra = isHuman ? " — YOUR TURN" : "";
           statusEl.innerHTML = `<span style="color:${color};font-size:11px;letter-spacing:0.2em">${current === RED ? "🔴" : "🟡"} ${label}${extra}</span>`;
         }
-
         // Move count
         const moveCountEl = document.getElementById("move-count");
         moveCountEl.textContent = started ? `${moveHistory.length} moves` : "";
         if (moveHistory.length > 0) {
-          document.getElementById("history-line").textContent =
-            "HISTORY: " +
-            moveHistory.map((entry) => `${entry.player}${entry.col}`).join(" ");
+          document.getElementById("history-line").textContent = "HISTORY: " + moveHistory.map((entry) => `${entry.player}${entry.col}`).join(" ");
         } else {
           document.getElementById("history-line").textContent = "";
         }
       };
-
       // ─── Game Logic ───────────────────────────────────────────────────────────────
       let fallingCell = null; // { row, col } — active fall animation target
       let animating = false; // block re-renders during fall animation
-
       const applyMove = (col) => {
         const {
           board,
@@ -1634,28 +1461,22 @@
         } = state;
         const result = dropPiece(board, col, current);
         if (!result) return;
-
-        const newHistory = [
-          ...moveHistory,
-          {
-            col,
-            player: current,
-            row: result.row,
-          },
-        ];
+        const newHistory = [...moveHistory, {
+          col,
+          player: current,
+          row: result.row,
+        }, ];
         const newLast = {
           col,
           player: current,
           row: result.row,
         };
         const winner = checkWinner(result.board);
-
         state.board = result.board;
         state.lastMove = newLast;
         state.moveHistory = newHistory;
         state.suggestedCol = null;
         state.suggesting = false;
-
         if (winner) {
           state.winner = winner;
           state.winCells = winner !== "DRAW" ? getWinCells(result.board) : [];
@@ -1664,7 +1485,6 @@
           state.current = current === RED ? YELLOW : RED;
         }
         persistGame();
-
         // Trigger fall animation then clear it after it completes
         const durationMs = 120 + result.row * 28;
         fallingCell = {
@@ -1679,9 +1499,7 @@
           render();
         }, durationMs + 50);
       };
-
       let botTimeout = null;
-
       const scheduleBotMove = () => {
         if (botTimeout) clearTimeout(botTimeout);
         if (state.winner) return;
@@ -1691,7 +1509,6 @@
           getSuggestion();
           return;
         }
-
         state.thinking = true;
         render();
         let running;
@@ -1732,14 +1549,12 @@
           } catch (e) {
             state.thinking = false;
             console.error("[Bot error]", e);
-            document.getElementById("status-bar").innerHTML =
-              `<span style="color:#f55;font-size:10px">⚠ ${e.message}</span>`;
+            document.getElementById("status-bar").innerHTML = `<span style="color:#f55;font-size:10px">⚠ ${e.message}</span>`;
             render();
           }
           running = false;
         }, 350);
       };
-
       const reset = () => {
         if (botTimeout) clearTimeout(botTimeout);
         fallingCell = null;
@@ -1764,24 +1579,20 @@
         render();
         persistGame();
       };
-
       const startGame = () => {
         state.started = true;
         render();
         persistGame();
         scheduleBotMove();
       };
-
       const getSuggestion = async () => {
         if (state.suggesting || state.winner || !state.started) return;
         if (getPlayerType(state.current) !== "human") return;
         const type = getSuggestType();
         if (!type) return;
-
         state.suggesting = true;
         state.suggestedCol = null;
         render();
-
         const {
           board,
           current,
@@ -1817,11 +1628,8 @@
           render();
         }
       };
-
       // Which bot to use for suggestions — reads the dedicated suggest-select
-      const getSuggestType = () =>
-        document.getElementById("suggest-select").value;
-
+      const getSuggestType = () => document.getElementById("suggest-select").value;
       // ─── Events ───────────────────────────────────────────────────────────────────
       document.getElementById("board").addEventListener("click", (evt) => {
         if (!state.started || state.winner || state.thinking) return;
@@ -1835,7 +1643,6 @@
         applyMove(col);
         if (!state.winner) scheduleBotMove();
       });
-
       document.getElementById("board").addEventListener("mousemove", (evt) => {
         const boardEl = document.getElementById("board");
         const rect = boardEl.getBoundingClientRect();
@@ -1847,23 +1654,15 @@
           if (!animating) render();
         }
       });
-
       document.getElementById("board").addEventListener("mouseleave", () => {
         state.hoverCol = null;
         if (!animating) render();
       });
-
       document.getElementById("start-btn").addEventListener("click", startGame);
       document.getElementById("reset-btn").addEventListener("click", reset);
-
       document.getElementById("red-select").addEventListener("change", reset);
-      document
-        .getElementById("yellow-select")
-        .addEventListener("change", reset);
-      document
-        .getElementById("suggest-select")
-        .addEventListener("change", persistGame);
-
+      document.getElementById("yellow-select").addEventListener("change", reset);
+      document.getElementById("suggest-select").addEventListener("change", persistGame);
       // ─── Init ─────────────────────────────────────────────────────────────────────
       renderAuthBar();
       initAuth().then(() => {
@@ -1878,7 +1677,6 @@
         if (state.started && !state.winner) scheduleBotMove();
         if (carriedLocalGame) persistGame();
       });
-
       document.getElementById("board").addEventListener("touchstart", (evt) => {
         if (!state.started || state.winner || state.thinking) return;
         if (getPlayerType(state.current) !== "human") return;
@@ -1896,30 +1694,22 @@
       }, {
         passive: false
       }); // passive:false required for preventDefault to work
-
       function bindSelectToSession(select) {
         let key = select.id || select.name || select.getAttribute('id');
         if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
-
         const stored = sessionStorage.getItem(key);
         if (stored != null) select.value = stored;
-
         select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
       }
-
       document.querySelectorAll('select').forEach(bindSelectToSession);
-
       (async () => {
         async function bindSelectToTemp(select) {
           let key = select.id || select.name || select.getAttribute('id');
           if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
-
           const stored = await tempStorage.getItem(key);
           if (stored != null) select.value = stored;
-
           select.addEventListener('change', () => tempStorage.setItem(key, select.value));
         }
-
         document.querySelectorAll('select').forEach(bindSelectToTemp);
       })();
     })();
