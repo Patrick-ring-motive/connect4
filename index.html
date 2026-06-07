@@ -513,7 +513,7 @@
   <script>
     globalThis.runEnhancement = _ => _;
     (async () => {
-      await import('https://patrick-ring-motive.github.io/connect4/color.js?'+Math.random());
+      await import('https://patrick-ring-motive.github.io/connect4/color.js?' + Math.random());
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -1010,9 +1010,9 @@
       let gemmaMessages = [];
 
       // Helper: Append text as a text node (no repaint of entire content)
-      globalThis.appendTextNode = function appendTextNode(element, text){
-        text = text.replace(/(confident|stubborn),?/gi,'')
-        .replace(/disagree/gi,'deliberate').replace(/[ ]+/g, ' ');
+      globalThis.appendTextNode = function appendTextNode(element, text) {
+        text = text.replace(/(confident|stubborn),?/gi, '')
+          .replace(/disagree/gi, 'deliberate').replace(/[ ]+/g, ' ');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element?.appendChild?.(span);
@@ -1020,7 +1020,7 @@
 
       // Helper: Clear element and set initial text
       function setTextContent(element, text) {
-        (element??{}).textContent = text;
+        (element ?? {}).textContent = text;
       }
 
       const fetchText = async (url, options) => {
@@ -1061,9 +1061,9 @@
             appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`);
           }
         } else {
-            appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`);
+          appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`);
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
 
@@ -1148,7 +1148,7 @@
         appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} Thinking...`);
         if (thoughtPanel?.childNodes?.length) appendTextNode(thoughtPanel, "\n\n");
         thoughtPanel?.appendChild?.(streamEl);
-        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
 
         const res = await bestEffortFetch(GEMMA_URL, {
           method: "POST",
@@ -1207,7 +1207,7 @@
             }
             streamEl.textContent = '';
             appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-            (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+            (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
           }
           // Process any remaining buffer
           if (buffer?.trim?.() !== "data: [DONE]" && buffer?.trim?.()?.startsWith?.("data: ")) {
@@ -1257,16 +1257,16 @@
           ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
         let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-         col = String(fullText)
-          .match(/\d[^\d\.]+I\b/g)
-          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
+          col = String(fullText)
+            .match(/\d[^\d\.]+I\b/g)
+            ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
         }
-         parsed = parseInt(col);
+        parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-         col = String(fullText)
-          .match(/(answer|best|recommend)[\D^\.]+\d/ig)
-          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
-         parsed = parseInt(col);
+          col = String(fullText)
+            .match(/(answer|best|recommend)[\D^\.]+\d/ig)
+            ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
+          parsed = parseInt(col);
         }
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           col = String(fullText)
@@ -1279,10 +1279,10 @@
           parsed = parseInt(col);
         } else {
           appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-          (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+          (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
           return parsed;
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
@@ -1297,7 +1297,7 @@
         } else {
           appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
+        (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
 
@@ -1353,9 +1353,9 @@
 
       function restoreSnapshot(snapshot) {
         if (!snapshot?.state) return false;
-          document.getElementById("red-select").value = snapshot?.players?.red || "human";
-          document.getElementById("yellow-select").value = snapshot?.players?.yellow || "gemma";
-          document.getElementById("suggest-select").value = snapshot?.players?.suggest || "minimax";
+        document.getElementById("red-select").value = snapshot?.players?.red || "human";
+        document.getElementById("yellow-select").value = snapshot?.players?.yellow || "gemma";
+        document.getElementById("suggest-select").value = snapshot?.players?.suggest || "minimax";
         state = {
           board: emptyBoard(),
           current: RED,
@@ -1597,7 +1597,7 @@
 
         // Status
         const statusEl = document.getElementById("status-bar");
-        if(!started){
+        if (!started) {
           statusEl.innerHTML = `<span style="color:var(--text-dim);font-size:11px;letter-spacing:0.2em">CONFIGURE PLAYERS — THEN START</span>`;
         } else if (state.thinking) {
           statusEl.innerHTML = `<span style="color:#555;font-size:11px;letter-spacing:0.15em">${PLAYER_LABELS[getPlayerType(current)].toUpperCase()} THINKING<span class="blink">...</span></span>`;
