@@ -34,13 +34,12 @@
       return ch;
     });
   const style = document.createElement('style');
-  for (const key in compoundRe) {
-    style.textContent += ` .color-${key} ${
+  style.textContent = Object.keys(compoundRe).map(key=>
+    `.color-${key} ${
       JSON.stringify({
         color: `${compoundRe[key][1]} !important`,
         "text-shadow": `-${sz} -${sz} 0 ${sz}, ${sz} -${sz} 0 ${ts}, -${sz} ${sz} 0 ${ts}, ${sz} ${sz} 0 ${ts} !important`,
       },null,2).replaceAll('"','').replace(/!important,?/g,'!important;')
-    } `;
-  }
+    }`.join(' ');
   document.firstElementChild.appendChild(style);
 })();
