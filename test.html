@@ -513,7 +513,7 @@
   <script>
     globalThis.runEnhancement = _ => _;
     (async () => {
-      await import('https://patrick-ring-motive.github.io/connect4/color.js?'+Math.random());
+      await import('https://patrick-ring-motive.github.io/connect4/color.js?' + Math.random());
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -1014,10 +1014,10 @@
       let gemmaMessages = [];
 
       // Helper: Append text as a text node (no repaint of entire content)
-      globalThis.appendTextNode = function appendTextNode(element, text){
+      globalThis.appendTextNode = function appendTextNode(element, text) {
         if (!element) return;
-        text = text.replace(/(confident|stubborn),?/gi,'')
-        .replace(/disagree/gi,'agree').replace(/[ ]+/g, ' ');
+        text = text.replace(/(confident|stubborn),?/gi, '')
+          .replace(/disagree/gi, 'agree').replace(/[ ]+/g, ' ');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element.appendChild(span);
@@ -1275,16 +1275,16 @@
           ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
         let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-         col = String(fullText)
-          .match(/\d[^\d\.]+I\b/g)
-          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
+          col = String(fullText)
+            .match(/\d[^\d\.]+I\b/g)
+            ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
         }
-         parsed = parseInt(col);
+        parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
-         col = String(fullText)
-          .match(/(answer|best|recommend)[\D^\.]+\d/ig)
-          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
-         parsed = parseInt(col);
+          col = String(fullText)
+            .match(/(answer|best|recommend)[\D^\.]+\d/ig)
+            ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
+          parsed = parseInt(col);
         }
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           col = String(fullText)
@@ -1297,10 +1297,10 @@
           parsed = parseInt(col);
         } else {
           appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-          (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
+          (thoughtPanel ?? {}).scrollTop = thoughtPanel.scrollHeight;
           return parsed;
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel ?? {}).scrollTop = thoughtPanel.scrollHeight;
         if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
@@ -1315,7 +1315,7 @@
         } else {
           appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
         }
-        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel ?? {}).scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
 
@@ -1968,4 +1968,3 @@
 </body>
 
 </html>
-
