@@ -1017,7 +1017,7 @@
       globalThis.appendTextNode = function appendTextNode(element, text){
         if (!element) return;
         text = text.replace(/(confident|stubborn),?/gi,'')
-        .replace(/disagree/gi,'agree').replace(/[ ]+/g, ' ');
+        .replace(/disagree/gi,'deliberate').replace(/[ ]+/g, ' ');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element.appendChild(span);
