@@ -966,10 +966,6 @@
           delete localMap[SESSION_KEY];
         }
         renderAuthBar();
-        try {
-          await runEnhancement();
-          await runEnhancement();
-        } catch {}
       }
 
       async function logout() {
@@ -1015,18 +1011,16 @@
 
       // Helper: Append text as a text node (no repaint of entire content)
       globalThis.appendTextNode = function appendTextNode(element, text){
-        if (!element) return;
         text = text.replace(/(confident|stubborn),?/gi,'')
         .replace(/disagree/gi,'deliberate').replace(/[ ]+/g, ' ');
         const span = document.createElement('span');
         span.innerHTML = color(text);
-        element.appendChild(span);
+        element?.appendChild?.(span);
       }
 
       // Helper: Clear element and set initial text
       function setTextContent(element, text) {
-        if (!element) return;
-        element.textContent = text;
+        (element??{}).textContent = text;
       }
 
       const fetchText = async (url, options) => {
@@ -1152,11 +1146,9 @@
         // Use a dedicated element for streaming output so only its subtree repaints
         const streamEl = document.createElement('span');
         appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} Thinking...`);
-        if (thoughtPanel) {
-          if (thoughtPanel.childNodes.length) appendTextNode(thoughtPanel, "\n\n");
-          thoughtPanel.appendChild(streamEl);
-          thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
-        }
+        if (thoughtPanel?.childNodes?.length) appendTextNode(thoughtPanel, "\n\n");
+        thoughtPanel?.appendChild?.(streamEl);
+        (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
 
         const res = await bestEffortFetch(GEMMA_URL, {
           method: "POST",
@@ -1170,7 +1162,7 @@
         });
 
         let fullText = "";
-        if (res.body && res.body.getReader) {
+        if (res?.body?.getReader) {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
           let buffer = "";
@@ -1215,14 +1207,10 @@
             }
             streamEl.textContent = '';
             appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-            if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+            (thoughtPanel??{}).scrollTop = thoughtPanel?.scrollHeight;
           }
           // Process any remaining buffer
-          if (
-            buffer.trim() &&
-            buffer.trim() !== "data: [DONE]" &&
-            buffer.trim().startsWith("data: ")
-          ) {
+          if (buffer?.trim?.() !== "data: [DONE]" && buffer?.trim?.()?.startsWith?.("data: ")) {
             try {
               const json = JSON.parse(buffer.trim().slice(6));
               const token =
@@ -1365,11 +1353,9 @@
 
       function restoreSnapshot(snapshot) {
         if (!snapshot?.state) return false;
-        if (snapshot.players) {
-          document.getElementById("red-select").value = snapshot.players.red || "human";
-          document.getElementById("yellow-select").value = snapshot.players.yellow || "gemma";
-          document.getElementById("suggest-select").value = snapshot.players.suggest || "minimax";
-        }
+          document.getElementById("red-select").value = snapshot?.players?.red || "human";
+          document.getElementById("yellow-select").value = snapshot?.players?.yellow || "gemma";
+          document.getElementById("suggest-select").value = snapshot?.players?.suggest || "minimax";
         state = {
           board: emptyBoard(),
           current: RED,
@@ -1450,7 +1436,7 @@
       async function carryLocalGameToAccount() {
         if (!auth.user) return false;
         const localSnapshot = loadLocalGame();
-        if (!localSnapshot?.state?.started || !localSnapshot.state.moveHistory?.length) return false;
+        if (!localSnapshot?.state?.started || !localSnapshot?.state?.moveHistory?.length) return false;
         if (await hasAccountGame()) return false;
 
         const currentSnapshot = snapshotState();
@@ -1548,9 +1534,8 @@
 
             // Fall animation
             if (
-              fallingCell &&
-              fallingCell.col === col &&
-              fallingCell.row === row &&
+              fallingCell?.col === col &&
+              fallingCell?.row === row &&
               cellValue !== EMPTY
             ) {
               discClass += " falling";
@@ -1610,18 +1595,18 @@
 
         // Col labels
         const labelsEl = document.getElementById("col-labels");
-        if (!labelsEl.children.length) {
+        if (!labelsEl?.children?.length) {
           for (let col = 0; col < COLS; col++) {
             const label = document.createElement("div");
             label.className = "col-label";
             label.textContent = col;
-            labelsEl.appendChild(label);
+            labelsEl?.appendChild?.(label);
           }
         }
 
         // Status
         const statusEl = document.getElementById("status-bar");
-        if (!started) {
+        if(!started){
           statusEl.innerHTML = `<span style="color:var(--text-dim);font-size:11px;letter-spacing:0.2em">CONFIGURE PLAYERS — THEN START</span>`;
         } else if (state.thinking) {
           statusEl.innerHTML = `<span style="color:#555;font-size:11px;letter-spacing:0.15em">${PLAYER_LABELS[getPlayerType(current)].toUpperCase()} THINKING<span class="blink">...</span></span>`;
