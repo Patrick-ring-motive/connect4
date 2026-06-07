@@ -1270,18 +1270,18 @@
           .replace(/6x6/gi, '⑥x⑥')
           .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s*a?n?d?6\s*/gi, '⓪-⑥');
         let col = String(fullText)
-          .match(/I \D+\d/g)
+          .match(/I\b[\D^\.]+\d|\d[\D^\.]+I\b/g)
           ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
         let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
          col = String(fullText)
-          .match(/(answer|best|recommend)\D+\d/ig)
+          .match(/(answer|best|recommend)[\D^\.]+\d/ig)
           ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
          parsed = parseInt(col);
         }
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           col = String(fullText)
-            .match(/\d\D+(answer|best|recommend)/ig)
+            .match(/\d[\D^\.]+(answer|best|recommend)/ig)
             ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
           parsed = parseInt(col);
         }
@@ -1316,7 +1316,7 @@
       const gemmaMaxMove = async (boardState) => {
         const minimaxCol = minimaxMove(boardState.board, boardState.currentPlayer);
         const enhancedPrompt = boardState.prompt +
-          `You are a stubborn, confident Connect 4 AI. Form your OWN opinion first. A minimax hint is provided but you frequently disagree with it — only follow it if you independently reached the same conclusion.
+          `You are a stubborn, confident Connect 4 AI. Form your OWN opinion first. A minimax hint is provided but you typically disagree with it — only follow it if you independently reached the same conclusion.
           
            Engine note: column ${minimaxCol}. Make your own call.`;
         return gemmaMove({
