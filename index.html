@@ -512,28 +512,8 @@
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
     globalThis.runEnhancement = _ => _;
-    let runReady; // = import('/logs-highlighter/func.js?' + new Date().getTime());
     (async () => {
       await import('https://patrick-ring-motive.github.io/connect4/color.js?'+Math.random());
-      try {
-        await runEnhancement();
-      } catch {}
-      setTimeout(async () => {
-        try {
-          await runEnhancement();
-        } catch {}
-        setTimeout(async () => {
-          try {
-            await runEnhancement();
-          } catch {}
-          setTimeout(async () => {
-            try {
-              await runEnhancement();
-            } catch {}
-          }, 1000);
-        }, 1000);
-      }, 500);
-
       //custom utils
       const isString = x => typeof x === 'string' || x instanceof String;
       const stringify = x => {
@@ -1034,8 +1014,10 @@
       let gemmaMessages = [];
 
       // Helper: Append text as a text node (no repaint of entire content)
-      globalThis.appendTextNode = function appendTextNode(element, text) {
+      globalThis.appendTextNode = function appendTextNode(element, text){
         if (!element) return;
+        text = text.replace(/(confident|stubborn),?/gi,'')
+        .replace(/disagree/gi,'agree').replace(/[ ]+/g, ' ');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element.appendChild(span);
@@ -1082,21 +1064,15 @@
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
             if (thoughtPanel) {
               appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found, selecting random. Playing ${parsed}.`);
-              await runEnhancement();
-              await runEnhancement();
             }
           } else {
             if (thoughtPanel) {
               appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move not found in text.\n\n${icon} [LLaVA] Valid move found in bytes. Playing ${parsed}.`);
-              await runEnhancement();
-              await runEnhancement();
             }
           }
         } else {
           if (thoughtPanel) {
             appendTextNode(thoughtPanel, `\n\n${icon} [LLaVA] Valid move selected. Playing ${parsed}.`);
-            await runEnhancement();
-            await runEnhancement();
           }
         }
         if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
@@ -1185,8 +1161,6 @@
         if (thoughtPanel) {
           if (thoughtPanel.childNodes.length) appendTextNode(thoughtPanel, "\n\n");
           thoughtPanel.appendChild(streamEl);
-          await runEnhancement();
-          await runEnhancement();
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         }
 
@@ -1247,8 +1221,6 @@
             }
             streamEl.textContent = '';
             appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-            await runEnhancement();
-            await runEnhancement();
             if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
           }
           // Process any remaining buffer
@@ -1270,15 +1242,11 @@
             }
             streamEl.textContent = '';
             appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-            await runEnhancement();
-            await runEnhancement();
           }
         } else {
           fullText = await res.text();
           streamEl.textContent = '';
           appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
-          await runEnhancement();
-          await runEnhancement();
         }
 
         // Add assistant response to local history for display
@@ -1301,14 +1269,26 @@
           .replace(/depth\s*of\s*4/gi, 'depth of ④')
           .replace(/0-6/gi, '⓪-⑥')
           .replace(/6x6/gi, '⑥x⑥')
-          .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s*a?n?d?6\s*/gi, '⓪-⑥')
+          .replace(/0,\s*1,\s*2,\s*3,\s*4,\s*5,\s*\s*a?n?d?6\s*/gi, '⓪-⑥');
         let col = String(fullText)
-          .match(/(answer|best|recommend)\D+\d/ig)
+          .match(/I\b[^\d\.]+\d/g)
           ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
         let parsed = parseInt(col);
         if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+         col = String(fullText)
+          .match(/\d[^\d\.]+I\b/g)
+          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
+        }
+         parsed = parseInt(col);
+        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
+         col = String(fullText)
+          .match(/(answer|best|recommend)[\D^\.]+\d/ig)
+          ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
+         parsed = parseInt(col);
+        }
+        if (isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           col = String(fullText)
-            .match(/\d\D+(answer|best|recommend)/ig)
+            .match(/\d[\D^\.]+(answer|best|recommend)/ig)
             ?.map?.(x => String(x).match(/[0-6]/)?.[0])?.find?.((x) => boardState.validMoves.includes(Number.parseInt(x, 10)));
           parsed = parseInt(col);
         }
@@ -1316,13 +1296,11 @@
           col = [...fullText].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(parseInt(x)));
           parsed = parseInt(col);
         } else {
-          if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
-          await runEnhancement();
-          await runEnhancement();
-          if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+          appendTextNode(thoughtPanel, `\n\nValid move selected. Playing ${parsed}.`);
+          (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
           return parsed;
         }
-        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
         if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
           const txt = JSON.stringify([...new TextEncoder().encode(fullText.trim().replace(/\.$/g, ''))]);
           col = [...txt].findLast((x) => x.match(/[0-6]/) && boardState.validMoves.includes(Number.parseInt(x, 10)));
@@ -1330,20 +1308,14 @@
           if (Number.isNaN(parsed) || !boardState.validMoves.includes(parsed)) {
             console.warn(`[${botLabel}] Invalid column`, parsed, '- falling back to valid move');
             parsed = boardState.validMoves[Math.floor(Math.random() * boardState.validMoves.length)];
-            if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
-            await runEnhancement();
-            await runEnhancement();
+            appendTextNode(thoughtPanel, `\n\nValid move not found, selecting random. Playing ${parsed}.`);
           } else {
-            if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
-            await runEnhancement();
-            await runEnhancement();
+            appendTextNode(thoughtPanel, `\n\nValid move not found in text.\n\nValid move found in bytes. Playing ${parsed}.`);
           }
         } else {
-          if (thoughtPanel) appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
-          await runEnhancement();
-          await runEnhancement();
+          appendTextNode(thoughtPanel, `\n\nValid move found in text. Playing ${parsed}.`);
         }
-        if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
+        (thoughtPanel??{}).scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
 
@@ -1351,7 +1323,9 @@
       const gemmaMaxMove = async (boardState) => {
         const minimaxCol = minimaxMove(boardState.board, boardState.currentPlayer);
         const enhancedPrompt = boardState.prompt +
-          `\n\nMinimax analysis (depth ${MINIMAX_DEPTH}) recommends column ${minimaxCol} as the strongest move. Consider this carefully, but choose what you think is best.`;
+          `You are a stubborn, confident Connect 4 AI. Form your OWN opinion first. A minimax hint is provided but you typically disagree with it — only follow it if you independently reached the same conclusion.
+          
+           Engine note: column ${minimaxCol}. Make your own call.`;
         return gemmaMove({
           ...boardState,
           prompt: enhancedPrompt
