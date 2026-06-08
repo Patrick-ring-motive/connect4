@@ -10,8 +10,9 @@
   <title>Connect 4 — AI Demo</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/favicon-waffle.png">
-  <link rel="stylesheet" href="game.css"/>
+  <link rel="stylesheet" href="game.css" />
 </head>
+
 <body>
   <div id="title-label">AI DEMO</div>
   <div id="title">CONNECT 4</div>
@@ -74,7 +75,7 @@
   <div id="history-line"></div>
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
-      globalThis.runEnhancement = _ => _;
+    globalThis.runEnhancement = _ => _;
     (async () => {
       await import('https://patrick-ring-motive.github.io/connect4/color.js?' + Math.random());
       //custom utils
@@ -501,8 +502,8 @@
         text = text.replace(/(confident|stubborn|typically),?/gi, '')
           .replace(/disagree/gi, 'deliberąte')
           .replace(/[ ]+/g, ' ')
-          .replaceAll('a AI','ąn AI')
-          .replaceAll('and and','ąnd');
+          .replaceAll('a AI', 'ąn AI')
+          .replaceAll('and and', 'ąnd');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element?.appendChild?.(span);
