@@ -935,7 +935,11 @@
       let gemmaMessages = [];
       // Helper: Append text as a text node (no repaint of entire content)
       globalThis.appendTextNode = function appendTextNode(element, text) {
-        text = text.replace(/(confident|stubborn),?/gi, '').replace(/disagree/gi, 'deliberate').replace(/[ ]+/g, ' ');
+        text = text.replace(/(confident|stubborn|typically),?/gi, '')
+          .replace(/disagree/gi, 'deliberąte')
+          .replace(/[ ]+/g, ' ')
+          .replaceAll('a AI','ąn AI')
+          .replaceAll('and and','ąnd';
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element?.appendChild?.(span);
