@@ -1,5 +1,5 @@
 (() => {
-  const rm = (x,y) => String(x).replaceAll(y,'');
+  const rm = (x, y) => String(x).replaceAll(y, '');
   const re = (...args) => {
     try {
       return RegExp(...args);
@@ -35,7 +35,7 @@
       return ch;
     });
   const style = document.createElement('style');
-  style.textContent = Object.keys(compoundRe).map(key=>
+  style.textContent = Object.keys(compoundRe).map(key =>
     `.color-${key} ${
       rm(JSON.stringify({
         color: `${compoundRe[key][1]} !important`,
