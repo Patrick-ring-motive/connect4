@@ -1,0 +1,434 @@
+    :root {
+      --bg: #0a0a0f;
+      --board: #1a1a2e;
+      --board-border: #2a2a4e;
+      --cell-empty: #0d0d1a;
+      --cell-empty-border: #1e1e3a;
+      --red: #cc0044;
+      --red-win: #ff2266;
+      --red-glow: #ff2266;
+      --yellow: #cc8800;
+      --yellow-win: #ffcc00;
+      --yellow-glow: #ffcc00;
+      --text: #ccc;
+      --text-dim: #555;
+      --text-dimmer: #333;
+      --btn-border: #333;
+      --min-vh: min(100vh, min(100dvh, 100svh));
+      --min-vw: min(100vw, min(100dvw, 100svw));
+    }
+
+    /* FIXED: was "-" */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    #hover-row {
+      max-width: var(--min-vw);
+      --border: 1px solid yellow;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: var(--min-vh);
+      max-width: var(--min-vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Courier New", monospace;
+      /* fixed quotes */
+      padding: 24px 16px;
+      color: var(--text);
+    }
+
+    #title-label {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    #title {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    #player-config {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #auth-bar {
+      min-height: 26px;
+      margin: -12px 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+      flex-wrap: wrap;
+    }
+
+    #signin-btn,
+    #logout-btn {
+      background: transparent;
+      border: 1px solid var(--btn-border);
+      color: #888;
+      padding: 5px 14px;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+
+    #signin-btn:hover,
+    #logout-btn:hover {
+      border-color: #777;
+      color: #bbb;
+    }
+
+    .player-select-wrap {
+      text-align: center;
+    }
+
+    .player-select-label {
+      font-size: 10px;
+      color: #666;
+      letter-spacing: 0.2em;
+      margin-bottom: 4px;
+    }
+
+    select {
+      background: #111;
+      border: 1px solid #333;
+      color: var(--text);
+      padding: 4px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+
+    select option {
+      background: #111;
+    }
+
+    #status-bar {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      gap: 8px;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+    }
+
+    #board-wrap {
+      max-width: var(--min-vw);
+      position: relative;
+    }
+
+    #hover-row {
+      display: flex;
+      height: 20px;
+      margin-bottom: 4px;
+    }
+
+    .hover-cell {
+      width: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hover-pip {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+
+    #board {
+      max-width: var(--min-vw);
+      background: var(--board);
+      border: 2px solid var(--board-border);
+      padding: 8px;
+      border-radius: 4px;
+      display: inline-block;
+      cursor: default;
+    }
+
+    .board-row {
+      display: flex;
+    }
+
+    .board-cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disc {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--cell-empty);
+      border: 1px solid var(--cell-empty-border);
+      transition:
+        background 0.1s,
+        box-shadow 0.15s,
+        transform 0.15s;
+    }
+
+    .disc.red {
+      background: var(--red);
+      border: none;
+      box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .disc.yellow {
+      background: var(--yellow);
+      border: none;
+      box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .disc.win-red {
+      background: var(--red-win);
+      box-shadow: 0 0 16px var(--red-glow);
+      border: 2px solid #ff88aa;
+    }
+
+    .disc.win-yellow {
+      background: var(--yellow-win);
+      box-shadow: 0 0 16px var(--yellow-glow);
+      border: 2px solid #ffee88;
+    }
+
+    .disc.falling {
+      animation: fall var(--fall-duration, 0.5s) cubic-bezier(0.33, 0, 0.66, 1.4) forwards;
+    }
+
+    @keyframes fall {
+      from {
+        transform: translateY(var(--fall-from));
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    #col-labels {
+      display: flex;
+      margin-top: 4px;
+    }
+
+    .col-label {
+      width: 60px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-dimmer);
+    }
+
+    #controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #reset-btn,
+    #start-btn {
+      background: transparent;
+      border: 1px solid var(--btn-border);
+      color: #666;
+      padding: 6px 20px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+      transition:
+        border-color 0.15s,
+        color 0.15s;
+    }
+
+    #reset-btn:hover,
+    #start-btn:hover {
+      border-color: #666;
+      color: #aaa;
+    }
+
+    #thought-panel {
+      margin-top: 12px;
+      max-width: 440px;
+      width: 100%;
+      min-height: 0;
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 10px;
+      color: #7a7aaa;
+      letter-spacing: 0.05em;
+      line-height: 1.5;
+      padding: 0 8px;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transition: opacity 0.3s;
+    }
+
+    #thought-panel:empty {
+      display: none;
+    }
+
+    #move-count {
+      font-size: 10px;
+      color: var(--text-dimmer);
+      letter-spacing: 0.1em;
+    }
+
+    #history-line {
+      margin-top: 12px;
+      font-size: 9px;
+      color: #2a2a4a;
+      letter-spacing: 0.1em;
+      text-align: center;
+      max-width: 420px;
+      word-break: break-all;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    #nav-links {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    #nav-links a {
+      color: #888;
+      text-decoration: none;
+      margin: 0 12px;
+      transition: color 0.2s;
+    }
+
+    #nav-links a:hover {
+      color: #aaa;
+    }
+
+    .nav-divider {
+      color: #444;
+    }
+
+    @keyframes suggest-pulse {
+
+      0%,
+      100% {
+        box-shadow:
+          0 0 0 2px var(--suggest-color),
+          0 0 8px var(--suggest-color);
+        opacity: 0.55;
+      }
+
+      50% {
+        box-shadow:
+          0 0 0 3px var(--suggest-color),
+          0 0 20px var(--suggest-color);
+        opacity: 0.85;
+      }
+    }
+
+    .disc.suggested {
+      animation: suggest-pulse 0.9s ease-in-out infinite;
+      background: var(--suggest-color);
+      border: none;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f0f0f5;
+        --board: #dddde8;
+        --board-border: #b0b0c8;
+        --cell-empty: #ffffff;
+        --cell-empty-border: #c0c0d8;
+        --red: #cc0044;
+        --red-win: #ff2266;
+        --red-glow: #ff2266;
+        --yellow: #cc8800;
+        --yellow-win: #e6a800;
+        --yellow-glow: #e6a800;
+        --text: #222;
+        --text-dim: #666;
+        --text-dimmer: #999;
+        --btn-border: #aaa;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      select {
+        background: #fff;
+        border-color: #aaa;
+        color: #222;
+      }
+
+      select option {
+        background: #fff;
+      }
+
+      #reset-btn,
+      #start-btn {
+        color: #555;
+      }
+
+      #reset-btn:hover,
+      #start-btn:hover {
+        border-color: #666;
+        color: #222;
+      }
+
+      #thought-panel {
+        color: #6666aa;
+      }
+
+      #history-line {
+        color: #999;
+      }
+    }
