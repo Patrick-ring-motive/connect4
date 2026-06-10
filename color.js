@@ -9,7 +9,7 @@
     }
   };
   const regexes = {
-    star: [/\*+/, 'cornflowerblue'],
+    star: [/[\*•]+/, 'cornflowerblue'],
     curly: [/[\{\}‘’']+/, '#ff79c6'],
     square: [/[\[\]“”""]+/, '#ba7dff'],
     paren: [/[\(\)]+/, 'orange'],
