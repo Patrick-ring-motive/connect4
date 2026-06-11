@@ -2,7 +2,7 @@
   const {keys,values,entries} = Object;
   const isString = x => typeof x === 'string' || x instanceof String;
   const isObject = x => typeof x === 'object' && x !== null;
-  const toArray = x => x?.[Symbol.itetator] ? [...x] : (isObject(x) ? entries(x) : [...String(x)]);
+  const toArray = x => x?.[Symbol.iterator] ? [...x] : (isObject(x) ? entries(x) : [...String(x)]);
   const stringify = (...args) =>{
     const x = args[0];
     try{
