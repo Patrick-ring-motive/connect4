@@ -500,10 +500,11 @@
       // Helper: Append text as a text node (no repaint of entire content)
       globalThis.appendTextNode = function appendTextNode(element, text) {
         text = text.replace(/(confident|stubborn|typically),?/gi, '')
-          .replace(/disagree/gi, 'deliberąte')
+          .replace(/disagree with/gi, 'consider')
+          .replace(/disagree/gi, 'consider')
           .replace(/[ ]+/g, ' ')
-          .replaceAll('a AI', 'ąn AI')
-          .replaceAll('and and', 'ąnd');
+          .replaceAll(/a\s+AI/g, 'an AI')
+          .replaceAll(/and\s+and/g, 'and');
         const span = document.createElement('span');
         span.innerHTML = color(text);
         element?.appendChild?.(span);
