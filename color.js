@@ -44,7 +44,7 @@
     yellow: [/\b(Y|Yellow)\b/, 'yellow'],
     red: [/\b(R|Red)\b/, 'red'],
     x: [/(\bx\b)/, '#ffffff'],
-    symbol: [re(`[^a-zA-Z0-9\s${join(values(regexes).map(x =>x[0].source.slice(1,-2)))}]+`), '#00ff00'],
+    symbol: [re(`[^a-zA-Z0-9\\s${join(values(regexes).map(x =>x[0].source.slice(1,-2)))}]+`), '#00ff00'],
     ...regexes
   };
   const allRegex = re(join(values(compoundRe).map(x => x[0].source), '|'), 'ig');
