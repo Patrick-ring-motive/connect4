@@ -26,13 +26,13 @@
       --block-orange: #dd8844;
       --block-purple: #bb44dd;
     }
-
+    
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
+    
     body {
       background: var(--bg);
       min-height: 100vh;
@@ -43,7 +43,7 @@
       flex-direction: column;
       align-items: center;
     }
-
+    
     #title-label {
       font-size: 11px;
       letter-spacing: 0.4em;
@@ -52,7 +52,7 @@
       margin-bottom: 4px;
       text-align: center;
     }
-
+    
     #title {
       font-size: 28px;
       font-weight: 900;
@@ -60,29 +60,29 @@
       text-align: center;
       margin-bottom: 8px;
     }
-
+    
     #nav-links {
       font-size: 10px;
       letter-spacing: 0.2em;
       margin-bottom: 16px;
       text-align: center;
     }
-
+    
     #nav-links a {
       color: #888;
       text-decoration: none;
       margin: 0 12px;
       transition: color 0.2s;
     }
-
+    
     #nav-links a:hover {
       color: #aaa;
     }
-
+    
     .nav-divider {
       color: #444;
     }
-
+    
     #container {
       display: flex;
       gap: 16px;
@@ -90,7 +90,7 @@
       width: 100%;
       margin-top: 12px;
     }
-
+    
     #editor-panel {
       flex: 1;
       min-width: 300px;
@@ -98,7 +98,7 @@
       flex-direction: column;
       gap: 12px;
     }
-
+    
     #blocks-palette {
       background: var(--board);
       border: 1px solid var(--board-border);
@@ -107,11 +107,11 @@
       max-height: 300px;
       overflow-y: auto;
     }
-
+    
     .block-category {
       margin-bottom: 12px;
     }
-
+    
     .block-category-title {
       font-size: 10px;
       color: var(--text-dim);
@@ -120,7 +120,7 @@
       margin-bottom: 6px;
       font-weight: bold;
     }
-
+    
     .block {
       background: var(--block-blue);
       color: #fff;
@@ -135,15 +135,15 @@
       user-select: none;
       transition: opacity 0.2s;
     }
-
+    
     .block:hover {
       opacity: 0.9;
     }
-
+    
     .block.control {
       background: var(--block-orange);
     }
-
+    
     #bot-name {
       width: 100%;
       padding: 6px;
@@ -154,19 +154,19 @@
       margin-bottom: 8px;
       box-sizing: border-box;
     }
-
+    
     .block.logic {
       background: var(--block-purple);
     }
-
+    
     .block.analysis {
       background: var(--block-green);
     }
-
+    
     .block.board {
       background: var(--block-red);
     }
-
+    
     #script-area {
       background: var(--cell-empty);
       border: 2px solid var(--board-border);
@@ -178,7 +178,7 @@
       flex-direction: column;
       gap: 8px;
     }
-
+    
     .script-block {
       background: var(--block-blue);
       color: #fff;
@@ -193,27 +193,27 @@
       user-select: none;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-
+    
     .script-block:active {
       cursor: grabbing;
     }
-
+    
     .script-block.control {
       background: var(--block-orange);
     }
-
+    
     .script-block.logic {
       background: var(--block-purple);
     }
-
+    
     .script-block.analysis {
       background: var(--block-green);
     }
-
+    
     .script-block.board {
       background: var(--block-red);
     }
-
+    
     .script-block-delete {
       background: rgba(0, 0, 0, 0.3);
       border: none;
@@ -223,25 +223,25 @@
       cursor: pointer;
       font-size: 10px;
     }
-
+    
     .script-block-delete:hover {
       background: rgba(255, 0, 0, 0.4);
     }
-
+    
     #test-panel {
       flex: 0 0 320px;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
+    
     .panel {
       background: var(--board);
       border: 1px solid var(--board-border);
       border-radius: 4px;
       padding: 12px;
     }
-
+    
     .panel-title {
       font-size: 11px;
       color: var(--text-dim);
@@ -250,14 +250,14 @@
       margin-bottom: 8px;
       font-weight: bold;
     }
-
+    
     #test-board {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 2px;
       margin-bottom: 12px;
     }
-
+    
     .test-cell {
       width: 30px;
       height: 30px;
@@ -270,31 +270,31 @@
       font-size: 8px;
       font-weight: bold;
     }
-
+    
     .test-cell.red {
       background: var(--red);
       border: none;
     }
-
+    
     .test-cell.yellow {
       background: var(--yellow);
       border: none;
       color: #000;
     }
-
+    
     #test-info {
       font-size: 10px;
       color: var(--text-dim);
       line-height: 1.4;
       margin-bottom: 8px;
     }
-
+    
     .button-row {
       display: flex;
       gap: 8px;
       margin-top: 8px;
     }
-
+    
     button {
       background: transparent;
       border: 1px solid var(--btn-border);
@@ -308,32 +308,32 @@
       transition: border-color 0.15s, color 0.15s;
       flex: 1;
     }
-
+    
     button:hover {
       border-color: #666;
       color: #aaa;
     }
-
+    
     button.primary {
       border-color: var(--yellow);
       color: var(--yellow);
     }
-
+    
     button.primary:hover {
       border-color: #ffcc00;
       color: #ffcc00;
     }
-
+    
     button.danger {
       border-color: var(--red);
       color: var(--red);
     }
-
+    
     button.danger:hover {
       border-color: #ff2266;
       color: #ff2266;
     }
-
+    
     #test-log {
       background: var(--cell-empty);
       border: 1px solid var(--cell-empty-border);
@@ -345,15 +345,15 @@
       color: #7a7aaa;
       line-height: 1.3;
     }
-
+    
     .log-error {
       color: #ff6666;
     }
-
+    
     .log-success {
       color: #66ff66;
     }
-
+    
     #empty-script {
       color: var(--text-dimmer);
       font-size: 12px;
@@ -361,17 +361,17 @@
       padding: 40px 20px;
       font-style: italic;
     }
-
+    
     @media (max-width: 1100px) {
       #container {
         flex-direction: column;
       }
-
+    
       #test-panel {
         flex: 1;
       }
     }
-
+    
   </style>
 </head>
 
@@ -466,13 +466,13 @@
         current: 'R',
         validMoves: [0, 1, 2, 3, 4, 5, 6],
       };
-
+    
       const COLORS = {
         RED: 'R',
         YELLOW: 'Y',
         EMPTY: null,
       };
-
+    
       // ─── Block Palette Dragging ───────────────────────────────────────
       document.querySelectorAll('.block').forEach(el => {
         el.addEventListener('dragstart', (e) => {
@@ -485,27 +485,27 @@
           }));
         });
       });
-
+    
       // ─── Script Area Drag & Drop ──────────────────────────────────────
       const scriptArea = document.getElementById('script-area');
-
+    
       scriptArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         scriptArea.style.background = 'rgba(100, 150, 200, 0.1)';
       });
-
+    
       scriptArea.addEventListener('dragleave', () => {
         scriptArea.style.background = 'var(--cell-empty)';
       });
-
+    
       scriptArea.addEventListener('drop', (e) => {
         e.preventDefault();
         scriptArea.style.background = 'var(--cell-empty)';
         const data = JSON.parse(e.dataTransfer.getData('text/plain'));
         addBlockToScript(data.type, data.text);
       });
-
+    
       function addBlockToScript(type, text) {
         const block = {
           id: Date.now() + Math.random(),
@@ -516,20 +516,20 @@
         scriptBlocks.push(block);
         renderScript();
       }
-
+    
       function renderScript() {
         scriptArea.innerHTML = '';
-
+    
         if (scriptBlocks.length === 0) {
           scriptArea.innerHTML = '<div id="empty-script">Drag blocks here to build your bot logic</div>';
           return;
         }
-
+    
         scriptBlocks.forEach((block, idx) => {
           const el = document.createElement('div');
           el.className = `script-block ${getBlockCategory(block.type)}`;
           el.textContent = block.text;
-
+    
           const deleteBtn = document.createElement('button');
           deleteBtn.className = 'script-block-delete';
           deleteBtn.textContent = '✕';
@@ -537,12 +537,12 @@
             scriptBlocks.splice(idx, 1);
             renderScript();
           });
-
+    
           el.appendChild(deleteBtn);
           scriptArea.appendChild(el);
         });
       }
-
+    
       function getBlockCategory(type) {
         if (type.startsWith('get_') || type.startsWith('find_') || type.startsWith('count_') || type.startsWith('check_'))
           return 'analysis';
@@ -554,12 +554,12 @@
           return 'board';
         return 'board';
       }
-
+    
       // ─── Test Board ──────────────────────────────────────────────────
       function renderTestBoard() {
         const boardEl = document.getElementById('test-board');
         boardEl.innerHTML = '';
-
+    
         for (let row = 0; row < 6; row++) {
           for (let col = 0; col < 7; col++) {
             const cell = document.createElement('div');
@@ -571,11 +571,11 @@
             boardEl.appendChild(cell);
           }
         }
-
+    
         document.getElementById('test-turn').textContent = testState.current === COLORS.RED ? 'Red (R)' : 'Yellow (Y)';
         document.getElementById('test-moves').textContent = testState.validMoves.join(', ');
       }
-
+    
       function log(message, type = 'info') {
         const logEl = document.getElementById('test-log');
         const line = document.createElement('div');
@@ -585,7 +585,7 @@
         logEl.appendChild(line);
         logEl.scrollTop = logEl.scrollHeight;
       }
-
+    
       function resetTestBoard() {
         testBoard = new Array(6).fill(null).map(() => new Array(7).fill(null));
         testState = {
@@ -595,13 +595,13 @@
         renderTestBoard();
         document.getElementById('test-log').innerHTML = '';
       }
-
+    
       // ─── Bot Execution ────────────────────────────────────────────────
       function executeScript() {
         log('Analyzing board...', 'info');
         try {
           let chosenMove = null;
-
+    
           for (const block of scriptBlocks) {
             if (block.type === 'choose_move') {
               // Extract column number from text like "Choose Move: 3"
@@ -610,24 +610,24 @@
               log(`Chose move: column ${chosenMove}`, 'success');
             }
           }
-
+    
           if (chosenMove === null) {
             chosenMove = testState.validMoves[0];
             log(`No move chosen, defaulting to column ${chosenMove}`, 'info');
           }
-
+    
           if (!testState.validMoves.includes(chosenMove)) {
             log(`ERROR: Column ${chosenMove} is not valid!`, 'error');
             return null;
           }
-
+    
           return chosenMove;
         } catch (err) {
           log(`ERROR: ${err.message}`, 'error');
           return null;
         }
       }
-
+    
       // ─── Event Listeners ──────────────────────────────────────────────
       document.getElementById('test-simple').addEventListener('click', () => {
         resetTestBoard();
@@ -639,10 +639,10 @@
           renderTestBoard();
         }
       });
-
+    
       document.getElementById('test-random').addEventListener('click', () => {
         resetTestBoard();
-
+    
         // Random board state
         for (let i = 0; i < 10; i++) {
           const col = testState.validMoves[Math.floor(Math.random() * testState.validMoves.length)];
@@ -654,7 +654,7 @@
             }
           }
         }
-
+    
         log('Generated random board position', 'info');
         renderTestBoard();
         const move = executeScript();
@@ -662,11 +662,11 @@
           log(`Bot would play column ${move}`, 'success');
         }
       });
-
+    
       document.getElementById('clear-log').addEventListener('click', () => {
         document.getElementById('test-log').innerHTML = '';
       });
-
+    
       document.getElementById('save-bot').addEventListener('click', () => {
         const botName = document.getElementById('bot-name').value || 'Unnamed Bot';
         const botData = {
@@ -677,7 +677,7 @@
         localStorage.setItem(`bot_${botName}`, JSON.stringify(botData));
         log(`Saved bot: "${botName}"`, 'success');
       });
-
+    
       document.getElementById('load-bot').addEventListener('click', () => {
         const botName = prompt('Enter bot name to load:');
         if (!botName) return;
@@ -692,7 +692,7 @@
         renderScript();
         log(`Loaded bot: "${botData.name}"`, 'success');
       });
-
+    
       document.getElementById('play-bot').addEventListener('click', () => {
         const botName = document.getElementById('bot-name').value || 'My Bot';
         // Save and redirect to game
@@ -708,12 +708,12 @@
           alert(`Bot "${botName}" is ready!\n\nNext: Open game.html to test against your bot`);
         }, 500);
       });
-
+    
       // ─── Init ─────────────────────────────────────────────────────────
       renderTestBoard();
       renderScript();
     })();
-
+    
   </script>
 </body>
 
