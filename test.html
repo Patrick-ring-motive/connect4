@@ -30,19 +30,19 @@
       --min-vh: min(100vh, min(100dvh, 100svh));
       --min-vw: min(100vw, min(100dvw, 100svw));
     }
-
+    
     /* FIXED: was "-" */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
+    
     #hover-row {
       max-width: var(--min-vw);
       --border: 1px solid yellow;
     }
-
+    
     body {
       background: var(--bg);
       min-height: var(--min-vh);
@@ -56,7 +56,7 @@
       padding: 24px 16px;
       color: var(--text);
     }
-
+    
     #title-label {
       font-size: 11px;
       letter-spacing: 0.4em;
@@ -65,7 +65,7 @@
       margin-bottom: 4px;
       text-align: center;
     }
-
+    
     #title {
       font-size: 32px;
       font-weight: 900;
@@ -73,7 +73,7 @@
       text-align: center;
       margin-bottom: 24px;
     }
-
+    
     #player-config {
       display: flex;
       gap: 16px;
@@ -81,7 +81,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-
+    
     #auth-bar {
       min-height: 26px;
       margin: -12px 0 18px;
@@ -96,7 +96,7 @@
       text-align: center;
       flex-wrap: wrap;
     }
-
+    
     #signin-btn,
     #logout-btn {
       background: transparent;
@@ -109,24 +109,24 @@
       font-family: inherit;
       text-transform: uppercase;
     }
-
+    
     #signin-btn:hover,
     #logout-btn:hover {
       border-color: #777;
       color: #bbb;
     }
-
+    
     .player-select-wrap {
       text-align: center;
     }
-
+    
     .player-select-label {
       font-size: 10px;
       color: #666;
       letter-spacing: 0.2em;
       margin-bottom: 4px;
     }
-
+    
     select {
       background: #111;
       border: 1px solid #333;
@@ -137,11 +137,11 @@
       cursor: pointer;
       outline: none;
     }
-
+    
     select option {
       background: #111;
     }
-
+    
     #status-bar {
       height: 28px;
       display: flex;
@@ -152,25 +152,25 @@
       font-size: 13px;
       letter-spacing: 0.1em;
     }
-
+    
     #board-wrap {
       max-width: var(--min-vw);
       position: relative;
     }
-
+    
     #hover-row {
       display: flex;
       height: 20px;
       margin-bottom: 4px;
     }
-
+    
     .hover-cell {
       width: 60px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
-
+    
     .hover-pip {
       width: 10px;
       height: 10px;
@@ -178,7 +178,7 @@
       opacity: 0;
       transition: opacity 0.1s;
     }
-
+    
     #board {
       max-width: var(--min-vw);
       background: var(--board);
@@ -188,11 +188,11 @@
       display: inline-block;
       cursor: default;
     }
-
+    
     .board-row {
       display: flex;
     }
-
+    
     .board-cell {
       width: 60px;
       height: 60px;
@@ -200,7 +200,7 @@
       align-items: center;
       justify-content: center;
     }
-
+    
     .disc {
       width: 46px;
       height: 46px;
@@ -212,64 +212,64 @@
         box-shadow 0.15s,
         transform 0.15s;
     }
-
+    
     .disc.red {
       background: var(--red);
       border: none;
       box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
     }
-
+    
     .disc.yellow {
       background: var(--yellow);
       border: none;
       box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.4);
     }
-
+    
     .disc.win-red {
       background: var(--red-win);
       box-shadow: 0 0 16px var(--red-glow);
       border: 2px solid #ff88aa;
     }
-
+    
     .disc.win-yellow {
       background: var(--yellow-win);
       box-shadow: 0 0 16px var(--yellow-glow);
       border: 2px solid #ffee88;
     }
-
+    
     .disc.falling {
       animation: fall var(--fall-duration, 0.5s) cubic-bezier(0.33, 0, 0.66, 1.4) forwards;
     }
-
+    
     @keyframes fall {
       from {
         transform: translateY(var(--fall-from));
       }
-
+    
       to {
         transform: translateY(0);
       }
     }
-
+    
     #col-labels {
       display: flex;
       margin-top: 4px;
     }
-
+    
     .col-label {
       width: 60px;
       text-align: center;
       font-size: 10px;
       color: var(--text-dimmer);
     }
-
+    
     #controls {
       margin-top: 20px;
       display: flex;
       gap: 12px;
       align-items: center;
     }
-
+    
     #reset-btn,
     #start-btn {
       background: transparent;
@@ -285,13 +285,13 @@
         border-color 0.15s,
         color 0.15s;
     }
-
+    
     #reset-btn:hover,
     #start-btn:hover {
       border-color: #666;
       color: #aaa;
     }
-
+    
     #thought-panel {
       margin-top: 12px;
       max-width: 440px;
@@ -309,17 +309,17 @@
       word-break: break-word;
       transition: opacity 0.3s;
     }
-
+    
     #thought-panel:empty {
       display: none;
     }
-
+    
     #move-count {
       font-size: 10px;
       color: var(--text-dimmer);
       letter-spacing: 0.1em;
     }
-
+    
     #history-line {
       margin-top: 12px;
       font-size: 9px;
@@ -329,47 +329,47 @@
       max-width: 420px;
       word-break: break-all;
     }
-
+    
     @keyframes blink {
-
+    
       0%,
       100% {
         opacity: 1;
       }
-
+    
       50% {
         opacity: 0.2;
       }
     }
-
+    
     .blink {
       animation: blink 1s infinite;
     }
-
+    
     #nav-links {
       font-size: 10px;
       letter-spacing: 0.2em;
       margin-bottom: 16px;
       text-align: center;
     }
-
+    
     #nav-links a {
       color: #888;
       text-decoration: none;
       margin: 0 12px;
       transition: color 0.2s;
     }
-
+    
     #nav-links a:hover {
       color: #aaa;
     }
-
+    
     .nav-divider {
       color: #444;
     }
-
+    
     @keyframes suggest-pulse {
-
+    
       0%,
       100% {
         box-shadow:
@@ -377,7 +377,7 @@
           0 0 8px var(--suggest-color);
         opacity: 0.55;
       }
-
+    
       50% {
         box-shadow:
           0 0 0 3px var(--suggest-color),
@@ -385,13 +385,13 @@
         opacity: 0.85;
       }
     }
-
+    
     .disc.suggested {
       animation: suggest-pulse 0.9s ease-in-out infinite;
       background: var(--suggest-color);
       border: none;
     }
-
+    
     @media (prefers-color-scheme: light) {
       :root {
         --bg: #f0f0f5;
@@ -410,42 +410,42 @@
         --text-dimmer: #999;
         --btn-border: #aaa;
       }
-
+    
       body {
         background: var(--bg);
         color: var(--text);
       }
-
+    
       select {
         background: #fff;
         border-color: #aaa;
         color: #222;
       }
-
+    
       select option {
         background: #fff;
       }
-
+    
       #reset-btn,
       #start-btn {
         color: #555;
       }
-
+    
       #reset-btn:hover,
       #start-btn:hover {
         border-color: #666;
         color: #222;
       }
-
+    
       #thought-panel {
         color: #6666aa;
       }
-
+    
       #history-line {
         color: #999;
       }
     }
-
+    
   </style>
 </head>
 
@@ -526,7 +526,7 @@
           return String(x);
         }
       };
-
+    
       const parse = x => {
         try {
           return JSON.parse(x);
@@ -534,7 +534,7 @@
           return x && Object(x);
         }
       };
-
+    
       const localStore = {
         get(key) {
           try {
@@ -558,7 +558,7 @@
           }
         },
       };
-
+    
       globalThis.localMap ??= new Proxy({}, {
         get(target, prop) {
           return localStore.get(prop);
@@ -572,7 +572,7 @@
           return true;
         },
       });
-
+    
       // ─── Constants ────────────────────────────────────────────────────────────────
       const ROWS = 6,
         COLS = 7;
@@ -633,9 +633,9 @@
           },
           () => Array(COLS).fill(EMPTY),
         );
-
+    
       const cloneBoard = (board) => board.map((row) => [...row]);
-
+    
       const dropPiece = (board, col, player) => {
         const next = cloneBoard(board);
         for (let row = ROWS - 1; row >= 0; row--) {
@@ -649,14 +649,14 @@
         }
         return null;
       };
-
+    
       const validMoves = (board) =>
         Array.from({
             length: COLS,
           },
           (_, col) => col,
         ).filter((col) => board[0][col] === EMPTY);
-
+    
       const checkWinner = (board) => {
         const check = (row, col, deltaRow, deltaCol, player) => {
           for (let i = 0; i < 4; i++) {
@@ -685,7 +685,7 @@
                 if (check(row, col, deltaRow, deltaCol, player)) return player;
         return validMoves(board).length === 0 ? "DRAW" : null;
       };
-
+    
       const getWinCells = (board) => {
         const check = (row, col, deltaRow, deltaCol, player) => {
           const cells = [];
@@ -718,7 +718,7 @@
               }
         return [];
       };
-
+    
       // ─── Heuristic ────────────────────────────────────────────────────────────────
       const scoreWindow = (cells, player) => {
         const opp = player === RED ? YELLOW : RED;
@@ -733,7 +733,7 @@
         if (oppCount === 2 && emptyCount === 2) return -3;
         return 0;
       };
-
+    
       const heuristicScore = (board, player) => {
         let score = 0;
         for (let r = 0; r < ROWS; r++)
@@ -775,7 +775,7 @@
             );
         return score;
       };
-
+    
       // ─── Bots ─────────────────────────────────────────────────────────────────────
       const greedyMove = (board, player) => {
         const moves = validMoves(board);
@@ -794,7 +794,7 @@
         }
         return bestCol;
       };
-
+    
       const minimax = (board, depth, alpha, beta, maximizing, player) => {
         const opp = player === RED ? YELLOW : RED;
         const winner = checkWinner(board);
@@ -866,10 +866,10 @@
           };
         }
       };
-
+    
       const minimaxMove = (board, player) =>
         minimax(board, MINIMAX_DEPTH, -Infinity, Infinity, true, player).col;
-
+    
       // ─── Board Serialization (LLM hook) ──────────────────────────────────────────
       const getBoardState = (board, currentPlayer, lastMove, moveHistory) => {
         const colLabels = "0123456";
@@ -896,7 +896,7 @@
           prompt,
         };
       };
-
+    
       async function apiFetch(path, method = "GET", body = null) {
         const res = await fetch(API_BASE + path, {
           method,
@@ -914,11 +914,11 @@
           data,
         };
       }
-
+    
       function loadSavedSession() {
         return localMap[SESSION_KEY] || null;
       }
-
+    
       function renderAuthBar() {
         const el = document.getElementById("auth-bar");
         if (!el) return;
@@ -937,7 +937,7 @@
           window.location.href = "/auth.html";
         });
       }
-
+    
       async function initAuth() {
         renderAuthBar();
         const saved = loadSavedSession();
@@ -971,7 +971,7 @@
           await runEnhancement();
         } catch {}
       }
-
+    
       async function logout() {
         const token = auth.token;
         auth = {
@@ -995,7 +995,7 @@
           }
         }
       }
-
+    
       function escapeHtml(value) {
         return String(value).replace(/[&<>"']/g, char => ({
           "&": "&amp;",
@@ -1005,14 +1005,14 @@
           "'": "&#39;",
         } [char]));
       }
-
+    
       const LLAVA_URL =
         "https://llava-15-7b-hf-summary.language-models.workers.dev/";
       const GEMMA_URL = "https://gemma.connectfour-ai.workers.dev/";
-
+    
       // Gemma conversation history (OpenAI-compatible messages format)
       let gemmaMessages = [];
-
+    
       // Helper: Append text as a text node (no repaint of entire content)
       globalThis.appendTextNode = function appendTextNode(element, text) {
         if (!element) return;
@@ -1022,13 +1022,13 @@
         span.innerHTML = color(text);
         element.appendChild(span);
       }
-
+    
       // Helper: Clear element and set initial text
       function setTextContent(element, text) {
         if (!element) return;
         element.textContent = text;
       }
-
+    
       const fetchText = async (url, options) => {
         try {
           const res = await fetch(url, options);
@@ -1037,11 +1037,11 @@
           return String(e);
         }
       };
-
+    
       // LLaVA — simple fetch, return column
       const llavaMove = async (boardState) => {
         const icon = boardState.currentPlayer === RED ? "🥩" : "🧀";
-
+    
         const text = await fetchText(LLAVA_URL, {
           method: "POST",
           headers: {
@@ -1078,19 +1078,19 @@
         if (thoughtPanel) thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
-
+    
       async function bestEffortFetch(input, init) {
         try {
           // 1. Perform the initial fetch request
           const originalResponse = await fetch(input, init);
-
+    
           // If there is no body to read (e.g., 204 No Content, HEAD requests), return as-is
           if (!originalResponse.body) {
             return originalResponse;
           }
-
+    
           const originalReader = originalResponse.body.getReader();
-
+    
           // 2. Create a resilient wrapper stream
           const resilientStream = new ReadableStream({
             async pull(controller) {
@@ -1099,7 +1099,7 @@
                   done,
                   value
                 } = await originalReader.read();
-
+    
                 if (done) {
                   controller.close();
                 } else {
@@ -1111,7 +1111,7 @@
                   "Stream interrupted prematurely. Closing stream gracefully with partial data.",
                   streamError,
                 );
-
+    
                 // Cleanly close the controller instead of calling controller.error()
                 controller.close();
               }
@@ -1121,7 +1121,7 @@
               originalReader.cancel(reason).catch(() => {});
             },
           });
-
+    
           // 3. Return a new Response cloning the original metadata but swapping the body
           return new Response(resilientStream, {
             status: originalResponse.status,
@@ -1132,18 +1132,18 @@
           return new Response(String(initialFetchError));
         }
       }
-
+    
       // Gemma — streaming with thought process display (OpenAI-compatible SSE)
       // botLabel param allows GemmaMax to identify itself in the thought panel
       const gemmaMove = async (boardState, botLabel = "Gemma") => {
         const thoughtPanel = document.getElementById("thought-panel");
-
+    
         // Build the user message for this turn
         const userMsg = {
           role: "user",
           content: boardState.prompt
         };
-
+    
         // Only send system + current board state (no history)
         const messages = [{
             role: "system",
@@ -1151,7 +1151,7 @@
           },
           userMsg,
         ];
-
+    
         const icon = (boardState.currentPlayer === RED ? "🧶" : "🧇") + ` [${botLabel}]`;
         // Show streaming indicator appended to history
         const moveNum = gemmaMessages.length + 1;
@@ -1163,7 +1163,7 @@
           thoughtPanel.appendChild(streamEl);
           thoughtPanel.scrollTop = thoughtPanel.scrollHeight;
         }
-
+    
         const res = await bestEffortFetch(GEMMA_URL, {
           method: "POST",
           headers: {
@@ -1174,7 +1174,7 @@
             stream: true
           }),
         });
-
+    
         let fullText = "";
         if (res.body && res.body.getReader) {
           const reader = res.body.getReader();
@@ -1248,10 +1248,10 @@
           streamEl.textContent = '';
           appendTextNode(streamEl, `── Move ${moveNum} ──\n${icon} ${fullText}`);
         }
-
+    
         // Add assistant response to local history for display
         gemmaMessages.push(fullText);
-
+    
         console.log(`[${botLabel}] Full response:`, fullText);
         const numDict = {
           zero: 0,
@@ -1318,7 +1318,7 @@
         (thoughtPanel ?? {}).scrollTop = thoughtPanel.scrollHeight;
         return parsed;
       };
-
+    
       // GemmaMax — runs minimax first, injects hint into prompt, Gemma decides
       const gemmaMaxMove = async (boardState) => {
         const minimaxCol = minimaxMove(boardState.board, boardState.currentPlayer);
@@ -1331,7 +1331,7 @@
           prompt: enhancedPrompt
         }, "GemmaMax");
       };
-
+    
       // ─── Game State ───────────────────────────────────────────────────────────────
       let state = {
         board: emptyBoard(),
@@ -1348,7 +1348,7 @@
         gameId: null,
         dbMovesSaved: 0,
       };
-
+    
       function snapshotState() {
         return {
           savedAt: Date.now(),
@@ -1368,7 +1368,7 @@
           gemmaMessages,
         };
       }
-
+    
       function restoreSnapshot(snapshot) {
         if (!snapshot?.state) return false;
         if (snapshot.players) {
@@ -1400,15 +1400,15 @@
         appendTextNode(document.getElementById("thought-panel"), snapshot.thoughtText || "");
         return true;
       }
-
+    
       function saveLocalGame() {
         localMap[LOCAL_GAME_KEY] = snapshotState();
       }
-
+    
       function loadLocalGame() {
         return localMap[LOCAL_GAME_KEY] || null;
       }
-
+    
       async function ensureDbGame() {
         if (!auth.user || !state.started) return null;
         if (state.gameId) return state.gameId;
@@ -1422,7 +1422,7 @@
         state.dbMovesSaved = 0;
         return id;
       }
-
+    
       async function saveDbGame() {
         if (!auth.user || !state.started) return;
         const id = await ensureDbGame();
@@ -1446,19 +1446,19 @@
           state.dbMovesSaved += 1;
         }
       }
-
+    
       async function hasAccountGame() {
         if (!auth.user) return false;
         const result = await apiFetch(`/games?user_id=${encodeURIComponent(auth.user.id)}&limit=1`);
         return result.ok && Array.isArray(result.data) && result.data.length > 0;
       }
-
+    
       async function carryLocalGameToAccount() {
         if (!auth.user) return false;
         const localSnapshot = loadLocalGame();
         if (!localSnapshot?.state?.started || !localSnapshot.state.moveHistory?.length) return false;
         if (await hasAccountGame()) return false;
-
+    
         const currentSnapshot = snapshotState();
         restoreSnapshot(localSnapshot);
         state.gameId = null;
@@ -1473,7 +1473,7 @@
           return false;
         }
       }
-
+    
       function persistGame() {
         if (!persistenceReady) return;
         if (saveTimer) clearTimeout(saveTimer);
@@ -1487,12 +1487,12 @@
           }
         }, 120);
       }
-
+    
       const getPlayerType = (player) =>
         player === RED ?
         document.getElementById("red-select").value :
         document.getElementById("yellow-select").value;
-
+    
       const PLAYER_LABELS = {
         human: "Human",
         greedy: "Greedy Bot",
@@ -1501,7 +1501,7 @@
         gemma: "Gemma Bot",
         gemmamax: "GemmaMax Bot",
       };
-
+    
       // ─── Render ───────────────────────────────────────────────────────────────────
       let dropCell = null; // {row, col} for brief drop flash
       let rendering = false;
@@ -1520,7 +1520,7 @@
         const isHuman =
           started && !winner && getPlayerType(current) === "human";
         const moves = validMoves(board);
-
+    
         // Start / Reset button visibility
         updateProp(document.getElementById("start-btn").style, "display", started ?
           "none" :
@@ -1528,13 +1528,13 @@
         updateProp(document.getElementById("reset-btn").style, "display", started ?
           "inline-block" :
           "none");
-
+    
         // Board
         const boardEl = document.getElementById("board");
         boardEl.innerHTML = "";
         const CELL_SIZE = 60;
         const BOARD_PADDING = 8;
-
+    
         for (let row = 0; row < ROWS; row++) {
           const rowEl = document.createElement("div");
           rowEl.className = "board-row";
@@ -1546,12 +1546,12 @@
             const isWin = winCells.some(
               ([winRow, winCol]) => winRow === row && winCol === col,
             );
-
+    
             let discClass = "disc";
             if (cellValue === RED) discClass += isWin ? " win-red" : " red";
             if (cellValue === YELLOW)
               discClass += isWin ? " win-yellow" : " yellow";
-
+    
             // Fall animation
             if (
               fallingCell &&
@@ -1566,9 +1566,9 @@
               disc.style.setProperty("--fall-from", `${fallFromPx}px`);
               disc.style.setProperty("--fall-duration", `${durationMs}ms`);
             }
-
+    
             disc.className = discClass;
-
+    
             // Suggest highlight: pulse the landing cell in the suggested column
             if (
               suggestedCol === col &&
@@ -1581,7 +1581,7 @@
                 current === RED ? "#ff2255" : "#ffcc00",
               );
             }
-
+    
             cellEl.appendChild(disc);
             rowEl.appendChild(cellEl);
           }
@@ -1596,7 +1596,7 @@
             rendering = false;
           })();
         }
-
+    
         // Hover row
         const hoverRow = document.getElementById("hover-row");
         hoverRow.innerHTML = "";
@@ -1611,9 +1611,9 @@
           hoverCell.appendChild(pip);
           hoverRow.appendChild(hoverCell);
         }
-
+    
         boardEl.style.cursor = isHuman ? "pointer" : "default";
-
+    
         // Col labels
         const labelsEl = document.getElementById("col-labels");
         if (!labelsEl.children.length) {
@@ -1624,7 +1624,7 @@
             labelsEl.appendChild(label);
           }
         }
-
+    
         // Status
         const statusEl = document.getElementById("status-bar");
         if (!started) {
@@ -1648,7 +1648,7 @@
           const extra = isHuman ? " — YOUR TURN" : "";
           statusEl.innerHTML = `<span style="color:${color};font-size:11px;letter-spacing:0.2em">${current === RED ? "🔴" : "🟡"} ${label}${extra}</span>`;
         }
-
+    
         // Move count
         const moveCountEl = document.getElementById("move-count");
         moveCountEl.textContent = started ? `${moveHistory.length} moves` : "";
@@ -1660,11 +1660,11 @@
           document.getElementById("history-line").textContent = "";
         }
       };
-
+    
       // ─── Game Logic ───────────────────────────────────────────────────────────────
       let fallingCell = null; // { row, col } — active fall animation target
       let animating = false; // block re-renders during fall animation
-
+    
       const applyMove = (col) => {
         const {
           board,
@@ -1674,7 +1674,7 @@
         } = state;
         const result = dropPiece(board, col, current);
         if (!result) return;
-
+    
         const newHistory = [
           ...moveHistory,
           {
@@ -1689,13 +1689,13 @@
           row: result.row,
         };
         const winner = checkWinner(result.board);
-
+    
         state.board = result.board;
         state.lastMove = newLast;
         state.moveHistory = newHistory;
         state.suggestedCol = null;
         state.suggesting = false;
-
+    
         if (winner) {
           state.winner = winner;
           state.winCells = winner !== "DRAW" ? getWinCells(result.board) : [];
@@ -1704,7 +1704,7 @@
           state.current = current === RED ? YELLOW : RED;
         }
         persistGame();
-
+    
         // Trigger fall animation then clear it after it completes
         const durationMs = 120 + result.row * 28;
         fallingCell = {
@@ -1719,9 +1719,9 @@
           render();
         }, durationMs + 50);
       };
-
+    
       let botTimeout = null;
-
+    
       const scheduleBotMove = () => {
         if (botTimeout) clearTimeout(botTimeout);
         if (state.winner) return;
@@ -1731,7 +1731,7 @@
           getSuggestion();
           return;
         }
-
+    
         state.thinking = true;
         render();
         let running;
@@ -1779,7 +1779,7 @@
           running = false;
         }, 350);
       };
-
+    
       const reset = () => {
         if (botTimeout) clearTimeout(botTimeout);
         fallingCell = null;
@@ -1804,24 +1804,24 @@
         render();
         persistGame();
       };
-
+    
       const startGame = () => {
         state.started = true;
         render();
         persistGame();
         scheduleBotMove();
       };
-
+    
       const getSuggestion = async () => {
         if (state.suggesting || state.winner || !state.started) return;
         if (getPlayerType(state.current) !== "human") return;
         const type = getSuggestType();
         if (!type) return;
-
+    
         state.suggesting = true;
         state.suggestedCol = null;
         render();
-
+    
         const {
           board,
           current,
@@ -1857,11 +1857,11 @@
           render();
         }
       };
-
+    
       // Which bot to use for suggestions — reads the dedicated suggest-select
       const getSuggestType = () =>
         document.getElementById("suggest-select").value;
-
+    
       // ─── Events ───────────────────────────────────────────────────────────────────
       document.getElementById("board").addEventListener("click", (evt) => {
         if (!state.started || state.winner || state.thinking) return;
@@ -1875,7 +1875,7 @@
         applyMove(col);
         if (!state.winner) scheduleBotMove();
       });
-
+    
       document.getElementById("board").addEventListener("mousemove", (evt) => {
         const boardEl = document.getElementById("board");
         const rect = boardEl.getBoundingClientRect();
@@ -1887,15 +1887,15 @@
           if (!animating) render();
         }
       });
-
+    
       document.getElementById("board").addEventListener("mouseleave", () => {
         state.hoverCol = null;
         if (!animating) render();
       });
-
+    
       document.getElementById("start-btn").addEventListener("click", startGame);
       document.getElementById("reset-btn").addEventListener("click", reset);
-
+    
       document.getElementById("red-select").addEventListener("change", reset);
       document
         .getElementById("yellow-select")
@@ -1903,7 +1903,7 @@
       document
         .getElementById("suggest-select")
         .addEventListener("change", persistGame);
-
+    
       // ─── Init ─────────────────────────────────────────────────────────────────────
       renderAuthBar();
       initAuth().then(() => {
@@ -1918,7 +1918,7 @@
         if (state.started && !state.winner) scheduleBotMove();
         if (carriedLocalGame) persistGame();
       });
-
+    
       document.getElementById("board").addEventListener("touchstart", (evt) => {
         if (!state.started || state.winner || state.thinking) return;
         if (getPlayerType(state.current) !== "human") return;
@@ -1936,34 +1936,34 @@
       }, {
         passive: false
       }); // passive:false required for preventDefault to work
-
+    
       function bindSelectToSession(select) {
         let key = select.id || select.name || select.getAttribute('id');
         if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
-
+    
         const stored = sessionStorage.getItem(key);
         if (stored != null) select.value = stored;
-
+    
         select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
       }
-
+    
       document.querySelectorAll('select').forEach(bindSelectToSession);
-
+    
       (async () => {
         async function bindSelectToTemp(select) {
           let key = select.id || select.name || select.getAttribute('id');
           if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
-
+    
           const stored = await tempStorage.getItem(key);
           if (stored != null) select.value = stored;
-
+    
           select.addEventListener('change', () => tempStorage.setItem(key, select.value));
         }
-
+    
         document.querySelectorAll('select').forEach(bindSelectToTemp);
       })();
     })();
-
+    
   </script>
 </body>
 
