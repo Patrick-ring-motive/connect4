@@ -21,13 +21,13 @@
       --success: #00C864;
       --fail: #FF5A5A;
     }
-
+    
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
+    
     html,
     body {
       min-height: 100%;
@@ -35,14 +35,14 @@
       color: var(--text);
       font-family: 'DM Mono', monospace;
     }
-
+    
     body {
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
     }
-
+    
     .card {
       width: min(560px, 100%);
       background: var(--board);
@@ -51,20 +51,20 @@
       padding: 32px;
       box-shadow: 0 32px 80px rgba(0, 0, 0, .5);
     }
-
+    
     h1 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(2rem, 4vw, 3.2rem);
       letter-spacing: 2px;
       margin-bottom: 18px;
     }
-
+    
     p {
       margin-bottom: 16px;
       line-height: 1.7;
       color: var(--muted);
     }
-
+    
     .status {
       display: inline-flex;
       align-items: center;
@@ -74,32 +74,32 @@
       border: 1px solid transparent;
       margin-bottom: 20px;
     }
-
+    
     .status.success {
       background: rgba(0, 200, 100, .08);
       border-color: rgba(0, 200, 100, .25);
       color: var(--success);
     }
-
+    
     .status.fail {
       background: rgba(255, 90, 90, .08);
       border-color: rgba(255, 90, 90, .25);
       color: var(--fail);
     }
-
+    
     .status .dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background-color: currentColor;
     }
-
+    
     .actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
     }
-
+    
     .button {
       padding: 14px 18px;
       border: none;
@@ -110,18 +110,18 @@
       letter-spacing: 1px;
       text-transform: uppercase;
     }
-
+    
     .button.primary {
       background: var(--yellow);
       color: var(--navy);
     }
-
+    
     .button.secondary {
       background: rgba(255, 255, 255, .05);
       color: var(--text);
       border: 1px solid var(--border);
     }
-
+    
     .spinner {
       width: 18px;
       height: 18px;
@@ -130,17 +130,17 @@
       border-radius: 50%;
       animation: spin .8s linear infinite;
     }
-
+    
     @keyframes spin {
       to {
         transform: rotate(360deg);
       }
     }
-
+    
     .hidden {
       display: none;
     }
-
+    
   </style>
 </head>
 
@@ -162,18 +162,18 @@
     const statusEl = document.getElementById('status');
     const statusText = document.getElementById('status-text');
     const description = document.getElementById('description');
-
+    
     function showStatus(type, message) {
       statusEl.className = `status ${type}`;
       statusText.textContent = message;
       statusEl.classList.remove('hidden');
     }
-
+    
     function showLinks(success) {
       signInButton.classList.remove('hidden');
       retryButton.classList.toggle('hidden', success);
     }
-
+    
     async function apiFetch(path) {
       const res = await fetch(API_BASE + path, {
         method: 'GET',
@@ -185,11 +185,11 @@
         data
       };
     }
-
+    
     function getToken() {
       return new URLSearchParams(globalThis.location.search).get('token');
     }
-
+    
     async function verifyEmail() {
       const token = getToken();
       if (!token) {
@@ -198,13 +198,13 @@
         showLinks(false);
         return;
       }
-
+    
       description.textContent = 'Checking your verification link…';
       const {
         ok,
         data
       } = await apiFetch(`/verify?token=${encodeURIComponent(token)}`);
-
+    
       if (ok && data?.ok) {
         showStatus('success', 'Email verified successfully!');
         description.textContent = 'Your account is now verified. You can sign in and start playing.';
@@ -215,15 +215,15 @@
         showLinks(false);
       }
     }
-
+    
     signInButton.addEventListener('click', () => {
       globalThis.location.href = '/auth.html';
     });
-
+    
     retryButton.addEventListener('click', verifyEmail);
-
+    
     await verifyEmail();
-
+    
   </script>
 </body>
 
