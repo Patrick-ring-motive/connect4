@@ -7,7 +7,7 @@
   <title>Career Day 2026 — AI Engineer</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap');
-
+    
     :root {
       --bg: #0b0c10;
       --surface: #13141a;
@@ -21,7 +21,7 @@
       --pixel: 4px;
       /* pixel grid unit */
     }
-
+    
     *,
     *::before,
     *::after {
@@ -29,7 +29,7 @@
       margin: 0;
       padding: 0;
     }
-
+    
     html,
     body {
       width: 100%;
@@ -40,7 +40,7 @@
       color: var(--white);
       cursor: none;
     }
-
+    
     /* ── Custom cursor ─────────────────────────────────────────── */
     #cursor {
       position: fixed;
@@ -54,14 +54,14 @@
       image-rendering: pixelated;
       clip-path: polygon(0 0, 100% 0, 100% 60%, 60% 60%, 60% 100%, 0 100%);
     }
-
+    
     /* ── Slide container ───────────────────────────────────────── */
     #deck {
       width: 100vw;
       height: 100vh;
       position: relative;
     }
-
+    
     .slide {
       position: absolute;
       inset: 0;
@@ -74,12 +74,12 @@
       pointer-events: none;
       transition: opacity 0.4s ease;
     }
-
+    
     .slide.active {
       opacity: 1;
       pointer-events: all;
     }
-
+    
     /* ── Scanline overlay ──────────────────────────────────────── */
     body::after {
       content: '';
@@ -93,7 +93,7 @@
       pointer-events: none;
       z-index: 100;
     }
-
+    
     /* ── Grid bg ───────────────────────────────────────────────── */
     .grid-bg {
       position: absolute;
@@ -104,18 +104,18 @@
       background-size: 40px 40px;
       opacity: 0.4;
     }
-
+    
     /* ── Typography ────────────────────────────────────────────── */
     .display {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
       line-height: 1;
     }
-
+    
     .mono {
       font-family: 'DM Mono', monospace;
     }
-
+    
     /* ── Navigation ────────────────────────────────────────────── */
     #nav {
       position: fixed;
@@ -127,7 +127,7 @@
       gap: 10px;
       z-index: 200;
     }
-
+    
     .nav-dot {
       width: 6px;
       height: 6px;
@@ -136,12 +136,12 @@
       transition: background 0.2s, transform 0.2s;
       clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
     }
-
+    
     .nav-dot.active {
       background: var(--yellow);
       transform: scale(1.6);
     }
-
+    
     #nav-hint {
       position: fixed;
       bottom: 28px;
@@ -152,7 +152,7 @@
       letter-spacing: 0.15em;
       z-index: 200;
     }
-
+    
     #slide-num {
       position: fixed;
       top: 24px;
@@ -163,18 +163,18 @@
       letter-spacing: 0.2em;
       z-index: 200;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 1 — TITLE
-───────────────────────────────────────────────────────────── */
+       SLIDE 1 — TITLE
+    ───────────────────────────────────────────────────────────── */
     #slide-1 {
       background: var(--bg);
     }
-
+    
     #slide-1 .grid-bg {
       opacity: 0.25;
     }
-
+    
     .title-eyebrow {
       font-family: 'DM Mono', monospace;
       font-size: 12px;
@@ -183,7 +183,7 @@
       text-transform: uppercase;
       margin-bottom: 20px;
     }
-
+    
     .title-name {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
@@ -195,7 +195,7 @@
       background-clip: text;
       margin-bottom: 8px;
     }
-
+    
     .title-role {
       font-family: 'DM Mono', monospace;
       font-size: clamp(16px, 2.5vw, 22px);
@@ -203,7 +203,7 @@
       letter-spacing: 0.1em;
       margin-bottom: 48px;
     }
-
+    
     .title-school {
       font-family: 'DM Mono', monospace;
       font-size: 13px;
@@ -211,7 +211,7 @@
       letter-spacing: 0.3em;
       text-transform: uppercase;
     }
-
+    
     /* Corner decoration */
     .corner-tl,
     .corner-br {
@@ -221,26 +221,26 @@
       border-color: var(--border);
       border-style: solid;
     }
-
+    
     .corner-tl {
       top: 32px;
       left: 32px;
       border-width: 2px 0 0 2px;
     }
-
+    
     .corner-br {
       bottom: 32px;
       right: 32px;
       border-width: 0 2px 2px 0;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 2 — WORD GAME
-───────────────────────────────────────────────────────────── */
+       SLIDE 2 — WORD GAME
+    ───────────────────────────────────────────────────────────── */
     #slide-2 {
       background: var(--surface);
     }
-
+    
     .game-prompt-label {
       font-family: 'DM Mono', monospace;
       font-size: 13px;
@@ -249,7 +249,7 @@
       text-transform: uppercase;
       margin-bottom: 32px;
     }
-
+    
     .game-prompt {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
@@ -258,11 +258,11 @@
       line-height: 1.2;
       max-width: 900px;
     }
-
+    
     .game-prompt .word-highlight {
       color: var(--yellow);
     }
-
+    
     .game-prompt .word-blank {
       display: inline-block;
       min-width: 160px;
@@ -270,7 +270,7 @@
       vertical-align: bottom;
       margin: 0 8px;
     }
-
+    
     .game-note {
       margin-top: 48px;
       font-family: 'DM Mono', monospace;
@@ -279,21 +279,21 @@
       letter-spacing: 0.15em;
       text-align: center;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 3 — WHAT IS AI
-───────────────────────────────────────────────────────────── */
+       SLIDE 3 — WHAT IS AI
+    ───────────────────────────────────────────────────────────── */
     #slide-3 {
       background: var(--bg);
     }
-
+    
     .ai-diagram {
       display: flex;
       align-items: center;
       gap: 0;
       margin: 40px 0;
     }
-
+    
     .ai-box {
       display: flex;
       flex-direction: column;
@@ -304,12 +304,12 @@
       border: 2px solid var(--border);
       min-width: 160px;
     }
-
+    
     .ai-box .ai-icon {
       font-size: 40px;
       line-height: 1;
     }
-
+    
     .ai-box .ai-label {
       font-family: 'DM Mono', monospace;
       font-size: 13px;
@@ -317,25 +317,25 @@
       color: var(--dim);
       text-transform: uppercase;
     }
-
+    
     .ai-box.center-box {
       border-color: var(--yellow);
       background: rgba(255, 212, 38, 0.06);
       min-width: 200px;
       padding: 36px 44px;
     }
-
+    
     .ai-box.center-box .ai-label {
       color: var(--yellow);
     }
-
+    
     .ai-arrow {
       font-size: 28px;
       color: var(--dim);
       padding: 0 8px;
       padding-bottom: 16px;
     }
-
+    
     .ai-headline {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
@@ -343,7 +343,7 @@
       text-align: center;
       margin-bottom: 8px;
     }
-
+    
     .ai-sub {
       font-family: 'DM Mono', monospace;
       font-size: 15px;
@@ -351,14 +351,14 @@
       text-align: center;
       letter-spacing: 0.05em;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 4 — AI EVERYWHERE
-───────────────────────────────────────────────────────────── */
+       SLIDE 4 — AI EVERYWHERE
+    ───────────────────────────────────────────────────────────── */
     #slide-4 {
       background: var(--surface);
     }
-
+    
     .everywhere-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -367,7 +367,7 @@
       width: 100%;
       max-width: 860px;
     }
-
+    
     .everywhere-card {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -379,7 +379,7 @@
       overflow: hidden;
       transition: border-color 0.2s;
     }
-
+    
     .everywhere-card::before {
       content: '';
       position: absolute;
@@ -389,23 +389,23 @@
       height: 2px;
       background: var(--accent, var(--yellow));
     }
-
+    
     .everywhere-card .card-icon {
       font-size: 32px;
     }
-
+    
     .everywhere-card .card-title {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
       font-size: 18px;
     }
-
+    
     .everywhere-card .card-desc {
       font-size: 13px;
       color: var(--dim);
       line-height: 1.5;
     }
-
+    
     .section-label {
       font-family: 'DM Mono', monospace;
       font-size: 12px;
@@ -414,21 +414,21 @@
       text-transform: uppercase;
       margin-bottom: 8px;
     }
-
+    
     .section-title {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
       font-size: clamp(28px, 4vw, 48px);
       margin-bottom: 4px;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 5 — MY STORY / MISSINGNO
-───────────────────────────────────────────────────────────── */
+       SLIDE 5 — MY STORY / MISSINGNO
+    ───────────────────────────────────────────────────────────── */
     #slide-5 {
       background: var(--bg);
     }
-
+    
     .story-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -437,20 +437,20 @@
       max-width: 960px;
       width: 100%;
     }
-
+    
     .story-text {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
-
+    
     .story-caption {
       font-family: 'DM Mono', monospace;
       font-size: 13px;
       color: var(--yellow);
       letter-spacing: 0.15em;
     }
-
+    
     .story-quote {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
@@ -458,13 +458,13 @@
       line-height: 1.25;
       color: var(--white);
     }
-
+    
     .story-body {
       font-size: 15px;
       color: var(--dim);
       line-height: 1.6;
     }
-
+    
     /* Pixel art MissingNo — pure CSS */
     .missingno-wrap {
       display: flex;
@@ -472,7 +472,7 @@
       align-items: center;
       gap: 16px;
     }
-
+    
     .pixel-canvas {
       display: grid;
       grid-template-columns: repeat(14, 16px);
@@ -484,55 +484,55 @@
       background: #000014;
       animation: glitch-flicker 3s infinite;
     }
-
+    
     @keyframes glitch-flicker {
-
+    
       0%,
       94%,
       100% {
         filter: none;
       }
-
+    
       95% {
         filter: hue-rotate(180deg) brightness(1.4);
         transform: translate(2px, 0);
       }
-
+    
       97% {
         filter: none;
         transform: translate(-1px, 0);
       }
     }
-
+    
     .px {
       width: 16px;
       height: 16px;
     }
-
+    
     .px.k {
       background: #000014;
     }
-
+    
     .px.w {
       background: #e8e8e8;
     }
-
+    
     .px.g {
       background: #888890;
     }
-
+    
     .px.d {
       background: #383848;
     }
-
+    
     .px.b {
       background: #181828;
     }
-
+    
     .px.r {
       background: #e83030;
     }
-
+    
     .missingno-label {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
@@ -540,14 +540,14 @@
       letter-spacing: 0.25em;
       text-transform: uppercase;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 6 — WHAT I BUILD
-───────────────────────────────────────────────────────────── */
+       SLIDE 6 — WHAT I BUILD
+    ───────────────────────────────────────────────────────────── */
     #slide-6 {
       background: var(--surface);
     }
-
+    
     .build-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -557,13 +557,13 @@
       width: 100%;
       margin-top: 32px;
     }
-
+    
     .build-item {
       display: flex;
       gap: 16px;
       align-items: flex-start;
     }
-
+    
     .build-num {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
@@ -572,20 +572,20 @@
       min-width: 28px;
       padding-top: 4px;
     }
-
+    
     .build-name {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
       font-size: 20px;
       margin-bottom: 6px;
     }
-
+    
     .build-desc {
       font-size: 13px;
       color: var(--dim);
       line-height: 1.55;
     }
-
+    
     .pipeline-bar {
       display: flex;
       align-items: center;
@@ -596,7 +596,7 @@
       border: 1px solid var(--border);
       overflow: hidden;
     }
-
+    
     .pipeline-step {
       flex: 1;
       padding: 16px 12px;
@@ -604,11 +604,11 @@
       border-right: 1px solid var(--border);
       position: relative;
     }
-
+    
     .pipeline-step:last-child {
       border-right: none;
     }
-
+    
     .pipeline-step .step-label {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -617,28 +617,28 @@
       text-transform: uppercase;
       margin-bottom: 4px;
     }
-
+    
     .pipeline-step .step-name {
       font-size: 14px;
       font-weight: 500;
       color: var(--white);
     }
-
+    
     .pipeline-step.highlight {
       background: rgba(255, 212, 38, 0.06);
     }
-
+    
     .pipeline-step.highlight .step-name {
       color: var(--yellow);
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 7 — CONNECT 4 INTRO
-───────────────────────────────────────────────────────────── */
+       SLIDE 7 — CONNECT 4 INTRO
+    ───────────────────────────────────────────────────────────── */
     #slide-7 {
       background: var(--bg);
     }
-
+    
     .bots-layout {
       display: grid;
       grid-template-columns: 1fr 64px 1fr;
@@ -648,7 +648,7 @@
       width: 100%;
       margin-top: 32px;
     }
-
+    
     .bot-card {
       border: 2px solid var(--border);
       padding: 36px 32px;
@@ -656,50 +656,50 @@
       flex-direction: column;
       gap: 14px;
     }
-
+    
     .bot-card.red-card {
       border-color: var(--red);
     }
-
+    
     .bot-card.blue-card {
       border-color: var(--blue);
     }
-
+    
     .bot-tag {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.3em;
       text-transform: uppercase;
     }
-
+    
     .red-card .bot-tag {
       color: var(--red);
     }
-
+    
     .blue-card .bot-tag {
       color: var(--blue);
     }
-
+    
     .bot-name {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
       font-size: 28px;
     }
-
+    
     .bot-logic {
       font-family: 'DM Mono', monospace;
       font-size: 13px;
       color: var(--dim);
       line-height: 1.6;
     }
-
+    
     .bot-move-viz {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
       margin-top: 4px;
     }
-
+    
     .move-bubble {
       padding: 3px 8px;
       font-family: 'DM Mono', monospace;
@@ -707,13 +707,13 @@
       border: 1px solid var(--border);
       color: var(--dim);
     }
-
+    
     .move-bubble.best {
       border-color: var(--yellow);
       color: var(--yellow);
       background: rgba(255, 212, 38, 0.08);
     }
-
+    
     .vs-divider {
       display: flex;
       align-items: center;
@@ -723,10 +723,10 @@
       font-size: 22px;
       color: var(--dim);
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDES 7–8 — HOW TO GET HERE
-───────────────────────────────────────────────────────────── */
+       SLIDES 7–8 — HOW TO GET HERE
+    ───────────────────────────────────────────────────────────── */
     .path-track {
       display: flex;
       align-items: stretch;
@@ -735,7 +735,7 @@
       width: 100%;
       max-width: 960px;
     }
-
+    
     .path-node {
       flex: 1;
       border: 1px solid var(--border);
@@ -745,12 +745,12 @@
       gap: 10px;
       background: var(--surface);
     }
-
+    
     .path-node-highlight {
       border-color: var(--yellow);
       background: rgba(255, 212, 38, 0.05);
     }
-
+    
     .path-connector {
       display: flex;
       align-items: center;
@@ -759,28 +759,28 @@
       color: var(--dim);
       flex-shrink: 0;
     }
-
+    
     .path-icon {
       font-size: 28px;
       line-height: 1;
     }
-
+    
     .path-node-title {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
       font-size: 16px;
     }
-
+    
     .path-node-highlight .path-node-title {
       color: var(--yellow);
     }
-
+    
     .path-node-desc {
       font-size: 12px;
       color: var(--dim);
       line-height: 1.5;
     }
-
+    
     .path-degree {
       margin-top: 24px;
       font-family: 'DM Mono', monospace;
@@ -789,17 +789,17 @@
       gap: 10px;
       align-items: center;
     }
-
+    
     .path-degree-label {
       color: var(--dim);
       letter-spacing: 0.1em;
     }
-
+    
     .path-degree-value {
       color: var(--yellow);
       letter-spacing: 0.05em;
     }
-
+    
     .mindset-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -808,7 +808,7 @@
       width: 100%;
       max-width: 760px;
     }
-
+    
     .mindset-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -818,27 +818,27 @@
       flex-direction: column;
       gap: 8px;
     }
-
+    
     .mindset-icon {
       font-size: 28px;
       line-height: 1;
     }
-
+    
     .mindset-name {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
       font-size: 18px;
     }
-
+    
     .mindset-desc {
       font-size: 13px;
       color: var(--dim);
       line-height: 1.55;
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 9 — CONNECT 4 LAUNCH
-───────────────────────────────────────────────────────────── */
+       SLIDE 9 — CONNECT 4 LAUNCH
+    ───────────────────────────────────────────────────────────── */
     #launch-btn {
       display: inline-block;
       font-family: 'Syne', sans-serif;
@@ -854,19 +854,19 @@
       position: relative;
       z-index: 10;
     }
-
+    
     #launch-btn:hover {
       background: #ffe55a;
       transform: scale(1.03);
     }
-
+    
     /* ────────────────────────────────────────────────────────────
-   SLIDE 9 — QUESTIONS
-───────────────────────────────────────────────────────────── */
+       SLIDE 9 — QUESTIONS
+    ───────────────────────────────────────────────────────────── */
     #slide-9 {
       background: var(--bg);
     }
-
+    
     .questions-big {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
@@ -878,7 +878,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
+    
     .questions-sub {
       margin-top: 24px;
       font-family: 'DM Mono', monospace;
@@ -888,7 +888,7 @@
       text-align: center;
       text-transform: uppercase;
     }
-
+    
     /* ── Pixel accent dots ─────────────────────────────────────── */
     .pixel-accent {
       position: absolute;
@@ -896,7 +896,7 @@
       height: 8px;
       image-rendering: pixelated;
     }
-
+    
   </style>
 </head>
 
@@ -1182,7 +1182,7 @@
     const slideNum = document.getElementById('slide-num');
     const cursor = document.getElementById('cursor');
     let current = 0;
-
+    
     const goTo = (index) => {
       slides[current].classList.remove('active');
       dots[current].classList.remove('active');
@@ -1191,34 +1191,34 @@
       dots[current].classList.add('active');
       slideNum.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
     };
-
+    
     const next = () => goTo(current + 1);
     const prev = () => goTo(current - 1);
-
+    
     document.addEventListener('keydown', evt => {
       if (evt.key === 'ArrowRight' || evt.key === 'ArrowDown' || evt.key === ' ') next();
       if (evt.key === 'ArrowLeft' || evt.key === 'ArrowUp') prev();
     });
-
+    
     document.addEventListener('click', evt => {
       // Don't advance on iframe or nav dot clicks
       if (evt.target.closest('#nav') || evt.target.closest('iframe')) return;
       next();
     });
-
+    
     dots.forEach(dot => {
       dot.addEventListener('click', evt => {
         evt.stopPropagation();
         goTo(parseInt(dot.dataset.slide));
       });
     });
-
+    
     // Custom cursor
     document.addEventListener('mousemove', evt => {
       cursor.style.left = evt.clientX + 'px';
       cursor.style.top = evt.clientY + 'px';
     });
-
+    
     // Touch / swipe
     let touchStartX = 0;
     document.addEventListener('touchstart', evt => {
@@ -1233,7 +1233,7 @@
     }, {
       passive: true
     });
-
+    
   </script>
 </body>
 
