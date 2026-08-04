@@ -41,8 +41,8 @@
     number: [/[0-9]+/, 'deepskyblue'],
   };
   const compoundRe = {
-  yellow: [/(?:\b(?:Y|Yellow)\b|🧇|🧀)/u, 'yellow'],
-red:    [/(?:\b(?:R|Red)\b|🧶|🥩)/u, 'red'],
+    yellow: [/(?:\b(?:Y|Yellow)\b|🧇|🧀)/u, 'yellow'],
+    red: [/(?:\b(?:R|Red)\b|🧶|🥩)/u, 'red'],
 
     x: [/(\bx\b)/, '#ffffff'],
     symbol: [re(`[^a-zA-Z0-9🧇🧀🧶🥩\\s${join(values(regexes).map(x =>x[0].source.slice(1,-2)))}]+`), '#00ff00'],
