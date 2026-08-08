@@ -75,7 +75,7 @@
   <div id="history-line"></div>
   <script src='https://patrick-ring-motive.github.io/temp-storage/script.js'></script>
   <script>
-    globalThis.runEnhancement = _ => _;
+    globalThis.runEnhancement ??= _ => _;
     (async () => {
       await import('https://patrick-ring-motive.github.io/connect4/color.js?' + Math.random());
       //custom utils
@@ -86,7 +86,8 @@
             return String(x);
           }
           return String(JSON.stringify(x));
-        } catch {
+        } catch (e) {
+          console.warn(e);
           return String(x);
         }
       };
@@ -94,6 +95,7 @@
         try {
           return JSON.parse(x);
         } catch {
+          // Not JSON — routine for plain-string values, not an error.
           return x && Object(x);
         }
       };
@@ -101,22 +103,23 @@
         get(key) {
           try {
             return parse(localStorage.getItem(key));
-          } catch {
+          } catch (e) {
+            console.warn(e);
             return null;
           }
         },
         set(key, value) {
           try {
             localStorage.setItem(key, stringify(value));
-          } catch {
-            // ignore
+          } catch (e) {
+            console.warn(e);
           }
         },
         remove(key) {
           try {
             localStorage.removeItem(key);
-          } catch {
-            // ignore
+          } catch (e) {
+            console.warn(e);
           }
         },
       };
@@ -141,6 +144,10 @@
         YELLOW = "Y";
       const MINIMAX_DEPTH = 4;
       const CENTER_WEIGHTS = [3, 4, 5, 7, 5, 4, 3];
+      // Board pixel geometry — single source for render() and the click/hover
+      // math, instead of the magic number 60 (and 8) scattered at each site.
+      const CELL_SIZE_PX = 60;
+      const BOARD_PADDING_PX = 8;
       const API_BASE = "https://db.connectfour.workers.dev";
       const LOCAL_GAME_KEY = "c4_local_game";
       const SESSION_KEY = "c4_session";
@@ -256,7 +263,7 @@
         return [];
       };
       // ─── Heuristic ────────────────────────────────────────────────────────────────
-      const scoreWindow = (cells, player) => {
+      const windowScore = (cells, player) => {
         const opp = player === RED ? YELLOW : RED;
         const playerCount = cells.filter((cell) => cell === player).length;
         const emptyCount = cells.filter((cell) => cell === EMPTY).length;
@@ -275,13 +282,13 @@
           for (let c = 0; c < COLS; c++)
             if (board[r][c] === player) score += CENTER_WEIGHTS[c];
         for (let r = 0; r < ROWS; r++)
-          for (let c = 0; c <= COLS - 4; c++) score += scoreWindow(
+          for (let c = 0; c <= COLS - 4; c++) score += windowScore(
             [board[r][c], board[r][c + 1], board[r][c + 2], board[r][c + 3]], player, );
         for (let c = 0; c < COLS; c++)
-          for (let r = 0; r <= ROWS - 4; r++) score += scoreWindow(
+          for (let r = 0; r <= ROWS - 4; r++) score += windowScore(
             [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]], player, );
         for (let r = 0; r <= ROWS - 4; r++)
-          for (let c = 0; c <= COLS - 4; c++) score += scoreWindow(
+          for (let c = 0; c <= COLS - 4; c++) score += windowScore(
             [
               board[r][c],
               board[r + 1][c + 1],
@@ -289,7 +296,7 @@
               board[r + 3][c + 3],
             ], player, );
         for (let r = 3; r < ROWS; r++)
-          for (let c = 0; c <= COLS - 4; c++) score += scoreWindow(
+          for (let c = 0; c <= COLS - 4; c++) score += windowScore(
             [
               board[r][c],
               board[r - 1][c + 1],
@@ -498,7 +505,7 @@
       // Gemma conversation history (OpenAI-compatible messages format)
       let gemmaMessages = [];
       // Helper: Append text as a text node (no repaint of entire content)
-      globalThis.appendTextNode = function appendTextNode(element, text) {
+      globalThis.appendTextNode ??= function appendTextNode(element, text) {
         text = text.replace(/(confident|stubborn|typically),?/gi, '')
           .replace(/disagree with/gi, 'consider')
           .replace(/disagree/gi, 'consider')
@@ -554,7 +561,7 @@
         (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
         return parsed;
       };
-      async function bestEffortFetch(input, init) {
+      async function bestEffortResponse(input, init) {
         try {
           // 1. Perform the initial fetch request
           const originalResponse = await fetch(input, init);
@@ -585,7 +592,7 @@
             },
             cancel(reason) {
               // Ensure the underlying reader is canceled if the consumer aborts early
-              originalReader.cancel(reason).catch(() => {});
+              originalReader.cancel(reason).catch((e) => console.warn(e));
             },
           });
           // 3. Return a new Response cloning the original metadata but swapping the body
@@ -595,6 +602,7 @@
             headers: originalResponse.headers,
           });
         } catch (initialFetchError) {
+          console.warn(initialFetchError);
           return new Response(String(initialFetchError));
         }
       }
@@ -623,7 +631,7 @@
         if (thoughtPanel?.childNodes?.length) appendTextNode(thoughtPanel, "\n\n");
         thoughtPanel?.appendChild?.(streamEl);
         (thoughtPanel ?? {}).scrollTop = thoughtPanel?.scrollHeight;
-        const res = await bestEffortFetch(GEMMA_URL, {
+        const res = await bestEffortResponse(GEMMA_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -751,8 +759,31 @@
           prompt: enhancedPrompt
         }, "GemmaMax");
       };
+      // ─── Bot dispatch ─────────────────────────────────────────────────────────────
+      // greedy/minimax work straight off the board; the LLM bots need the
+      // rendered boardState (prompt text etc.), built lazily so greedy/minimax
+      // don't pay for it. One table instead of the same if/else chain
+      // duplicated in scheduleBotMove and getSuggestion.
+      const BOT_MOVERS = {
+        greedy: (board, current) => greedyMove(board, current),
+        minimax: (board, current) => minimaxMove(board, current),
+        llava: (board, current, lastMove, moveHistory) =>
+          llavaMove(getBoardState(board, current, lastMove, moveHistory)),
+        gemma: (board, current, lastMove, moveHistory) =>
+          gemmaMove(getBoardState(board, current, lastMove, moveHistory)),
+        gemmamax: (board, current, lastMove, moveHistory) =>
+          gemmaMaxMove(getBoardState(board, current, lastMove, moveHistory)),
+      };
+      async function computeBotMove(type, board, current, lastMove, moveHistory) {
+        const mover = BOT_MOVERS[type];
+        return mover ? await mover(board, current, lastMove, moveHistory) : undefined;
+      }
+
       // ─── Game State ───────────────────────────────────────────────────────────────
-      let state = {
+      // Single source for the state shape — restoreSnapshot() and reset() both
+      // spread this rather than repeating the literal, so a new field only
+      // needs to be added here.
+      const createInitialState = () => ({
         board: emptyBoard(),
         current: RED,
         winner: null,
@@ -766,7 +797,8 @@
         suggestedCol: null,
         gameId: null,
         dbMovesSaved: 0,
-      };
+      });
+      let state = createInitialState();
 
       function snapshotState() {
         return {
@@ -790,23 +822,12 @@
 
       function restoreSnapshot(snapshot) {
         if (!snapshot?.state) return false;
-        document.getElementById("red-select").value = snapshot?.players?.red || "human";
-        document.getElementById("yellow-select").value = snapshot?.players?.yellow || "gemma";
-        document.getElementById("suggest-select").value = snapshot?.players?.suggest || "minimax";
+        const { red = "human", yellow = "gemma", suggest = "minimax" } = snapshot.players ?? {};
+        document.getElementById("red-select").value = red;
+        document.getElementById("yellow-select").value = yellow;
+        document.getElementById("suggest-select").value = suggest;
         state = {
-          board: emptyBoard(),
-          current: RED,
-          winner: null,
-          winCells: [],
-          lastMove: null,
-          moveHistory: [],
-          thinking: false,
-          hoverCol: null,
-          started: false,
-          suggesting: false,
-          suggestedCol: null,
-          gameId: null,
-          dbMovesSaved: 0,
+          ...createInitialState(),
           ...snapshot.state,
           thinking: false,
           suggesting: false,
@@ -931,8 +952,6 @@
         // Board
         const boardEl = document.getElementById("board");
         boardEl.innerHTML = "";
-        const CELL_SIZE = 60;
-        const BOARD_PADDING = 8;
         for (let row = 0; row < ROWS; row++) {
           const rowEl = document.createElement("div");
           rowEl.className = "board-row";
@@ -949,7 +968,7 @@
             // Fall animation
             if (fallingCell?.col === col && fallingCell?.row === row && cellValue !== EMPTY) {
               discClass += " falling";
-              const landingOffsetPx = row * CELL_SIZE + BOARD_PADDING;
+              const landingOffsetPx = row * CELL_SIZE_PX + BOARD_PADDING_PX;
               const fallFromPx = -(landingOffsetPx + 40);
               const durationMs = 120 + row * 28;
               disc.style.setProperty("--fall-from", `${fallFromPx}px`);
@@ -1100,18 +1119,7 @@
           } = state;
           let col;
           try {
-            if (type === "greedy") col = greedyMove(board, current);
-            else if (type === "minimax") col = minimaxMove(board, current);
-            else if (type === "llava") {
-              const s = getBoardState(board, current, lastMove, moveHistory);
-              col = await llavaMove(s);
-            } else if (type === "gemma") {
-              const s = getBoardState(board, current, lastMove, moveHistory);
-              col = await gemmaMove(s);
-            } else if (type === "gemmamax") {
-              const s = getBoardState(board, current, lastMove, moveHistory);
-              col = await gemmaMaxMove(s);
-            }
+            col = await computeBotMove(type, board, current, lastMove, moveHistory);
             state.thinking = false;
             applyMove(col);
             if (!state.winner) scheduleBotMove();
@@ -1129,21 +1137,7 @@
         fallingCell = null;
         gemmaMessages = [];
         document.getElementById("thought-panel").textContent = "";
-        state = {
-          board: emptyBoard(),
-          current: RED,
-          winner: null,
-          winCells: [],
-          lastMove: null,
-          moveHistory: [],
-          thinking: false,
-          hoverCol: null,
-          started: false,
-          suggesting: false,
-          suggestedCol: null,
-          gameId: null,
-          dbMovesSaved: 0,
-        };
+        state = createInitialState();
         if (!auth.user) delete localMap[LOCAL_GAME_KEY];
         render();
         persistGame();
@@ -1169,19 +1163,7 @@
           moveHistory
         } = state;
         try {
-          let col;
-          if (type === "greedy") col = greedyMove(board, current);
-          else if (type === "minimax") col = minimaxMove(board, current);
-          else if (type === "llava") {
-            const boardState = getBoardState(board, current, lastMove, moveHistory);
-            col = await llavaMove(boardState);
-          } else if (type === "gemma") {
-            const boardState = getBoardState(board, current, lastMove, moveHistory);
-            col = await gemmaMove(boardState);
-          } else if (type === "gemmamax") {
-            const boardState = getBoardState(board, current, lastMove, moveHistory);
-            col = await gemmaMaxMove(boardState);
-          }
+          const col = await computeBotMove(type, board, current, lastMove, moveHistory);
           // Only apply if still human's turn (they haven't moved yet)
           if (getPlayerType(state.current) === "human" && !state.winner) {
             state.suggesting = false;
@@ -1205,8 +1187,8 @@
         if (getPlayerType(state.current) !== "human") return;
         const boardEl = document.getElementById("board");
         const rect = boardEl.getBoundingClientRect();
-        const offsetX = evt.clientX - rect.left - 8;
-        const col = Math.floor(offsetX / 60);
+        const offsetX = evt.clientX - rect.left - BOARD_PADDING_PX;
+        const col = Math.floor(offsetX / CELL_SIZE_PX);
         if (col < 0 || col >= COLS) return;
         if (!validMoves(state.board).includes(col)) return;
         applyMove(col);
@@ -1215,8 +1197,8 @@
       document.getElementById("board").addEventListener("mousemove", (evt) => {
         const boardEl = document.getElementById("board");
         const rect = boardEl.getBoundingClientRect();
-        const offsetX = evt.clientX - rect.left - 8;
-        const col = Math.floor(offsetX / 60);
+        const offsetX = evt.clientX - rect.left - BOARD_PADDING_PX;
+        const col = Math.floor(offsetX / CELL_SIZE_PX);
         const newHover = col >= 0 && col < COLS ? col : null;
         if (newHover !== state.hoverCol) {
           state.hoverCol = newHover;
@@ -1250,7 +1232,7 @@
         if (!state.started || state.winner || state.thinking) return;
         if (getPlayerType(state.current) !== "human") return;
         evt.preventDefault(); // stops scroll AND synthetic click
-        const wid = document.querySelector('.col-label')?.clientWidth || 60;
+        const wid = document.querySelector('.col-label')?.clientWidth || CELL_SIZE_PX;
         const touch = evt.touches[0];
         const boardEl = document.getElementById("board");
         const rect = boardEl.getBoundingClientRect();
@@ -1263,23 +1245,23 @@
       }, {
         passive: false
       }); // passive:false required for preventDefault to work
-      function bindSelectToSession(select) {
-        let key = select.id || select.name || select.getAttribute('id');
-        if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
-        const stored = sessionStorage.getItem(key);
+      // Bind a <select> to any storage backend exposing get/setItem — works for
+      // both sync (sessionStorage) and async (tempStorage) since `await` on a
+      // non-promise value just resolves immediately.
+      async function bindSelectToStorage(select, storage) {
+        const key = select.id || select.name || select.getAttribute('id');
+        if (!key) throw new Error('bindSelectToStorage: need key or select must have id/name');
+        const stored = await storage.getItem(key);
         if (stored != null) select.value = stored;
-        select.addEventListener('change', () => sessionStorage.setItem(key, select.value));
+        select.addEventListener('change', () => storage.setItem(key, select.value));
       }
-      document.querySelectorAll('select').forEach(bindSelectToSession);
+      for (const select of document.querySelectorAll('select')) {
+        bindSelectToStorage(select, sessionStorage);
+      }
       (async () => {
-        async function bindSelectToTemp(select) {
-          let key = select.id || select.name || select.getAttribute('id');
-          if (!key) throw new Error('bindSelectToSession: need key or select must have id/name');
-          const stored = await tempStorage.getItem(key);
-          if (stored != null) select.value = stored;
-          select.addEventListener('change', () => tempStorage.setItem(key, select.value));
+        for (const select of document.querySelectorAll('select')) {
+          bindSelectToStorage(select, tempStorage);
         }
-        document.querySelectorAll('select').forEach(bindSelectToTemp);
       })();
     })();
 
