@@ -822,7 +822,9 @@
 
       function restoreSnapshot(snapshot) {
         if (!snapshot?.state) return false;
-        const { red = "human", yellow = "gemma", suggest = "minimax" } = snapshot.players ?? {};
+        const {
+          red = "human", yellow = "gemma", suggest = "minimax"
+        } = snapshot.players ?? {};
         document.getElementById("red-select").value = red;
         document.getElementById("yellow-select").value = yellow;
         document.getElementById("suggest-select").value = suggest;
